@@ -8,12 +8,10 @@
           <img src="@/assets/ponghino.png" class="h-10" alt="logo" />
         </div>
       </RouterLink>
-      <RouterLink :to="{ name: 'login' }">
-        <div class="flex gap-3 flex-1 justify-end">
-          <i
-            class="fa-solid fa-right-to-bracket text-xl text-yellow-400 hover:text-red-500 duration-150 cursor-pointer"
-          ></i>
-        </div>
+      <RouterLink :to="{ name: 'login' }" class="flex gap-3 flex-1 justify-end">
+        <i
+          class="fa-solid fa-right-to-bracket text-xl text-yellow-400 hover:text-red-500 duration-150 cursor-pointer"
+        ></i>
       </RouterLink>
     </nav>
   </header>
