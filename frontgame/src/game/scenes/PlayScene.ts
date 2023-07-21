@@ -16,6 +16,7 @@ export default class PlayScene extends Scene {
   private scoreText1!: Phaser.GameObjects.Text;
   private scoreText2!: Phaser.GameObjects.Text;
   private scoreSound!: Phaser.Sound.BaseSound;
+  private ballSound!: Phaser.Sound.BaseSound;
 
 //   private circleRectCollision(ball: Phaser.GameObjects.Arc, paddle: Phaser.GameObjects.Rectangle) {
 //     var distX = Math.abs(ball.x - paddle.x - paddle.width / 2);
@@ -62,6 +63,10 @@ export default class PlayScene extends Scene {
     this.scoreSound = this.sound.add('thud')
     
     this.sound.add('thud')
+    this.sound.add('pong')
+    this.ballSound = this.sound.add('pong')
+
+        
     this.emitter = this.add.particles(this.ball.x, this.ball.y, 'flares', {
       // frame: { frames: [ 'red', 'green', 'blue', 'white', 'yellow' ], cycle: true },
       blendMode: 'ADD',
@@ -97,6 +102,7 @@ export default class PlayScene extends Scene {
   // }
     // You can use the class properties here
     this.emitter.setPosition(this.ball.x, this.ball.y)
+    
     if (this.cursors.up!.isDown && this.paddle1.y > 50) {
       this.paddle1.y -= 10
     }
@@ -109,19 +115,24 @@ export default class PlayScene extends Scene {
     else if (this.paddle2.y > this.ball.y) {
       this.paddle2.y -= 5
     }
-
+    
     this.ball.x +=  this.ballVelocity.x * 2/3
     this.ball.y += this.ballVelocity.y  * 2/3
-
-
+    
+    
     if (Phaser.Geom.Intersects.RectangleToRectangle(this.ball.getBounds(), this.paddle1.getBounds())) {
       this.ballVelocity.x = Math.abs(this.ballVelocity.x);
       this.ball.x = this.paddle1.x + this.paddle1.width/2 + this.ball.width/2; // Equivalent to ball.left = paddleLeft.right
-  }
-  if (Phaser.Geom.Intersects.RectangleToRectangle(this.ball.getBounds(), this.paddle2.getBounds())) {
+      this.ballSound.play()
+      this.emitter.explode(10)
+    }
+    if (Phaser.Geom.Intersects.RectangleToRectangle(this.ball.getBounds(), this.paddle2.getBounds())) {
       this.ballVelocity.x = -Math.abs(this.ballVelocity.x);
       this.ball.x = this.paddle2.x - this.paddle2.width/2 - this.ball.width/2; // Equivalent to ball.right = paddleRight.left
-  }
+      this.ballSound.play()
+      this.emitter.explode(10)
+
+    }
   
     // if (Phaser.Geom.Intersects.RectangleToRectangle(this.ball.getBounds(), this.paddle1.getBounds()))
     // {
