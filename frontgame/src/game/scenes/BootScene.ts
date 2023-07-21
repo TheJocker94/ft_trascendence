@@ -12,6 +12,7 @@ export default class BootScene extends Scene {
   preload () {
     this.load.image('sky', sky)
     this.load.image('bomb', bomb)
+    this.load.atlas('flares', 'https://labs.phaser.io/assets/particles/flares.png', 'https://labs.phaser.io/assets/particles/flares.json')
     this.load.image('paddle', 'https://content.codecademy.com/courses/learn-phaser/Codey%20Tundra/codey.png')
     this.load.audio('thud', [thudMp3, thudOgg])
 
