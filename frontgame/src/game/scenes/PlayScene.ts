@@ -1,5 +1,27 @@
 import { Scene } from 'phaser';
 const SPEED = 300;
+// dopo una certa velocità la palla non rimbalza più e passa attraverso il muro
+// idea: creare una animazione che rompe il muro quando la palla lo colpisce
+
+// idee powerup:
+// - palla che rallenta
+// - palla che accelera
+// - palla che si divide in due
+// - palla che si allunga
+// - palla che si rimpicciolisce
+// - palla che si ferma
+// - palla che si teletrasporta
+// - palla che si muove in modo casuale
+// - palla che si muove in modo casuale ma non oltre una certa distanza
+// - palla che si muove in modo casuale ma non oltre una certa distanza e non oltre una certa velocità
+// - muro che si allunga
+// - muro che si rimpicciolisce
+
+// idee modalità:
+// modalita senza potenziamenti
+// modalità con potenziamenti
+
+
 export default class PlayScene extends Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private enemy!: Phaser.Physics.Arcade.Sprite;
@@ -11,7 +33,15 @@ export default class PlayScene extends Scene {
   private scoreText1!: Phaser.GameObjects.Text;
   private scoreText2!: Phaser.GameObjects.Text;
   private ballSound!: Phaser.Sound.BaseSound;
+  private cheer1!: Phaser.Sound.BaseSound;
+  private cheer2!: Phaser.Sound.BaseSound;
+  private cheer3!: Phaser.Sound.BaseSound;
+  private cheer4!: Phaser.Sound.BaseSound;
+  private boo1!: Phaser.Sound.BaseSound;
+  private boo2!: Phaser.Sound.BaseSound;
+  private soundtrack!: Phaser.Sound.BaseSound;
   private emitter!: Phaser.GameObjects.Particles.ParticleEmitter;
+
   constructor () {
     super({ key: 'PlayScene' })
   }
@@ -62,6 +92,22 @@ export default class PlayScene extends Scene {
     this.scoreText2 = this.add.text(this.scale.width -50, 16, '0', { fontSize: '32px'})
     // audio
     this.ballSound = this.sound.add('pong');
+    this.cheer1 = this.sound.add('cheer1');
+    this.cheer1.addMarker({
+      name: "duration",
+      start: 0,
+      duration: 4,
+    });
+    this.cheer2 = this.sound.add('cheer2');
+    this.cheer3 = this.sound.add('cheer3');
+    this.cheer4 = this.sound.add('cheer4');
+    this.boo1 = this.sound.add('boo1');
+    this.boo2 = this.sound.add('boo2');
+    this.soundtrack = this.sound.add('soundtrack', {
+      loop: true, // Imposta loop su true per far ripartire in loop
+      volume: 0.5, // Adjust the volume as needed (0.0 to 1.0)
+    });
+    this.soundtrack.play();
     // emitter
     this.emitter = this.add.particles(this.ball.x, this.ball.y, 'flares', {
       // frame: { frames: [ 'red', 'green', 'blue', 'white', 'yellow' ], cycle: true },
@@ -130,16 +176,64 @@ export default class PlayScene extends Scene {
   }
 
   ballLost() {
+    if (this.ball.x >= this.scale.width)
+      this.randomCheer();
+    else
+      this.randomBoo();
     this.ball.setPosition(this.scale.width / 2, this.scale.height / 2);
     this.ball.setVelocity(-200, 0);
   }
 
+  stopSound() {
+    this.cheer1.stop();
+    this.cheer2.stop();
+    this.cheer3.stop();
+    this.cheer4.stop();
+    this.boo1.stop();
+    this.boo2.stop();
+  }
+
   endGame() {
     if (this.score1 === 5 || this.score2 === 5) {
+      this.stopSound();
       const winner = this.score1 === 5 ? 'Player 1' : 'Player 2';
       this.scene.start('EndScene', { score1: this.score1, score2: this.score2, winner: winner });
     }
   }
+
+  randomBoo() {
+    const randomSound = Phaser.Math.Between(1, 2);
+    this.stopSound();
+
+    switch (randomSound) {
+      case 1:
+        this.boo1.play();
+        break;
+      case 2:
+        this.boo2.play();
+        break;
+    }
+  }
+
+  randomCheer() {
+    const randomSound = Phaser.Math.Between(1, 4);
+    this.stopSound();
+
+    switch (randomSound) {
+      case 1:
+        this.cheer1.play("duration");
+        break;
+      case 2:
+        this.cheer2.play();
+        break;
+      case 3:
+        this.cheer3.play();
+        break;
+      case 4:
+        this.cheer4.play();
+        break;
+    }
 }
 
+}
 
