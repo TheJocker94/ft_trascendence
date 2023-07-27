@@ -324,6 +324,8 @@ export default class PowerupScene extends Scene {
   endGame() {
     if (this.score1 === 5 || this.score2 === 5) {
       this.stopSound();
+      SPEEDE = 300;
+      SPEEDP = 300;
       const winner = this.score1 === 5 ? 'Player 1' : 'Player 2';
       this.scene.start('EndScene', { score1: this.score1, score2: this.score2, winner: winner });
     }
