@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
-const SPEED = 300;
+let SPEEDP = 300;
+let SPEEDE = 300;
 
 //TODO: make the hitter paddel longer
 //TODO: make the enemy paddel shorter
@@ -207,18 +208,18 @@ export default class PowerupScene extends Scene {
 
   movePlayer() {
     if (this.wasd.up.isDown)
-      this.player.setVelocityY(-SPEED);
+      this.player.setVelocityY(-SPEEDP);
     else if (this.wasd.down.isDown)
-      this.player.setVelocityY(SPEED);
+      this.player.setVelocityY(SPEEDP);
     else
       this.player.setVelocityY(0);
   }
 
   moveEnemy() {
     if (this.cursor.up.isDown)
-      this.enemy.setVelocityY(-SPEED);
+      this.enemy.setVelocityY(-SPEEDE);
     else if (this.cursor.down.isDown)
-      this.enemy.setVelocityY(SPEED);
+      this.enemy.setVelocityY(SPEEDE);
     else
       this.enemy.setVelocityY(0);
   }
@@ -236,22 +237,14 @@ export default class PowerupScene extends Scene {
 			console.log("the enemy hit me bitch");
 			this.powerup = true;
 			this.ballpower.setPosition(0, this.scale.height + 10);
-			this.enemy.setScale(0.55, 0.50);
-			this.time.delayedCall(10000, () => {
-				this.enemy.setScale(0.55, 0.25);
-				this.powerup = false;
-			});
+			this.powerUpEnemy();
 		}
 		else if (this.ball.getData('onpowerplayer'))
 		{
 			console.log("the player hit me bitch");
 			this.powerup = true;
 			this.ballpower.setPosition(0, this.scale.height + 10);
-			this.player.setScale(0.55, 0.50);
-			this.time.delayedCall(10000, () => {
-				this.player.setScale(0.55, 0.25);
-				this.powerup = false;
-			});
+			this.powerUpPlayer();
 		}
 	});
 
@@ -264,6 +257,58 @@ export default class PowerupScene extends Scene {
 	// 	console.log("left player bitch");
 	// }
 }
+
+	powerUpEnemy()
+	{
+		SPEEDE = 600;
+		// const randomPowerup = Phaser.Math.Between(1, 3);
+
+		// switch (randomPowerup) {
+		//   case 1:
+		// 	this.enemy.setScale(0.55, 0.50);
+		// 	this.time.delayedCall(10000, () => {
+		// 		this.enemy.setScale(0.55, 0.25);
+		// 		this.powerup = false;
+		// 	});
+		// 	break;
+		//   case 2:
+		// 	this.player.setScale(0.55, 0.15);
+		// 	this.time.delayedCall(10000, () => {
+		// 		this.player.setScale(0.55, 0.25);
+		// 		this.powerup = false;
+		// 	});
+		// 	break;
+		// 	case 3:
+		// 		SPEEDE = 600;
+		// 		break;
+		// }
+	}
+
+	powerUpPlayer()
+	{
+		SPEEDP = 600;
+		// const randomPowerup = Phaser.Math.Between(1, 3);
+		
+		// switch (randomPowerup) {
+		//   case 1:
+		// 	this.player.setScale(0.55, 0.50);
+		// 	this.time.delayedCall(10000, () => {
+		// 		this.player.setScale(0.55, 0.25);
+		// 		this.powerup = false;
+		// 	});
+		// 	break;
+		//   case 2:
+		// 	this.enemy.setScale(0.55, 0.15);
+		// 	this.time.delayedCall(10000, () => {
+		// 		this.enemy.setScale(0.55, 0.25);
+		// 		this.powerup = false;
+		// 	});
+		// 	break;
+		// 	case 3:
+		// 		SPEEDP = 600;
+		// 		break;
+		// }
+	}
 
   ballLost() {
     if (this.ball.x >= this.scale.width)
@@ -312,6 +357,26 @@ export default class PowerupScene extends Scene {
     this.stopSound();
 
     switch (randomSound) {
+      case 1:
+        this.cheer1.play("duration");
+        break;
+      case 2:
+        this.cheer2.play();
+        break;
+      case 3:
+        this.cheer3.play();
+        break;
+      case 4:
+        this.cheer4.play();
+        break;
+    }
+
+}
+
+randomPowerUp() {
+    const randomPowerup = Phaser.Math.Between(1, 2);
+
+    switch (randomPowerup) {
       case 1:
         this.cheer1.play("duration");
         break;
