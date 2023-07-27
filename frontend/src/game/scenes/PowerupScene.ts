@@ -247,67 +247,64 @@ export default class PowerupScene extends Scene {
 			this.powerUpPlayer();
 		}
 	});
-
-	// if (this.ball.getData('onpowerenemy'))
-	// {
-	// 	console.log(" right enemy bitch");
-	// }
-	// if (this.ball.getData('onpowerplayer'))
-	// {
-	// 	console.log("left player bitch");
-	// }
 }
 
 	powerUpEnemy()
 	{
-		SPEEDE = 600;
-		// const randomPowerup = Phaser.Math.Between(1, 3);
+		const randomPowerup = Phaser.Math.Between(1, 3);
 
-		// switch (randomPowerup) {
-		//   case 1:
-		// 	this.enemy.setScale(0.55, 0.50);
-		// 	this.time.delayedCall(10000, () => {
-		// 		this.enemy.setScale(0.55, 0.25);
-		// 		this.powerup = false;
-		// 	});
-		// 	break;
-		//   case 2:
-		// 	this.player.setScale(0.55, 0.15);
-		// 	this.time.delayedCall(10000, () => {
-		// 		this.player.setScale(0.55, 0.25);
-		// 		this.powerup = false;
-		// 	});
-		// 	break;
-		// 	case 3:
-		// 		SPEEDE = 600;
-		// 		break;
-		// }
+		switch (randomPowerup) {
+      case 1:
+			this.enemy.setScale(0.55, 0.50);
+			this.time.delayedCall(10000, () => {
+				this.enemy.setScale(0.55, 0.25);
+				this.powerup = false;
+			});
+			break;
+      case 2:
+			this.player.setScale(0.55, 0.15);
+			this.time.delayedCall(10000, () => {
+				this.player.setScale(0.55, 0.25);
+				this.powerup = false;
+			});
+			break;
+      case 3:
+				SPEEDE = 600;
+        this.time.delayedCall(10000, () => {
+          SPEEDE = 300;
+          this.powerup = false;
+        });
+				break;
+		}
 	}
 
 	powerUpPlayer()
 	{
-		SPEEDP = 600;
-		// const randomPowerup = Phaser.Math.Between(1, 3);
+		const randomPowerup = Phaser.Math.Between(1, 3);
 		
-		// switch (randomPowerup) {
-		//   case 1:
-		// 	this.player.setScale(0.55, 0.50);
-		// 	this.time.delayedCall(10000, () => {
-		// 		this.player.setScale(0.55, 0.25);
-		// 		this.powerup = false;
-		// 	});
-		// 	break;
-		//   case 2:
-		// 	this.enemy.setScale(0.55, 0.15);
-		// 	this.time.delayedCall(10000, () => {
-		// 		this.enemy.setScale(0.55, 0.25);
-		// 		this.powerup = false;
-		// 	});
-		// 	break;
-		// 	case 3:
-		// 		SPEEDP = 600;
-		// 		break;
-		// }
+		switch (randomPowerup) {
+      case 1:
+			this.player.setScale(0.55, 0.50);
+			this.time.delayedCall(10000, () => {
+				this.player.setScale(0.55, 0.25);
+				this.powerup = false;
+			});
+			break;
+      case 2:
+			this.enemy.setScale(0.55, 0.15);
+			this.time.delayedCall(10000, () => {
+				this.enemy.setScale(0.55, 0.25);
+				this.powerup = false;
+			});
+			break;
+			case 3:
+				SPEEDP = 600;
+        this.time.delayedCall(10000, () => {
+          SPEEDP = 300;
+          this.powerup = false;
+        });
+				break;
+		}
 	}
 
   ballLost() {
