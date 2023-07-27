@@ -16,7 +16,7 @@ export default class EndScene extends Scene {
         if (this.input.keyboard)
         {
         this.input.keyboard!.once('keydown-SPACE', () => {
-        this.scene.start('PlayScene')
+        this.scene.start('ChooseScene')
         })
         }
     }

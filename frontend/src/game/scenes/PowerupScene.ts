@@ -1,31 +1,22 @@
 import { Scene } from 'phaser';
 const SPEED = 300;
-// dopo una certa velocità la palla non rimbalza più e passa attraverso il muro //*FIXED*
-// idea: creare una animazione che rompe il muro quando la palla lo colpisce
 
-// idee powerup:
-// - palla che rallenta
-// - palla che accelera
-// - palla che si divide in due
-// - palla che si allunga
-// - palla che si rimpicciolisce
-// - palla che si ferma
-// - palla che si teletrasporta
-// - palla che si muove in modo casuale
-// - palla che si muove in modo casuale ma non oltre una certa distanza
-// - palla che si muove in modo casuale ma non oltre una certa distanza e non oltre una certa velocità
-// - muro che si allunga
-// - muro che si rimpicciolisce
+//TODO: make the hitter paddel longer
+//TODO: make the enemy paddel shorter
+//TODO: make the ball velocity to the maximum (900)
+//TODO: generate other n balls
 
-// idee modalità:
-// modalita senza potenziamenti
-// modalità con potenziamenti
+//* -------------------------------------------------------------------------- */
 
+//* when the ballpower gets out of bound => 2 sec
+//* a ballpower effect
+//? when the ball hit the ballpower => random powerup
 
-export default class PlayScene extends Scene {
+export default class PowerupScene extends Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private enemy!: Phaser.Physics.Arcade.Sprite;
   private ball!: Phaser.Physics.Arcade.Sprite;
+  private ballpower!: Phaser.Physics.Arcade.Sprite;
   private cursor!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { up: Phaser.Input.Keyboard.Key; down: Phaser.Input.Keyboard.Key };
   private score1!: number;
@@ -41,10 +32,12 @@ export default class PlayScene extends Scene {
   private boo2!: Phaser.Sound.BaseSound;
   private soundtrack!: Phaser.Sound.BaseSound;
   private emitter!: Phaser.GameObjects.Particles.ParticleEmitter;
+  private emitterpowerup!: Phaser.GameObjects.Particles.ParticleEmitter;
   private shape1!: Phaser.Geom.Circle;
-
+  private powerup!: boolean;
+ 
   constructor () {
-    super({ key: 'PlayScene' })
+    super({ key: 'PowerupScene' })
 	this.shape1 = new Phaser.Geom.Circle(0, 0, 0);
 	// this.shape1 = new Phaser.Geom.Circle(this.scale.width / 2, this.scale.height / 2, 160);
   }
@@ -52,6 +45,7 @@ export default class PlayScene extends Scene {
   init () {
     this.score1 = 0;
     this.score2 = 0;
+	this.powerup = false;
   }
   
   create () {
@@ -112,8 +106,18 @@ export default class PlayScene extends Scene {
     this.ball.setVelocity(-200, 0);
     this.ball.setData('onPaddlePlayer', false);
     this.ball.setData('onPaddleEnemy', false);
-    this.ball.setBounce(1);
+	
+	this.ball.setData('onpowerplayer', false);
+    this.ball.setData('onpowerenemy', false);
+    
+	this.ball.setBounce(1);
     this.ball.setCollideWorldBounds(true);
+
+	// Load ballpower
+	this.ballpower = this.physics.add.sprite(this.scale.width / 2, this.scale.height / 2, 'ball');
+	this.ballpower.setScale(2, 2);
+	this.ballpower.setVelocity(0, 50);
+	// this.ballpower.setBounce(0);
 
     // Score text
     this.scoreText1 = this.add.text(16, 16, '0', { fontSize: '32px'})
@@ -135,7 +139,7 @@ export default class PlayScene extends Scene {
       loop: true, // Imposta loop su true per far ripartire in loop
       volume: 0.5, // Adjust the volume as needed (0.0 to 1.0)
     });
-    this.soundtrack.play();
+    /*this.soundtrack.play();*/
     // emitter
     this.emitter = this.add.particles(this.ball.x, this.ball.y, 'flares', {
       frame: { frames: [ 'red', 'green', 'blue', 'white', 'yellow' ], cycle: true },
@@ -146,24 +150,38 @@ export default class PlayScene extends Scene {
       frequency: 100, // Frequenza di emissione delle particelle (in millisecondi)
       // follow: this.ball // Seguire l'oggetto della palla
   });
+
+  this.emitterpowerup = this.add.particles(this.ballpower.x, this.ballpower.y, 'flares', {
+	frame: { frames: [ 'red' ] },
+	blendMode: 'ADD',
+	angle: { min: 0, max: 360},
+	scale: { start: 0.5, end: 0 },
+	lifespan: 300, // Durata di vita delle particelle (in millisecondi)
+	frequency: 100, // Frequenza di emissione delle particelle (in millisecondi)
+	// follow: this.ballpower // Seguire l'oggetto della palla
+});
+  
   }
   
   update () {
-	console.log(this.ball.body!.velocity.x);
+	// console.log(this.ball.body!.velocity.x);
 	if (this.ball.body!.velocity.x > 900 || this.ball.body!.velocity.x < -900) {
-		console.log("am i here bitch");
+		// console.log("am i here bitch");
 		if (this.ball.body!.velocity.x > 0)
-		this.ball.body!.velocity.x = 900;
+			this.ball.body!.velocity.x = 900;
 		else
-		this.ball.body!.velocity.x = -900;
+			this.ball.body!.velocity.x = -900;
 		// this.ball.setVelocityX(-1000);
 	}
     this.movePlayer();
     this.moveEnemy();
     this.ballCollision();
     this.endGame();
+	this.powerupreposition();
     this.emitter.setPosition(this.ball.x, this.ball.y);
     this.emitter.addEmitZone({ type: 'edge', source: this.shape1, quantity: 64, total: 1 });
+	this.emitterpowerup.setPosition(this.ballpower.x, this.ballpower.y);
+    this.emitterpowerup.addEmitZone({ type: 'edge', source: this.shape1, quantity: 64, total: 1 });
     if (this.ball.getData('onPaddlePlayer')) {
       this.ball.setVelocityY((Math.random() * 50) + this.player.body!.velocity.y);
       this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
@@ -184,6 +202,7 @@ export default class PlayScene extends Scene {
       }
       this.ballLost();
     }
+
   }
 
   movePlayer() {
@@ -207,16 +226,52 @@ export default class PlayScene extends Scene {
   ballCollision() {
     this.ball.setData('onPaddlePlayer', false);
     this.ball.setData('onPaddleEnemy', false);
-  this.physics.world.collide(this.player, this.ball, () => { this.ball.setData('onPaddlePlayer', true); this.ballSound.play()/*; this.emitter.explode(10)*/});
-    this.physics.world.collide(this.enemy, this.ball, () => { this.ball.setData('onPaddleEnemy', true); this.ballSound.play()/*; this.emitter.explode(10)*/});
-    
-  }
+  this.physics.world.collide(this.player, this.ball, () => { this.ball.setData('onPaddlePlayer', true); /*this.ballSound.play();*/ this.ball.setData('onpowerenemy', false); this.ball.setData('onpowerplayer', true)});
+    this.physics.world.collide(this.enemy, this.ball, () => { this.ball.setData('onPaddleEnemy', true); /*this.ballSound.play();*/ this.ball.setData('onpowerplayer', false); this.ball.setData('onpowerenemy', true)});
+
+	this.physics.world.overlap(this.ball, this.ballpower, () => {
+		console.log("am inside man");
+		if (this.ball.getData('onpowerenemy'))
+		{
+			console.log("the enemy hit me bitch");
+			this.powerup = true;
+			this.ballpower.setPosition(0, this.scale.height + 10);
+			this.enemy.setScale(0.55, 0.50);
+			this.time.delayedCall(10000, () => {
+				this.enemy.setScale(0.55, 0.25);
+				this.powerup = false;
+			});
+		}
+		else if (this.ball.getData('onpowerplayer'))
+		{
+			console.log("the player hit me bitch");
+			this.powerup = true;
+			this.ballpower.setPosition(0, this.scale.height + 10);
+			this.player.setScale(0.55, 0.50);
+			this.time.delayedCall(10000, () => {
+				this.player.setScale(0.55, 0.25);
+				this.powerup = false;
+			});
+		}
+	});
+
+	// if (this.ball.getData('onpowerenemy'))
+	// {
+	// 	console.log(" right enemy bitch");
+	// }
+	// if (this.ball.getData('onpowerplayer'))
+	// {
+	// 	console.log("left player bitch");
+	// }
+}
 
   ballLost() {
     if (this.ball.x >= this.scale.width)
       this.randomCheer();
     else
       this.randomBoo();
+	this.ball.setData('onpowerenemy', false);
+	this.ball.setData('onpowerplayer', false);
     this.ball.setPosition(this.scale.width / 2, this.scale.height / 2);
     this.ball.setVelocity(-200, 0);
   }
@@ -270,7 +325,20 @@ export default class PlayScene extends Scene {
         this.cheer4.play();
         break;
     }
+
 }
+	powerupreposition() 
+	{
+		if ((this.ballpower.y > this.scale.height || this.ballpower.y < -21) && this.powerup == false)
+		{
+			console.log('Setting delayed call');
+			this.time.delayedCall(3000, () => {
+				console.log('Inside delayed call');
+				this.ballpower.setPosition(this.scale.width / 2, -20);
+				this.ballpower.setVelocity(0, 50);
+			});
+		}
+	}
 
 }
 

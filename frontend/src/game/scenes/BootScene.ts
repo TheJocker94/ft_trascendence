@@ -13,6 +13,8 @@ import cheer4 from '@/game/assets/4-clap.mp3'
 import soundtrack from '@/game/assets/AntSurvila_-_RUN.mp3'
 import boo1  from '@/game/assets/1boo.mp3'
 import boo2  from '@/game/assets/2boo.mp3'
+import lefthand from '@/game/assets/lefthand.png'
+import righthand from '@/game/assets/righthand.png'
 
 export default class BootScene extends Scene {
   constructor () {
@@ -36,9 +38,13 @@ export default class BootScene extends Scene {
     this.load.audio('boo1', boo1);
     this.load.audio('boo2', boo2);
     this.load.audio('soundtrack', soundtrack);
+	this.load.image('lefthand', lefthand);
+	this.load.image('righthand', righthand);
+
   }
 
   create () {
-    this.scene.start('PlayScene')
+    // this.scene.start('PlayScene')
+	this.scene.start('ChooseScene')
   }
 }

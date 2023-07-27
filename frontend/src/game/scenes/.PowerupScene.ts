@@ -26,6 +26,7 @@ export default class PlayScene extends Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private enemy!: Phaser.Physics.Arcade.Sprite;
   private ball!: Phaser.Physics.Arcade.Sprite;
+  private ballpower!: Phaser.Physics.Arcade.Sprite;
   private cursor!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { up: Phaser.Input.Keyboard.Key; down: Phaser.Input.Keyboard.Key };
   private score1!: number;
@@ -114,6 +115,14 @@ export default class PlayScene extends Scene {
     this.ball.setData('onPaddleEnemy', false);
     this.ball.setBounce(1);
     this.ball.setCollideWorldBounds(true);
+
+	// Load ballpower
+	this.ballpower = this.physics.add.sprite(this.scale.width / 2, this.scale.height / 2, 'ballpower');
+	this.ballpower.setVelocity(-200, 0);
+	this.ballpower.setData('onPaddlePlayer', false);
+	this.ballpower.setData('onPaddleEnemy', false);
+	this.ballpower.setBounce(1);
+	this.ballpower.setCollideWorldBounds(true);
 
     // Score text
     this.scoreText1 = this.add.text(16, 16, '0', { fontSize: '32px'})
