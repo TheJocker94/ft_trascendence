@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 let SPEEDP = 300;
 let SPEEDE = 300;
+let power = 1;
 
 //TODO: make the hitter paddel longer
 //TODO: make the enemy paddel shorter
@@ -50,23 +51,7 @@ export default class PowerupScene extends Scene {
   }
   
   create () {
-	// const background = this.add.image(0, 0, 'sky');
-	// background.setOrigin(0, 0);
-	// background.displayWidth = this.scale.width;
-	// background.displayHeight = this.scale.height;
-  
-	// this.scale.on('resize', (gameSize: Phaser.Structs.Size) => {
-	//   background.displayWidth = gameSize.width;
-	//   background.displayHeight = gameSize.height;
-  
-	//   // Ensure other necessary elements are resized or repositioned here.
-	//   // Examples:
-	//   this.player.setPosition(30, gameSize.height / 2);
-	//   this.enemy.setPosition(gameSize.width - 30, gameSize.height / 2);
-	//   this.ball.setPosition(gameSize.width / 2, gameSize.height / 2);
-	//   this.scoreText2.setPosition(gameSize.width - 50, 16);
-	// });
-    //! this.add.image(this.scale.width / 2, this.scale.height / 2, 'sky').setOrigin(0);
+    // Background
 	const background = this.add.image(0, 0, 'sky');
 	background.setOrigin(0, 0);  // Set the origin to the top-left corner
 	background.displayWidth = this.scale.width;
@@ -115,7 +100,19 @@ export default class PowerupScene extends Scene {
     this.ball.setCollideWorldBounds(true);
 
 	// Load ballpower
-	this.ballpower = this.physics.add.sprite(this.scale.width / 2, this.scale.height / 2, 'ball');
+  power = Phaser.Math.Between(1, 3);
+
+  this.ballpower = this.physics.add.sprite(this.scale.width / 2, this.scale.height / 2, 'big');
+  switch (power) {
+    case 1:
+      break;
+      case 2:
+        this.ballpower.setTexture('small');
+        break;
+        case 3:
+          this.ballpower.setTexture('speed');
+    break;
+  }
 	this.ballpower.setScale(2, 2);
 	this.ballpower.setVelocity(0, 50);
 	// this.ballpower.setBounce(0);
@@ -236,14 +233,14 @@ export default class PowerupScene extends Scene {
 		{
 			console.log("the enemy hit me bitch");
 			this.powerup = true;
-			this.ballpower.setPosition(0, this.scale.height + 10);
+			this.ballpower.setPosition(-100, this.scale.height + 100);
 			this.powerUpEnemy();
 		}
 		else if (this.ball.getData('onpowerplayer'))
 		{
 			console.log("the player hit me bitch");
 			this.powerup = true;
-			this.ballpower.setPosition(0, this.scale.height + 10);
+			this.ballpower.setPosition(-100, this.scale.height + 100);
 			this.powerUpPlayer();
 		}
 	});
@@ -251,9 +248,8 @@ export default class PowerupScene extends Scene {
 
 	powerUpEnemy()
 	{
-		const randomPowerup = Phaser.Math.Between(1, 3);
 
-		switch (randomPowerup) {
+		switch (power) {
       case 1:
 			this.enemy.setScale(0.55, 0.50);
 			this.time.delayedCall(10000, () => {
@@ -279,10 +275,8 @@ export default class PowerupScene extends Scene {
 	}
 
 	powerUpPlayer()
-	{
-		const randomPowerup = Phaser.Math.Between(1, 3);
-		
-		switch (randomPowerup) {
+	{		
+		switch (power) {
       case 1:
 			this.player.setScale(0.55, 0.50);
 			this.time.delayedCall(10000, () => {
@@ -371,32 +365,30 @@ export default class PowerupScene extends Scene {
 }
 
 randomPowerUp() {
-    const randomPowerup = Phaser.Math.Between(1, 2);
+  power = Phaser.Math.Between(1, 3);
 
-    switch (randomPowerup) {
-      case 1:
-        this.cheer1.play("duration");
-        break;
+  switch (power) {
+    case 1:
+      this.ballpower.setTexture('big');
+      break;
       case 2:
-        this.cheer2.play();
+        this.ballpower.setTexture('small');
         break;
-      case 3:
-        this.cheer3.play();
-        break;
-      case 4:
-        this.cheer4.play();
-        break;
-    }
-
+        case 3:
+          this.ballpower.setTexture('speed');
+      break;
+  }
 }
 	powerupreposition() 
 	{
-		if ((this.ballpower.y > this.scale.height || this.ballpower.y < -21) && this.powerup == false)
+		if ((this.ballpower.y > this.scale.height || this.ballpower.y < -101) && this.powerup == false)
 		{
-			console.log('Setting delayed call');
+			
 			this.time.delayedCall(3000, () => {
-				console.log('Inside delayed call');
-				this.ballpower.setPosition(this.scale.width / 2, -20);
+				this.ballpower.setPosition(this.scale.width / 2, -100);
+        console.log("am here");
+        this.randomPowerUp();
+        console.log("am here");
 				this.ballpower.setVelocity(0, 50);
 			});
 		}

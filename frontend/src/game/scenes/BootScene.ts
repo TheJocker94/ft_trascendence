@@ -4,6 +4,9 @@ import sky from '@/game/assets/sky.png'
 import pong from '@/game/assets/pong.mp3'
 // import thudMp3 from '@/game/assets/thud.mp3'
 // import thudOgg from '@/game/assets/thud.ogg'
+import speed from '@/game/assets/speed.png'
+import big from '@/game/assets/big.png'
+import small from '@/game/assets/small.png'
 import wall from '@/game/assets/wall.png'
 import ball from '@/game/assets/ball.png'
 import cheer1 from '@/game/assets/1applause.mp3'
@@ -40,6 +43,9 @@ export default class BootScene extends Scene {
     this.load.audio('soundtrack', soundtrack);
 	this.load.image('lefthand', lefthand);
 	this.load.image('righthand', righthand);
+  this.load.image('speed', speed);
+  this.load.image('big', big);
+  this.load.image('small', small);
 
   }
 
