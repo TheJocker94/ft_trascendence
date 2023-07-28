@@ -1,0 +1,19 @@
+{
+  "name": "ft_trascendence",
+  "version": "1.0.0",
+  "description": "42 project pong site",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "npm run start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prisma": "^5.0.0"
+  },
+  "dependencies": {
+    "bash": "^0.0.1"
+  }
+}

@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -10,12 +8,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Article {
-  id          Int      @id @default(autoincrement())
-  title       String   @unique
-  description String?
-  body        String
-  published   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model User {
+  id       String  @id @default(uuid())
+  username String? @unique
+  email    String  @unique
+  isAdmin  Boolean @default(false)
+  winrate  Float?
+  Wins     Int     @default(0)
+  Losses   Int     @default(0)
+  Played   Int     @default(0)
 }
