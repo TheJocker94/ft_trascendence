@@ -1,5 +1,4 @@
 import { Scene } from 'phaser'
-import choice from '@/game/assets/choice.png';
 
 export default class ChooseScene extends Scene {
 	private lefthand!: Phaser.GameObjects.Image;
@@ -8,12 +7,12 @@ export default class ChooseScene extends Scene {
     constructor () {
         super({ key: 'ChooseScene' })
     }
-    init (data: { score1: number, score2: number, winner: string}) {
-		// this.add.image(400, 300, 'sky')
+    init () {
+		this.add.image(400, 300, 'matrix')
 		// this.add.image(this.scale.width, 300, 'lefthand').setScale(0.5);
 		// this.add.image(this.scale.width / 2, 300, 'righthand').setScale(0.5);
 		// this.load.spritesheet('buttons', choice, { frameWidth: 64, frameHeight: 64 });
-        this.add.text(400, 150, 'Choose Your Pill', { fontSize: '35px', color: '#ffffff' }).setOrigin(0.5)
+        this.add.text(400, 150, 'Choose Your Pill', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffff00', fontFamily: 'Arial' }).setOrigin(0.5)
     }
     
     create () {

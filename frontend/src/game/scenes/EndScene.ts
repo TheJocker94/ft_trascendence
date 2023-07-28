@@ -7,9 +7,9 @@ export default class EndScene extends Scene {
     }
     
     init (data: { score1: number, score2: number, winner: string}) {
-        this.add.image(400, 300, 'sky')
-        this.add.text(400, 300, `${data.winner} wins!`, { fontSize: '32px', color: '#ffffff' }).setOrigin(0.5)
-        this.add.text(400, 350, 'Press SPACE to restart', { fontSize: '32px', color: '#ffffff' }).setOrigin(0.5)
+        this.add.image(400, 300, 'matrix')
+        this.add.text(400, 250, `${data.winner} wins!`, { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffff00', fontStyle: 'bold italic' }).setOrigin(0.5)
+        this.add.text(400, 350, 'Press SPACE to restart', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffff00', fontStyle: 'bold italic' }).setOrigin(0.5)
     }
     
     create () {
