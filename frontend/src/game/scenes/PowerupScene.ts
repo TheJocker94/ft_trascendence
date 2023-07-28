@@ -26,6 +26,7 @@ export default class PowerupScene extends Scene {
   private scoreText1!: Phaser.GameObjects.Text;
   private scoreText2!: Phaser.GameObjects.Text;
   private ballSound!: Phaser.Sound.BaseSound;
+  private thud!: Phaser.Sound.BaseSound;
   private cheer1!: Phaser.Sound.BaseSound;
   private cheer2!: Phaser.Sound.BaseSound;
   private cheer3!: Phaser.Sound.BaseSound;
@@ -34,33 +35,26 @@ export default class PowerupScene extends Scene {
   private boo2!: Phaser.Sound.BaseSound;
   private soundtrack!: Phaser.Sound.BaseSound;
   private emitter!: Phaser.GameObjects.Particles.ParticleEmitter;
-  private emitterpowerup!: Phaser.GameObjects.Particles.ParticleEmitter;
   private shape1!: Phaser.Geom.Circle;
   private powerup!: boolean;
+  private explosion! : Phaser.Physics.Arcade.Sprite;
  
   constructor () {
     super({ key: 'PowerupScene' })
 	this.shape1 = new Phaser.Geom.Circle(0, 0, 0);
-	// this.shape1 = new Phaser.Geom.Circle(this.scale.width / 2, this.scale.height / 2, 160);
-  }
+}
 
-  init () {
-    this.score1 = 0;
-    this.score2 = 0;
-	this.powerup = false;
-  }
-  
-  create () {
+init () {
+  this.score1 = 0;
+  this.score2 = 0;
+  this.powerup = false;
+}
+
+create () {
+ 
     // Background
 	const background = this.add.image(0, 0, 'sky');
 	background.setOrigin(0, 0);  // Set the origin to the top-left corner
-	background.displayWidth = this.scale.width;
-	background.displayHeight = this.scale.height;
-
-	this.scale.on('resize', (gameSize: Phaser.Structs.Size) => {
-		background.displayWidth = gameSize.width;
-		background.displayHeight = gameSize.height;
-	});
     // Game key input
     // Arrows
     this.physics.world.setBoundsCollision(false, false, true, true);
@@ -102,7 +96,7 @@ export default class PowerupScene extends Scene {
 	// Load ballpower
   power = Phaser.Math.Between(1, 3);
 
-  this.ballpower = this.physics.add.sprite(this.scale.width / 2, this.scale.height / 2, 'big');
+  this.ballpower = this.physics.add.sprite(this.scale.width / 2, 10, 'big');
   switch (power) {
     case 1:
       break;
@@ -128,6 +122,7 @@ export default class PowerupScene extends Scene {
       start: 0,
       duration: 4,
     });
+    this.thud = this.sound.add('thud');
     this.cheer2 = this.sound.add('cheer2');
     this.cheer3 = this.sound.add('cheer3');
     this.cheer4 = this.sound.add('cheer4');
@@ -149,15 +144,13 @@ export default class PowerupScene extends Scene {
       // follow: this.ball // Seguire l'oggetto della palla
   });
 
-  this.emitterpowerup = this.add.particles(this.ballpower.x, this.ballpower.y, 'flares', {
-	frame: { frames: [ 'red' ] },
-	blendMode: 'ADD',
-	angle: { min: 0, max: 360},
-	scale: { start: 0.5, end: 0 },
-	lifespan: 300, // Durata di vita delle particelle (in millisecondi)
-	frequency: 100, // Frequenza di emissione delle particelle (in millisecondi)
-	// follow: this.ballpower // Seguire l'oggetto della palla
-});
+  //initialize the explosion
+  this.explosion = this.physics.add.sprite(0, 0, 'boom');
+  this.explosion.setScale(2, 2);
+  this.explosion.setVisible(false);
+  this.explosion.on('animationcomplete', () => {
+    this.explosion.setVisible(false);
+  })
   
   }
   
@@ -178,8 +171,6 @@ export default class PowerupScene extends Scene {
 	this.powerupreposition();
     this.emitter.setPosition(this.ball.x, this.ball.y);
     this.emitter.addEmitZone({ type: 'edge', source: this.shape1, quantity: 64, total: 1 });
-	this.emitterpowerup.setPosition(this.ballpower.x, this.ballpower.y);
-    this.emitterpowerup.addEmitZone({ type: 'edge', source: this.shape1, quantity: 64, total: 1 });
     if (this.ball.getData('onPaddlePlayer')) {
       this.ball.setVelocityY((Math.random() * 50) + this.player.body!.velocity.y);
       this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
@@ -224,8 +215,8 @@ export default class PowerupScene extends Scene {
   ballCollision() {
     this.ball.setData('onPaddlePlayer', false);
     this.ball.setData('onPaddleEnemy', false);
-  this.physics.world.collide(this.player, this.ball, () => { this.ball.setData('onPaddlePlayer', true); /*this.ballSound.play();*/ this.ball.setData('onpowerenemy', false); this.ball.setData('onpowerplayer', true)});
-    this.physics.world.collide(this.enemy, this.ball, () => { this.ball.setData('onPaddleEnemy', true); /*this.ballSound.play();*/ this.ball.setData('onpowerplayer', false); this.ball.setData('onpowerenemy', true)});
+  this.physics.world.collide(this.player, this.ball, () => { this.ball.setData('onPaddlePlayer', true); this.ballSound.play(); this.ball.setData('onpowerenemy', false); this.ball.setData('onpowerplayer', true)});
+    this.physics.world.collide(this.enemy, this.ball, () => { this.ball.setData('onPaddleEnemy', true); this.ballSound.play(); this.ball.setData('onpowerplayer', false); this.ball.setData('onpowerenemy', true)});
 
 	this.physics.world.overlap(this.ball, this.ballpower, () => {
 		console.log("am inside man");
@@ -233,13 +224,17 @@ export default class PowerupScene extends Scene {
 		{
 			console.log("the enemy hit me bitch");
 			this.powerup = true;
-			this.ballpower.setPosition(-100, this.scale.height + 100);
+      this.thud.play();
+      this.explosion.setPosition(this.ballpower.x, this.ballpower.y).setVisible(true).play('explode');
+      this.ballpower.setPosition(-100, this.scale.height + 100);
 			this.powerUpEnemy();
 		}
 		else if (this.ball.getData('onpowerplayer'))
 		{
 			console.log("the player hit me bitch");
 			this.powerup = true;
+      this.thud.play();
+      this.explosion.setPosition(this.ballpower.x, this.ballpower.y).setVisible(true).play('explode');
 			this.ballpower.setPosition(-100, this.scale.height + 100);
 			this.powerUpPlayer();
 		}
@@ -265,7 +260,7 @@ export default class PowerupScene extends Scene {
 			});
 			break;
       case 3:
-				SPEEDE = 600;
+				SPEEDE = 500;
         this.time.delayedCall(10000, () => {
           SPEEDE = 300;
           this.powerup = false;
@@ -292,7 +287,7 @@ export default class PowerupScene extends Scene {
 			});
 			break;
 			case 3:
-				SPEEDP = 600;
+				SPEEDP = 500;
         this.time.delayedCall(10000, () => {
           SPEEDP = 300;
           this.powerup = false;
@@ -388,13 +383,13 @@ randomPowerUp() {
 			
 			this.time.delayedCall(3000, () => {
 				this.ballpower.setPosition(this.scale.width / 2, -100);
-        console.log("am here");
         this.randomPowerUp();
-        console.log("am here");
 				this.ballpower.setVelocity(0, 50);
 			});
 		}
 	}
+
+  
 
 }
 

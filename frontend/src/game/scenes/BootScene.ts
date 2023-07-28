@@ -2,8 +2,8 @@ import { Scene } from 'phaser'
 import sky from '@/game/assets/sky.png'
 // import bomb from '@/game/assets/bomb.png'
 import pong from '@/game/assets/pong.mp3'
-// import thudMp3 from '@/game/assets/thud.mp3'
-// import thudOgg from '@/game/assets/thud.ogg'
+import thudMp3 from '@/game/assets/thud.mp3'
+import thudOgg from '@/game/assets/thud.ogg'
 import speed from '@/game/assets/speed.png'
 import big from '@/game/assets/big.png'
 import small from '@/game/assets/small.png'
@@ -18,6 +18,7 @@ import boo1  from '@/game/assets/1boo.mp3'
 import boo2  from '@/game/assets/2boo.mp3'
 import lefthand from '@/game/assets/lefthand.png'
 import righthand from '@/game/assets/righthand.png'
+import boom from '@/game/assets/explosion.png'
 
 export default class BootScene extends Scene {
   constructor () {
@@ -29,7 +30,7 @@ export default class BootScene extends Scene {
     // this.load.image('bomb', bomb)
     this.load.atlas('flares', 'https://labs.phaser.io/assets/particles/flares.png', 'https://labs.phaser.io/assets/particles/flares.json')
     // this.load.image('paddle', 'https://content.codecademy.com/courses/learn-phaser/Codey%20Tundra/codey.png')
-    // this.load.audio('thud', [thudMp3, thudOgg])
+    this.load.audio('thud', [thudMp3, thudOgg])
     this.load.audio('pong', pong)
     this.load.crossOrigin = 'anonymous';
     this.load.image('wall', wall);
@@ -46,10 +47,18 @@ export default class BootScene extends Scene {
   this.load.image('speed', speed);
   this.load.image('big', big);
   this.load.image('small', small);
+  this.load.spritesheet('boom', boom, { frameWidth: 64, frameHeight: 64, endFrame: 23 });
 
   }
 
   create () {
+  this.anims.create({
+      key: 'explode',
+      frames: this.anims.generateFrameNumbers('boom', { start: 0, end: 23 }),
+      frameRate: 20,
+      repeat: 0,
+      hideOnComplete: true
+  });
     // this.scene.start('PlayScene')
 	this.scene.start('ChooseScene')
   }
