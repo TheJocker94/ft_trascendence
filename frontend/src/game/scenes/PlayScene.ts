@@ -36,16 +36,22 @@ export default class PlayScene extends Scene {
   private scoreText1!: Phaser.GameObjects.Text;
   private scoreText2!: Phaser.GameObjects.Text;
   private ballSound!: Phaser.Sound.BaseSound;
-  private cheer1!: Phaser.Sound.BaseSound;
-  private cheer2!: Phaser.Sound.BaseSound;
-  private cheer3!: Phaser.Sound.BaseSound;
-  private cheer4!: Phaser.Sound.BaseSound;
-  private boo1!: Phaser.Sound.BaseSound;
-  private boo2!: Phaser.Sound.BaseSound;
   private soundtrack!: Phaser.Sound.BaseSound;
   private emitter!: Phaser.GameObjects.Particles.ParticleEmitter;
   private shape1!: Phaser.Geom.Circle;
   private gol: boolean = false;
+
+  private lee1!: Phaser.Sound.BaseSound;
+  private lee2!: Phaser.Sound.BaseSound;
+  private lee3!: Phaser.Sound.BaseSound;
+  private lee4!: Phaser.Sound.BaseSound;
+  private lee5!: Phaser.Sound.BaseSound;
+  private lee6!: Phaser.Sound.BaseSound;
+  private nizz1!: Phaser.Sound.BaseSound;
+  private nizz2!: Phaser.Sound.BaseSound;
+  private nizz3!: Phaser.Sound.BaseSound;
+  private nizz4!: Phaser.Sound.BaseSound;
+  private nizz5!: Phaser.Sound.BaseSound;
 
   constructor() {
     super({ key: 'PlayScene' })
@@ -124,17 +130,17 @@ export default class PlayScene extends Scene {
     this.scoreText2 = this.add.text(this.scale.width / 2 + 50, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
     // audio
     this.ballSound = this.sound.add('pong');
-    this.cheer1 = this.sound.add('cheer1');
-    this.cheer1.addMarker({
-      name: "duration",
-      start: 0,
-      duration: 4,
-    });
-    this.cheer2 = this.sound.add('cheer2');
-    this.cheer3 = this.sound.add('cheer3');
-    this.cheer4 = this.sound.add('cheer4');
-    this.boo1 = this.sound.add('boo1');
-    this.boo2 = this.sound.add('boo2');
+    this.lee1 = this.sound.add('lee1');
+    this.lee2 = this.sound.add('lee2');
+    this.lee3 = this.sound.add('lee3');
+    this.lee4 = this.sound.add('lee4');
+    this.lee5 = this.sound.add('lee5');
+    this.lee6 = this.sound.add('lee6');
+	this.nizz1 = this.sound.add('nizz1');
+    this.nizz2 = this.sound.add('nizz2');
+    this.nizz3 = this.sound.add('nizz3');
+    this.nizz4 = this.sound.add('nizz4');
+    this.nizz5 = this.sound.add('nizz5');
     this.soundtrack = this.sound.add('soundtrack', {
       loop: true, // Imposta loop su true per far ripartire in loop
       volume: 0.5, // Adjust the volume as needed (0.0 to 1.0)
@@ -245,16 +251,22 @@ export default class PlayScene extends Scene {
   ballCollision() {
     this.ball.setData('onPaddlePlayer', false);
     this.ball.setData('onPaddleEnemy', false);
-    this.physics.world.collide(this.player, this.ball, () => { this.ball.setData('onPaddlePlayer', true); this.ballSound.play()/*; this.emitter.explode(10)*/ });
-    this.physics.world.collide(this.enemy, this.ball, () => { this.ball.setData('onPaddleEnemy', true); this.ballSound.play()/*; this.emitter.explode(10)*/ });
+    this.physics.world.collide(this.player, this.ball, () => { this.ball.setData('onPaddlePlayer', true); this.randomPlayer()/*; this.emitter.explode(10)*/ });
+    this.physics.world.collide(this.enemy, this.ball, () => { this.ball.setData('onPaddleEnemy', true); this.randomEnemy()/*; this.emitter.explode(10)*/ });
 
   }
 
   ballLost() {
     if (this.ball.x >= this.scale.width)
-      this.randomCheer();
+	{
+		this.stopSound();
+		this.lee6.play();
+	}
     else
-      this.randomBoo();
+	{
+		this.stopSound();
+		this.nizz5.play();
+	}
     this.ball.setPosition(this.scale.width / 2, this.scale.height / 2);
     if (!this.gol)
       this.ball.setVelocity(-200, 0);
@@ -263,55 +275,72 @@ export default class PlayScene extends Scene {
   }
 
   stopSound() {
-    this.cheer1.stop();
-    this.cheer2.stop();
-    this.cheer3.stop();
-    this.cheer4.stop();
-    this.boo1.stop();
-    this.boo2.stop();
+    this.lee1.stop();
+    this.lee2.stop();
+    this.lee3.stop();
+    this.lee4.stop();
+    this.lee5.stop();
+    this.lee6.stop();
+	this.nizz1.stop();
+    this.nizz2.stop();
+    this.nizz3.stop();
+    this.nizz4.stop();
+    this.nizz5.stop();
   }
 
   endGame() {
     if (this.score1 === 5 || this.score2 === 5) {
       this.stopSound();
       const winner = this.score1 === 5 ? 'Player 1' : 'Player 2';
+	  this.soundtrack.stop();
       this.scene.start('EndScene', { score1: this.score1, score2: this.score2, winner: winner });
     }
   }
 
-  randomBoo() {
-    const randomSound = Phaser.Math.Between(1, 2);
+  randomPlayer() {
+    const randomSound = Phaser.Math.Between(1, 5);
     this.stopSound();
 
     switch (randomSound) {
       case 1:
-        this.boo1.play();
+		this.lee1.play();
         break;
       case 2:
-        this.boo2.play();
+		this.lee2.play();
         break;
+	  case 3:
+		this.lee3.play();
+		break;
+	  case 4:
+		this.lee4.play();
+		break;
+	  case 5:
+		this.lee5.play();
+		break;
     }
   }
 
-  randomCheer() {
-    const randomSound = Phaser.Math.Between(1, 4);
-    this.stopSound();
+	randomEnemy()
+	{
+		const randomSound = Phaser.Math.Between(1, 4);
+		this.stopSound();
 
-    switch (randomSound) {
-      case 1:
-        this.cheer1.play("duration");
-        break;
-      case 2:
-        this.cheer2.play();
-        break;
-      case 3:
-        this.cheer3.play();
-        break;
-      case 4:
-        this.cheer4.play();
-        break;
-    }
-  }
+		switch (randomSound)
+		{
+			case 1:
+				this.nizz1.play();
+				break;
+			case 2:
+				this.nizz2.play();
+				break;
+			case 3:
+				this.nizz3.play();
+				break;
+			case 4:
+				this.nizz4.play();
+				break;
+		}
+	}
 
   animateScoreText(scoreText: Phaser.GameObjects.Text) {
     this.tweens.add({
