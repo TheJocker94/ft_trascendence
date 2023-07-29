@@ -3,6 +3,7 @@ import { Scene } from 'phaser'
 export default class ChooseScene extends Scene {
 	private lefthand!: Phaser.GameObjects.Image;
 	private righthand!: Phaser.GameObjects.Image;
+	private chooseSound!: Phaser.Sound.BaseSound;
     
     constructor () {
         super({ key: 'ChooseScene' })
@@ -12,21 +13,25 @@ export default class ChooseScene extends Scene {
 		// this.add.image(this.scale.width, 300, 'lefthand').setScale(0.5);
 		// this.add.image(this.scale.width / 2, 300, 'righthand').setScale(0.5);
 		// this.load.spritesheet('buttons', choice, { frameWidth: 64, frameHeight: 64 });
-        this.add.text(400, 150, 'Choose Your Pill', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffff00', fontFamily: 'Arial' }).setOrigin(0.5)
+        this.add.text(400, 150, 'Choose Your Pill', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffffff', fontFamily: 'Arial' }).setOrigin(0.5)
     }
     
     create () {
+		this.chooseSound = this.sound.add('chooseSound');
+		this.chooseSound.play();
 		this.lefthand = this.add.image(200, 350, 'lefthand').setScale(0.5);
 		this.lefthand.setInteractive();
 		this.lefthand.on('pointerdown', () => {
 			console.log('lefthand clicked!');
+			this.chooseSound.stop();
 			this.scene.start('PlayScene');
 		});
 
 		this.righthand = this.add.image(600, 350, 'righthand').setScale(0.5);
 		this.righthand.setInteractive();
 		this.righthand.on('pointerdown', () => {
-			console.log('righthand clicked!');
+			console.log('righthand clicked!')
+			this.chooseSound.stop();;
 			this.scene.start('PowerupScene');
 		});
 		this.righthand.on('pointerover', () => {
@@ -55,12 +60,6 @@ export default class ChooseScene extends Scene {
         //         console.log('Button region clicked!');
         //     }
         // });
-        if (this.input.keyboard)
-        {
-        this.input.keyboard!.once('keydown-SPACE', () => {
-        this.scene.start('PlayScene')
-        })
-        }
     }
 	// update() {
     //     let pointer = this.input.activePointer;

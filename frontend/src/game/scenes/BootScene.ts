@@ -19,6 +19,7 @@ import boo2  from '@/game/assets/2boo.mp3'
 import lefthand from '@/game/assets/lefthand.png'
 import righthand from '@/game/assets/righthand.png'
 import boom from '@/game/assets/explosion.png'
+import chooseSound from '@/game/assets/choose-pill.mp3'
 
 export default class BootScene extends Scene {
   constructor () {
@@ -26,6 +27,7 @@ export default class BootScene extends Scene {
   }
 
   preload () {
+	this.load.audio('chooseSound', chooseSound);
     this.load.image('sky', sky)
     this.load.image('matrix', matrix)
     // this.load.image('bomb', bomb)

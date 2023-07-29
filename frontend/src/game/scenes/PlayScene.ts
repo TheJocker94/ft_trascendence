@@ -120,8 +120,8 @@ export default class PlayScene extends Scene {
     this.ball.setCollideWorldBounds(true);
 
     // Score text
-    this.scoreText1 = this.add.text(this.scale.width / 2 - 75, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffff00' })
-    this.scoreText2 = this.add.text(this.scale.width / 2 + 50, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffff00' })
+    this.scoreText1 = this.add.text(this.scale.width / 2 - 75, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
+    this.scoreText2 = this.add.text(this.scale.width / 2 + 50, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
     // audio
     this.ballSound = this.sound.add('pong');
     this.cheer1 = this.sound.add('cheer1');
@@ -154,7 +154,7 @@ export default class PlayScene extends Scene {
     this.dashedLine = this.add.graphics();
 
     // Set dashed line properties
-    this.dashedLine.lineStyle(4, 0xffff00, 1);
+    this.dashedLine.lineStyle(4, 0xffffff, 1);
 
     // Draw the dashed line from top to bottom of the screen
     const halfScreenWidth = this.scale.width / 2;
