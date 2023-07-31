@@ -23,13 +23,12 @@ services:
     build:
       context: ./frontend
       dockerfile: dockerfile
-    command:
-      [
-        "/bin/sh",
-        "-c",
-        "npm cache clean --force && npm install && npm run dev --prefix /data -- --host 0.0.0.0"
-      ]
-
+    # command:
+    #   [
+    #     "/bin/sh",
+    #     "-c",
+    #     "npm cache clean --force && npm install && npm run dev --prefix /data -- --host 0.0.0.0"
+    #   ]
     ports:
       - 8080:8080
     restart: unless-stopped
