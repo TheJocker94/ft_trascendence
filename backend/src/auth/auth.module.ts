@@ -11,10 +11,6 @@ configDotenv();
 @Module({
   imports: [JwtModule.register({ secret: process.env.JWT_SECRET, })],
   controllers: [AuthController],
-  providers: [AuthService, AtStrategy, RtStrategy,
-    {
-      provide: 'APP_GUARD',
-      useClass: AtGuard,
-    },]
+  providers: [AuthService, AtStrategy, RtStrategy,]
 })
 export class AuthModule { }
