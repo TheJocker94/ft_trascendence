@@ -13,8 +13,24 @@ model User {
   username String? @unique
   email    String  @unique
   isAdmin  Boolean @default(false)
-  winrate  Float?
-  Wins     Int     @default(0)
-  Losses   Int     @default(0)
-  Played   Int     @default(0)
+
+  hash     String
+  hashedRt String?
+
+  winrate   Float?
+  Wins      Int       @default(0)
+  Losses    Int       @default(0)
+  Played    Int       @default(0)
+  Friends   Contacts? @relation("Friends", fields: [friendsId], references: [id])
+  friendsId String?
+  Blocked   Contacts? @relation("Blocked", fields: [blockedId], references: [id])
+  blockedId String?
+
+  @@map("users")
+}
+
+model Contacts {
+  id      String @id @default(uuid())
+  friends User[] @relation("Friends")
+  blocked User[] @relation("Blocked")
 }

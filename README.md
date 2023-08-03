@@ -2,8 +2,9 @@
 42 project pong site
 
 Backend:
-Following guide at :[Title](https://www.prisma.io/blog/nestjs-prisma-rest-api-7D056s1BmOL0#introduction)
-Step: Add PrismaClient to the Articles module
+
+
+sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pg_container
 
 Frontend:
 Gioco finito, da implementare multiplayer(Socket.io o Nest, non so)

@@ -2,6 +2,8 @@ version: '3'
 services:
   # API
   api:
+    env_file:
+      - .env
     build:
       context: ./backend
       dockerfile: dockerfile
