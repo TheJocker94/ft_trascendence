@@ -84,13 +84,7 @@ export default class PlayScene extends Scene {
     //! this.add.image(this.scale.width / 2, this.scale.height / 2, 'sky').setOrigin(0);
     const background = this.add.image(0, 0, 'matrix');
     background.setOrigin(0, 0);  // Set the origin to the top-left corner
-    background.displayWidth = this.scale.width;
-    background.displayHeight = this.scale.height;
 
-    this.scale.on('resize', (gameSize: Phaser.Structs.Size) => {
-      background.displayWidth = gameSize.width;
-      background.displayHeight = gameSize.height;
-    });
     // Game key input
     // Arrows
     this.physics.world.setBoundsCollision(false, false, true, true);
@@ -292,7 +286,7 @@ export default class PlayScene extends Scene {
     if (this.score1 === 5 || this.score2 === 5) {
       this.stopSound();
       const winner = this.score1 === 5 ? 'Player 1' : 'Player 2';
-	  this.soundtrack.stop();
+      this.soundtrack.stop();
       this.scene.start('EndScene', { score1: this.score1, score2: this.score2, winner: winner });
     }
   }
@@ -303,20 +297,20 @@ export default class PlayScene extends Scene {
 
     switch (randomSound) {
       case 1:
-		this.lee1.play();
+        this.lee1.play();
         break;
       case 2:
-		this.lee2.play();
+        this.lee2.play();
         break;
-	  case 3:
-		this.lee3.play();
-		break;
-	  case 4:
-		this.lee4.play();
-		break;
-	  case 5:
-		this.lee5.play();
-		break;
+      case 3:
+        this.lee3.play();
+        break;
+      case 4:
+        this.lee4.play();
+        break;
+      case 5:
+        this.lee5.play();
+        break;
     }
   }
 

@@ -365,7 +365,7 @@ export default class PowerupScene extends Scene {
       SPEEDE = 300;
       SPEEDP = 300;
       const winner = this.score1 === 5 ? 'Player 1' : 'Player 2';
-	  this.soundtrack.stop();
+      this.soundtrack.stop();
       this.scene.start('EndScene', { score1: this.score1, score2: this.score2, winner: winner });
     }
   }
@@ -376,20 +376,20 @@ export default class PowerupScene extends Scene {
 
     switch (randomSound) {
       case 1:
-		this.lee1.play();
+        this.lee1.play();
         break;
       case 2:
-		this.lee2.play();
+        this.lee2.play();
         break;
-	  case 3:
-		this.lee3.play();
-		break;
-	  case 4:
-		this.lee4.play();
-		break;
-	  case 5:
-		this.lee5.play();
-		break;
+      case 3:
+        this.lee3.play();
+        break;
+      case 4:
+        this.lee4.play();
+        break;
+      case 5:
+        this.lee5.play();
+        break;
     }
   }
 

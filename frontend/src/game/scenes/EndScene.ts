@@ -32,7 +32,7 @@ export default class EndScene extends Scene {
 				this.win.stop();
 				this.lose.stop();
 				this.scene.start('ChooseScene')
-        	})
+		})
         }
     }
     }

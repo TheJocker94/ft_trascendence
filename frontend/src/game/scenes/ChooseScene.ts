@@ -10,9 +10,6 @@ export default class ChooseScene extends Scene {
     }
     init () {
 		this.add.image(400, 300, 'matrix')
-		// this.add.image(this.scale.width, 300, 'lefthand').setScale(0.5);
-		// this.add.image(this.scale.width / 2, 300, 'righthand').setScale(0.5);
-		// this.load.spritesheet('buttons', choice, { frameWidth: 64, frameHeight: 64 });
         this.add.text(400, 150, 'Choose Your Pill', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffffff', fontFamily: 'Arial' }).setOrigin(0.5)
     }
     
@@ -31,7 +28,7 @@ export default class ChooseScene extends Scene {
 		this.righthand.setInteractive();
 		this.righthand.on('pointerdown', () => {
 			console.log('righthand clicked!')
-			this.chooseSound.stop();;
+			this.chooseSound.stop();
 			this.scene.start('PowerupScene');
 		});
 		this.righthand.on('pointerover', () => {

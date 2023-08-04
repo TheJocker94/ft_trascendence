@@ -7,19 +7,33 @@ import EndScene from './scenes/EndScene'
 
 function launch(containerId: string) {
   return new Phaser.Game({
-    type: Phaser.AUTO,
+    type: Phaser.CANVAS,
     width: 800,
     height: 600,
     parent: containerId,
-	scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
-    },
+	// scale: {
+  //       mode: Phaser.Scale.MAX_ZOOM,
+  //       autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
+  //   },
+  scale: {
+    width: 800,
+    height: 600,
+    mode: Phaser.Scale.FIT,
+    // mode: Phaser.Scale.ENVELOP,
+    // mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
+    // mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
+    // mode: Phaser.Scale.RESIZE,
+    // autoCenter: Phaser.Scale.CENTER_BOTH,
+    // zoom: Phaser.Scale.NO_ZOOM,
+    // zoom: Phaser.Scale.MAX_ZOOM,
+    parent: containerId,
+    fullscreenTarget: containerId
+  },
 	physics: {
       default: 'arcade',
       arcade: {
       gravity: { y: 0 },
-      debug: false,
+      debug: true,
       }
     },
     scene: [BootScene, ChooseScene, PowerupScene, PlayScene, EndScene]
