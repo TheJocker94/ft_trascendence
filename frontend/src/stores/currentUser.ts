@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia';
 
-import UserService from '@/services/UserService';
+// import UserService from '@/services/UserService';
+// import FriendService from '@/services/FriendService';
 // import FriendService from '@/services/FriendService';
 import type { IUser } from '@/models/IUser';
 import axios, { AxiosError } from 'axios';
-import { type IError } from '@/models/IError';
+import type { IError } from '@/models/IError';
 // import { IFriendLists } from '@/models/IFriendLists';
 import { useLocalStorage, } from '@vueuse/core';
 
@@ -20,7 +21,7 @@ export const useCurrentUserStore = defineStore('currentUser', {
     //   sent: []
     // } as IFriendLists,
   }),
-  getters: {
+  // getters: {
     // isFriend : (state) => {
 	// 		return (id : number) => state.friendLists.friends.some(friend => friend.id === id);
 	// 	},
@@ -30,18 +31,24 @@ export const useCurrentUserStore = defineStore('currentUser', {
     // isSent : (state) => {
 	// 		return (id : number) => state.friendLists.sent.some(sent => sent.id === id);
 	// 	},
-  },
+  // },
   actions: {
     async initStore(userId: number | null) {
       if (userId)
         this.userId = userId;
       try {
-        const user = await UserService.getUserById(this.userId);
-        const avatar = await UserService.getAvatarOfUser(this.userId);   
+        /*
+        Da implementare chiamate User
+        */
+        // const user = await UserService.getUserById(this.userId);
+        // const avatar = await UserService.getAvatarOfUser(this.userId); 
+        /*
+        Da implementare chiamate Friends
+        */
         // const friends = await FriendService.getFriendships(this.userId, "accepted");
         // const pendings = await FriendService.getFriendships(this.userId, "pending");
         // const sent = await FriendService.getFriendships(this.userId, "sent");
-        this.setStore(user.data, avatar/*, { friends, pendings, sent }*/);
+        // this.setStore(user.data, avatar/*, { friends, pendings, sent }*/);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;

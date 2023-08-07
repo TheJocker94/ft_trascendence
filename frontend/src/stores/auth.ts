@@ -3,23 +3,23 @@ import api from '@/services/AuthService';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { useLocalStorage } from '@vueuse/core';
 
-import { type IError } from '@/models/IError';
+import type { IError } from '@/models/IError';
 import axios, { AxiosError } from 'axios';
+
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: useLocalStorage('token', ''),
-    refreshToken: useLocalStorage('refreshToken', ''),
-    registerInProgress: useLocalStorage('registerInProgress', false),
-		twoFaEnabled: useLocalStorage('twoFaEnbaled', false),
-		twoFaAuthenticated: useLocalStorage('twoFaAuthenticated', false)
-  }),
-  getters: {
-    isLoggedIn: (state) => {
-      if (state.registerInProgress || state.token === '')
+      token: useLocalStorage('token', ''),
+      refreshToken: useLocalStorage('refreshToken', ''),
+      registerInProgress: useLocalStorage('registerInProgress', false),
+    }),
+    getters: {
+
+    isLoggedIn() {
+      if (this.registerInProgress || this.token === '')
 				return false;
-			if (state.twoFaEnabled && !state.twoFaAuthenticated)
-				return false;
+			// if (state.twoFaEnabled && !state.twoFaAuthenticated)
+			// 	return false;
 			return true;
 		},
     tokenBearer(): string {
@@ -28,26 +28,30 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     // local
-    async signInLocal(
+    async signInLocal (
       email: string,
       password: string,
     ): Promise<IError | undefined> {
       try {
         const resp = await api.signInLocal(email, password);
+        console.log(resp.data);
         this.setState(resp.data.access_token);
-				this.twoFaEnabled = resp.data.twoFaEnabled;
-				if (!this.twoFaEnabled)
+				// this.twoFaEnabled = resp.data.twoFaEnabled;
+				// if (!this.twoFaEnabled)
             await useCurrentUserStore().initStore(resp.data.id);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
       }
     },
-    async signUpLocal(email: string, password: string) {
+
+    async signUpLocal(email: string, password: string){
       try {
         const resp = await api.signUpLocal(email, password);
+        console.log(resp.data)
         this.setState(resp.data.access_token, true);
-				this.twoFaEnabled = resp.data.twoFaEnabled;
+        console.log(this.token)
+				// this.twoFaEnabled = resp.data.twoFaEnabled;
 
         await useCurrentUserStore().initStore(resp.data.id);
       } catch (err) {
@@ -108,28 +112,32 @@ export const useAuthStore = defineStore('auth', {
     //     if (axios.isAxiosError(e)) return e.response?.data;
     //   }
     // },
-    async initStore() {
+     async initStoreasync(){
       if (this.token) {
         await useCurrentUserStore().initStore(null);
       }
     },
-    setState(token: string, registerInProgress: boolean = false) {
+
+    setState(token: string, registerInProgress: boolean = false){
       this.token = token;
       this.registerInProgress = registerInProgress;
     },
-    logout() {
+
+    logout(){
       api.logout().finally(() => {
         this.clearApp();
       });
     },
-    async deleteAccount() {
+    async deleteAccount(){
       await api.deleteAccount(); // deal the response or balec ?
       this.clearApp();
     },
-    clearApp() {
+    clearApp(){
       localStorage.clear();
-      this.$reset();
+      this.token = '';
+      this.refreshToken = '';
+      this.registerInProgress = false;
       useCurrentUserStore().$reset();
-    },
+    }
   },
 });

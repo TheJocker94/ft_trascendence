@@ -86,7 +86,7 @@
             <li><a>Profile</a></li>
             <li><a>Settings</a></li>
             <li><a>Nizz super mega ultra</a></li>
-            <li><a @click="logout()">Logout</a></li>
+            <li><a @click="auth.logout()">Logout</a></li>
           </ul>
         </div>
       </div>
@@ -95,26 +95,28 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { useCurrentUserStore } from '@/stores/Current_User';
-import { reactive } from 'vue'
+// import axios from 'axios';
+// import { useCurrentUserStore } from '@/stores/Current_User';
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/auth';
 
-const Current_User = reactive(useCurrentUserStore());
-const logout = ()=> {
-  const token = 'Bearer ' + localStorage.getItem('accessToken'); // ottieni il token dalla localStorage
-  console.log(token);
+const auth = ref(useAuthStore());
+// const Current_User = reactive(useCurrentUserStore());
+// const logout = ()=> {
+//   const token = 'Bearer ' + localStorage.getItem('accessToken'); // ottieni il token dalla localStorage
+//   console.log(token);
   
-  axios.post('http://localhost:3000/auth/logout', {
-    headers: {
-      'Authorization': token
-    }
-  })
-    .then(response => {
-      localStorage.setItem("accessToken", "");
-      console.log(response.data);
-    })
-    .catch(error => {
-      console.error(error);
-    });
-}
+//   axios.post('http://localhost:3000/auth/logout', {
+//     headers: {
+//       'Authorization': token
+//     }
+//   })
+//     .then(response => {
+//       localStorage.setItem("accessToken", "");
+//       console.log(response.data);
+//     })
+//     .catch(error => {
+//       console.error(error);
+//     });
+// }
 </script>

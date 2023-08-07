@@ -22,7 +22,7 @@
                 <p class="text-red-500 text-xs italic">Please choose a password.</p>
               </div>
               <div class="flex items-center justify-between">
-                <button @click="SendCredential()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+                <button @click="auth.signUpLocal(credentials.email, credentials.password)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
                   Sign Up
                 </button>
                 <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
@@ -41,29 +41,30 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
-import axios from 'axios';
-import { useCurrentUserStore } from '@/stores/Current_User';
+import { ref, reactive } from 'vue'
+// import axios from 'axios';
+import { useAuthStore } from '@/stores/auth';
 
+const auth = ref(useAuthStore())
 const credentials = reactive({
   email:"",
   password:""
 })
 
-const Current_User = reactive(useCurrentUserStore());
-const SendCredential = () => {
-    axios.post('http://localhost:3000/auth/local/signup', { email:credentials.email, password:credentials.password })
-  .then(response => {
-    console.log(response.data);
-    Current_User.accessToken = response.data.accessToken;
-    Current_User.refreshToken = response.data.refreshToken;
-    console.log("Access token is ", Current_User.accessToken);
-    console.log("Refresh token  is ", Current_User.refreshToken);
-  })
-  .catch(error => {
-    console.error(error);
-  });
+// const Current_User = reactive(useCurrentUserStore());
+// const SendCredential = () => {
+//     axios.post('http://localhost:3000/auth/local/signup', { email:credentials.email, password:credentials.password })
+//   .then(response => {
+//     console.log(response.data);
+//     Current_User.accessToken = response.data.accessToken;
+//     Current_User.refreshToken = response.data.refreshToken;
+//     console.log("Access token is ", Current_User.accessToken);
+//     console.log("Refresh token  is ", Current_User.refreshToken);
+//   })
+//   .catch(error => {
+//     console.error(error);
+//   });
 
 
-}
+// }
 </script>
