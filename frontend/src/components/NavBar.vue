@@ -97,9 +97,9 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { useCurrentUserStore } from '@/stores/Current_User';
-import { ref } from 'vue'
+import { reactive } from 'vue'
 
-const Current_User = ref(useCurrentUserStore());
+const Current_User = reactive(useCurrentUserStore());
 const logout = ()=> {
   const token = 'Bearer ' + localStorage.getItem('accessToken'); // ottieni il token dalla localStorage
   console.log(token);

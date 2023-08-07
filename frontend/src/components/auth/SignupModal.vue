@@ -7,19 +7,18 @@
         <form method="dialog" class="modal-box">
           <!-- <h3 class="font-bold text-lg">Hello!</h3>
           <p class="py-4">Press ESC key or click outside to close</p> -->
-          <div class="w-full max-w-xs">
             <form class=" shadow-md rounded px-8 pt-6 pb-8 mb-4 ">
               <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="Email">
                   Email
                 </label>
-                <input v-model="emailSignup" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="Email" type="text" placeholder="Email" >
+                <input v-model="credentials.email" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="Email" type="text" placeholder="Email" >
               </div>
               <div class="mb-6">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
                   Password
                 </label>
-                <input v-model="passSignup" class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-white-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="******************" >
+                <input v-model="credentials.password" class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-white-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="******************" >
                 <p class="text-red-500 text-xs italic">Please choose a password.</p>
               </div>
               <div class="flex items-center justify-between">
@@ -34,7 +33,6 @@
             <p class="text-center text-gray-500 text-xs">
               &copy;2023 Mario Rispondi All rights reserved.
             </p>
-          </div>
         </form>
         <form method="dialog" class="modal-backdrop">
           <button>close</button>
@@ -43,21 +41,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive } from 'vue'
 import axios from 'axios';
 import { useCurrentUserStore } from '@/stores/Current_User';
 
-const emailSignup = ref('');
-const passSignup = ref('');
-const Current_User = ref(useCurrentUserStore());
+const credentials = reactive({
+  email:"",
+  password:""
+})
+
+const Current_User = reactive(useCurrentUserStore());
 const SendCredential = () => {
-    axios.post('http://localhost:3000/auth/local/signup', { email:emailSignup.value, password:passSignup.value })
+    axios.post('http://localhost:3000/auth/local/signup', { email:credentials.email, password:credentials.password })
   .then(response => {
     console.log(response.data);
-    Current_User.value.accessToken = response.data.accessToken;
-    Current_User.value.refreshToken = response.data.refreshToken;
-    console.log("Access token is ", Current_User.value.accessToken);
-    console.log("Refresh token  is ", Current_User.value.refreshToken);
+    Current_User.accessToken = response.data.accessToken;
+    Current_User.refreshToken = response.data.refreshToken;
+    console.log("Access token is ", Current_User.accessToken);
+    console.log("Refresh token  is ", Current_User.refreshToken);
   })
   .catch(error => {
     console.error(error);
