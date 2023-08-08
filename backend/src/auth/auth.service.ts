@@ -109,17 +109,4 @@ export class AuthService {
     generateRandomPassword(length: number = 16): string {
         return randomBytes(length).toString('hex');
     }
-    async getTokens(userId: string, email: string) {
-        const atSecret = process.env.AT_SECRET;
-        const rtSecret = process.env.RT_SECRET;
-        const accessToken = await this.jwtService.signAsync(
-            { id: userId, email },
-            { secret: atSecret, expiresIn: '15m' },
-        );
-        const refreshToken = await this.jwtService.signAsync(
-            { id: userId, email },
-            { secret: rtSecret, expiresIn: '7d' },
-        );
-        return { accessToken, refreshToken };
-    }
 }

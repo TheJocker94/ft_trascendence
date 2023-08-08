@@ -16,6 +16,7 @@
   "dependencies": {
     "@types/axios": "^0.14.0",
     "@vueuse/core": "^10.3.0",
-    "bash": "^0.0.1"
+    "bash": "^0.0.1",
+    "passport-42": "^1.2.6"
   }
 }
