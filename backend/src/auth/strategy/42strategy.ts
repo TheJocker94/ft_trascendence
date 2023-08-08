@@ -9,7 +9,7 @@ import { User_42 } from '../interfaces';
 export class FortyTwoStrategy extends PassportStrategy(Strategy, '42auth') {
     constructor(private readonly authService: AuthService) {
         super({
-            clientID: process.env.FORTYTWO_ID,
+            clientID: process.env.FORTYTWO_CLIENT_ID,
             clientSecret: process.env.FORTYTWO_SECRET,
             callbackURL: process.env.FORTYTWO_CALLBACK,
             profileFields: {
