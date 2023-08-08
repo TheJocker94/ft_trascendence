@@ -26,7 +26,13 @@ class AuthService {
   // }
   
   // 42
-  // signInFortyTwo(params: string) {
+  signInFortyTwo() {
+    return http.get<ISignedIn>(`/auth/42/signin`, {
+      headers: {},
+      withCredentials: false,
+    });
+  }
+  //   signInFortyTwo(params: string) {
   //   return http.get<ISignedIn>(`/auth/42/signin${params}`, {
   //     headers: {},
   //     withCredentials: false,

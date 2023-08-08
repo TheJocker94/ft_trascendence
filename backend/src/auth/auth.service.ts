@@ -54,7 +54,7 @@ export class AuthService {
             user = await this.prisma.user.create({
                 data: {
                     email: profile.email,
-                    hash: this.generateRandomPassword()
+                    hash: this.generateRandomPassword(),
                 },
             });
         }
@@ -86,6 +86,9 @@ export class AuthService {
         return tokens;
     }
 
+    hashData(data: string) {
+        return bcrypt.hash(data, 10);
+    }
     async updateRtHash(userId: string, rt: string) {
         const hash = await this.hashData(rt);
         await this.prisma.user.update({
