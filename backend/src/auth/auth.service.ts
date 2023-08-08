@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto';
@@ -41,6 +42,26 @@ export class AuthService {
         await this.updateRtHash(user.id, tokens.refreshToken);
         return tokens;
     }
+
+    async signin42(profile: any): Promise<Tokens> {
+        let user = await this.prisma.user.findUnique({
+            where: { email: profile.email },
+        });
+
+        if (!user) {
+            user = await this.prisma.user.create({
+                data: {
+                    email: profile.email,
+                    hash: this.generateRandomPassword()
+                },
+            });
+        }
+
+        const tokens = await this.getTokens(user.id, user.email);
+        await this.updateRtHash(user.id, tokens.refreshToken);
+        return tokens;
+    }
+
     async logout(userId: string) {
         await this.prisma.user.updateMany({
             where: { id: userId, hashedRt: { not: null } },
@@ -81,5 +102,9 @@ export class AuthService {
         const accessToken = await this.jwtService.signAsync({ id: userId, email }, { secret: atSecret, expiresIn: '15m' });
         const refreshToken = await this.jwtService.signAsync({ id: userId, email }, { secret: rtSecret, expiresIn: '7d' });
         return { accessToken, refreshToken };
+    }
+
+    generateRandomPassword(length: number = 16): string {
+        return randomBytes(length).toString('hex');
     }
 }
