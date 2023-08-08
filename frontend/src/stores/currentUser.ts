@@ -11,7 +11,7 @@ import { useLocalStorage, } from '@vueuse/core';
 
 export const useCurrentUserStore = defineStore('currentUser', {
   state: () => ({
-    userId: useLocalStorage('userId', 0),
+    userId: useLocalStorage('userId', ''),
     username: '',
     email: '',
     avatar: '',
@@ -33,7 +33,7 @@ export const useCurrentUserStore = defineStore('currentUser', {
 	// 	},
   // },
   actions: {
-    async initStore(userId: number | null) {
+    async initStore(userId: string | null) {
       if (userId)
         this.userId = userId;
       try {

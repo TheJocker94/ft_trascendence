@@ -5,31 +5,24 @@
       </button>
     <dialog id="my_modal_2" class="modal">
         <form method="dialog" class="modal-box">
-          <!-- <h3 class="font-bold text-lg">Hello!</h3>
-          <p class="py-4">Press ESC key or click outside to close</p> -->
-            <form class=" shadow-md rounded px-8 pt-6 pb-8 mb-4 ">
-              <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="Email">
-                  Email
-                </label>
-                <input v-model="credentials.email" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="Email" type="text" placeholder="Email" >
-              </div>
-              <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-                  Password
-                </label>
-                <input v-model="credentials.password" class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-white-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="password" type="password" placeholder="******************" >
-                <p class="text-red-500 text-xs italic">Please choose a password.</p>
-              </div>
-              <div class="flex items-center justify-between">
-                <button @click="auth.signUpLocal(credentials.email, credentials.password)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
-                  Sign Up
-                </button>
-                <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
-                  Sei stronzo?
-                </a>
-              </div>
-            </form>
+          <Form @submit="onSubmit" :validation-schema="schema" class=" shadow-md rounded px-8 pt-6 pb-8 mb-4 ">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Your Email</label>
+            <Field v-model="credentials.email" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="email_addr_signup" name="email_addr" type="emailSig" />
+            <ErrorMessage name="email_addr_signup" />
+        
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="password_signin">Your Password</label>
+            <Field v-model="credentials.password" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="password_signup" name="acc_pazzword" type="password" />
+            <ErrorMessage name="acc_pazzword" />
+            <div class="flex items-center justify-between">
+              <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit" >
+                Sign up
+              </button>
+              <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
+                Sei stronzo?
+              </a>
+            </div>
+            <!-- <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Submit</button> -->
+          </Form>
             <p class="text-center text-gray-500 text-xs">
               &copy;2023 Mario Rispondi All rights reserved.
             </p>
@@ -42,29 +35,38 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-// import axios from 'axios';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { Form, Field, ErrorMessage } from 'vee-validate';
+import * as yup from 'yup';
 
+// Router, authStore, credentials
+const router = useRouter();
 const auth = ref(useAuthStore())
 const credentials = reactive({
   email:"",
   password:""
 })
 
-// const Current_User = reactive(useCurrentUserStore());
-// const SendCredential = () => {
-//     axios.post('http://localhost:3000/auth/local/signup', { email:credentials.email, password:credentials.password })
-//   .then(response => {
-//     console.log(response.data);
-//     Current_User.accessToken = response.data.accessToken;
-//     Current_User.refreshToken = response.data.refreshToken;
-//     console.log("Access token is ", Current_User.accessToken);
-//     console.log("Refresh token  is ", Current_User.refreshToken);
-//   })
-//   .catch(error => {
-//     console.error(error);
-//   });
+//Validation schema
+const schema = yup.object().shape({
+  email_addr: yup.string().email().required().label('Email Address'),
+  acc_pazzword: yup.string().min(5).required().label('Your Password'),
+});
+// Submit function
+async function onSubmit() {
+  console.log("Sommettiti")
+  console.log("email", credentials.email)
+  console.log("pass", credentials.password)
+  const e = await auth.value.signUpLocal(credentials.email, credentials.password);
+  if (e)
+  {
+    alert(e.message)
+    console.log("danger", "failure", e.message);
+    return;
+  }
+  else
+		router.push('/');
+}
 
-
-// }
 </script>

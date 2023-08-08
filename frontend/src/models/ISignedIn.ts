@@ -1,6 +1,7 @@
 export interface ISignedIn {
-    id: number;
-    access_token: string;
+    id: string;
+    accessToken: string;
+    refreshToken: string;
     // twoFaEnabled: boolean;
   }
   

@@ -34,11 +34,14 @@ export const useAuthStore = defineStore('auth', {
     ): Promise<IError | undefined> {
       try {
         const resp = await api.signInLocal(email, password);
-        console.log(resp.data);
-        this.setState(resp.data.access_token);
+        console.log(resp.data.accessToken);
+        console.log(resp.data.refreshToken);
+
+        this.setState(resp.data.accessToken, resp.data.refreshToken);
+        console.log("token saved is", this.token)
 				// this.twoFaEnabled = resp.data.twoFaEnabled;
 				// if (!this.twoFaEnabled)
-            await useCurrentUserStore().initStore(resp.data.id);
+            // await useCurrentUserStore().initStore(resp.data.id);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
@@ -48,12 +51,12 @@ export const useAuthStore = defineStore('auth', {
     async signUpLocal(email: string, password: string){
       try {
         const resp = await api.signUpLocal(email, password);
-        console.log(resp.data)
-        this.setState(resp.data.access_token, true);
+        // console.log("Acces token is",resp.data.access_token.accesToken)
+        this.setState(resp.data.accessToken, resp.data.refreshToken, true);
         console.log(this.token)
 				// this.twoFaEnabled = resp.data.twoFaEnabled;
 
-        await useCurrentUserStore().initStore(resp.data.id);
+        // await useCurrentUserStore().initStore(resp.data.id);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
@@ -118,8 +121,9 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    setState(token: string, registerInProgress: boolean = false){
+    setState(token: string, refreshToken: string,  registerInProgress: boolean = false){
       this.token = token;
+      this.refreshToken = refreshToken;
       this.registerInProgress = registerInProgress;
     },
 

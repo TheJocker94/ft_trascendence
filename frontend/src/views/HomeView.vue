@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { useLoginStore } from '../stores/login';
+// import { useLoginStore } from '../stores/login';
 import { ref } from 'vue';
 import AuthComponent from '@/components/auth/AuthComponent.vue';
+import { useAuthStore } from '@/stores/auth';
 import CardPong from '@/components/CardPong.vue';
-const signin = ref(useLoginStore());
+const authStore = ref(useAuthStore());
 
 </script>
 
 <template>
-<AuthComponent v-if="!signin.logged"/>
-<CardPong  v-if="signin.logged"/>
+<AuthComponent v-if="!authStore.isLoggedIn"/>
+<CardPong  v-if="authStore.isLoggedIn"/>
 </template>

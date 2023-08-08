@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-// import { useAuthStore } from "@/stores/auth";
+import { useAuthStore } from "@/stores/auth";
 import HomeView from '../views/HomeView.vue'
 import GameView from '../views/GameView.vue'
 
@@ -30,11 +30,14 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   // Get the meta.title property from the destination route
   const title = to.meta.title || 'Transcendence'; // Use a default title if not specified
-  
+  const authStore = useAuthStore();
   // Set the document title to the specified title
   document.title = `Transcendence - ${title}`;
-  
-  // Continue with the navigation
-  next();
+  if (to.meta.requiresAuth && !authStore.isLoggedIn)
+    next('/');
+  else if (to.meta.requiresUnAuth && authStore.isLoggedIn)
+		next('/');
+  else
+    next();
 });
 export default router

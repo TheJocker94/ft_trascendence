@@ -5,30 +5,6 @@
   </button>
     <dialog id="my_modal_1" class="modal">
         <form  method="dialog" class="modal-box">
-            <!-- <form @submit.prevent="login" class=" shadow-md rounded px-8 pt-6 pb-8 mb-4 ">
-              <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="Emails">
-                  Email
-                </label>
-                <input v-model="credentials.email" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="Emails" type="text" placeholder="Email" required
-                autofocus>
-              </div>
-              <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="passwords">
-                  Password
-                </label>
-                <input v-model="credentials.password" class="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-white-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="passwords" type="password" placeholder="******************" required>
-                <p class="text-red-500 text-xs italic">Please choose a password.</p>
-              </div>
-              <div class="flex items-center justify-between">
-                <button @click="login" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit" >
-                  Sign In
-                </button>
-                <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800" href="#">
-                  Sei scemo?
-                </a>
-              </div>
-            </form> -->
             <Form @submit="onSubmit" :validation-schema="schema" class=" shadow-md rounded px-8 pt-6 pb-8 mb-4 ">
               <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Your Email</label>
               <Field v-model="credentials.email" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="email_addr" name="email_addr" type="emailSig" />
@@ -54,7 +30,11 @@
         <form method="dialog" class="modal-backdrop">
           <button>close</button>
         </form>
-
+        <!-- Da aggiungere alert Popup -->
+      <!--  <div class="alert alert-error">
+  <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  <span>Error! Task failed successfully.</span>
+</div> -->
       </dialog>
 </template>
 
@@ -78,17 +58,7 @@ const schema = yup.object().shape({
   email_addr: yup.string().email().required().label('Email Address'),
   acc_pazzword: yup.string().min(5).required().label('Your Password'),
 });
-//submit function
-// const login = async () => {
-//   const e = await auth.value.signInLocal(credentials.email, credentials.password);
-//   if (e)
-//   {
-//     console.log("danger", "failure", e.message);
-//     return;
-//   }
-//   else
-// 		router.push('/');
-// };
+// Submit function
 async function onSubmit() {
   console.log("Sommettiti")
   console.log("email", credentials.email)
@@ -96,29 +66,12 @@ async function onSubmit() {
   const e = await auth.value.signInLocal(credentials.email, credentials.password);
   if (e)
   {
+    alert(e.message)
     console.log("danger", "failure", e.message);
     return;
   }
   else
 		router.push('/');
-  // alert(JSON.stringify(values, null, 2));
 }
-// const Current_User = reactive(useCurrentUserStore());
-// const SendCredential = () => {
-//     axios.post('http://localhost:3000/auth/local/signin', { email:credentials.email, password:credentials.password })
-//   .then(response => {
-//     console.log(response.data);
-//     Current_User.accessToken = response.data.accessToken;
-//     Current_User.refreshToken = response.data.refreshToken;
-//     localStorage.setItem("accessToken", response.data.accessToken);
-//     localStorage.setItem("refreshToken", response.data.refreshToken);
-//     console.log("Access token is ", Current_User.accessToken);
-//     console.log("Refresh token  is ", Current_User.refreshToken);
-//   })
-//   .catch(error => {
-//     console.error(error);
-//   });
 
-
-// }
 </script>
