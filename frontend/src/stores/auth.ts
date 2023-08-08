@@ -90,24 +90,24 @@ export const useAuthStore = defineStore('auth', {
     // },
 
     // 42
-    // async signInFortyTwo(params: string): Promise<IError | undefined> {
-    //   try {
-    //     const resp = await api.signInFortyTwo(params);
-    //     this.setState(resp.data.access_token);
-	// 			this.twoFaEnabled = resp.data.twoFaEnabled;
+    async signInFortyTwo(): Promise<IError | undefined> {
+      try {
+        const resp = await api.signInFortyTwo();
+        this.setState(resp.data.accessToken, resp.data.refreshToken);
+				// this.twoFaEnabled = resp.data.twoFaEnabled;
 
-	// 			if (!this.twoFaEnabled)
-    //         await useCurrentUserStore().initStore(resp.data.id);
-    //   } catch (err) {
-    //     const e = err as AxiosError<IError>;
-    //     if (axios.isAxiosError(e)) return e.response?.data;
-    //   }
-    // },
+				// if (!this.twoFaEnabled)
+            await useCurrentUserStore().initStore(resp.data.id);
+      } catch (err) {
+        const e = err as AxiosError<IError>;
+        if (axios.isAxiosError(e)) return e.response?.data;
+      }
+    },
     // async signUpFortyTwo(params: string) {
     //   try {
     //     const resp = await api.signUpFortyTwo(params);
     //     this.setState(resp.data.access_token, true);
-	// 			this.twoFaEnabled = resp.data.twoFaEnabled;
+		// 		this.twoFaEnabled = resp.data.twoFaEnabled;
 
     //     await useCurrentUserStore().initStore(resp.data.id);
     //   } catch (err) {
