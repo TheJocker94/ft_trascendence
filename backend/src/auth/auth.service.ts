@@ -97,10 +97,6 @@ export class AuthService {
         });
     }
 
-    hashData(data: string) {
-        return bcrypt.hash(data, 10);
-    }
-
     async getTokens(userId: string, email: string) {
         const atSecret = process.env.AT_SECRET;
         const rtSecret = process.env.RT_SECRET;
