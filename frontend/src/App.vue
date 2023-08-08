@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import NavBar from './components/NavBar.vue';
-import { useLoginStore } from './stores/login';
+// import { useLoginStore } from './stores/login';
+import { useAuthStore } from './stores/auth';
 import { ref } from 'vue';
 
-const login = ref(useLoginStore());
+const authStore = ref(useAuthStore());
 </script>
 
 <template>
-  <NavBar v-if="login.logged"/>
+  <NavBar v-if="authStore.isLoggedIn"/>
   <RouterView />
 </template>
 

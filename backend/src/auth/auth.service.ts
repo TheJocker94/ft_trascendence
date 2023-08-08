@@ -11,7 +11,9 @@ export class AuthService {
     constructor(private prisma: PrismaService, private jwtService: JwtService) { }
 
     async signupLocal(dto: AuthDto): Promise<Tokens> {
-        const existingUser = await this.prisma.user.findUnique({ where: { email: dto.email } });
+        const existingUser = await this.prisma.user.findUnique({
+            where: { email: dto.email },
+        });
         if (existingUser) {
             throw new ConflictException('Email already in use');
         }
@@ -63,8 +65,8 @@ export class AuthService {
     }
 
     async logout(userId: string) {
-        await this.prisma.user.updateMany({
-            where: { id: userId, hashedRt: { not: null } },
+        await this.prisma.user.update({
+            where: { id: userId },
             data: { hashedRt: null },
         });
     }
@@ -106,5 +108,18 @@ export class AuthService {
 
     generateRandomPassword(length: number = 16): string {
         return randomBytes(length).toString('hex');
+    }
+    async getTokens(userId: string, email: string) {
+        const atSecret = process.env.AT_SECRET;
+        const rtSecret = process.env.RT_SECRET;
+        const accessToken = await this.jwtService.signAsync(
+            { id: userId, email },
+            { secret: atSecret, expiresIn: '15m' },
+        );
+        const refreshToken = await this.jwtService.signAsync(
+            { id: userId, email },
+            { secret: rtSecret, expiresIn: '7d' },
+        );
+        return { accessToken, refreshToken };
     }
 }

@@ -11,10 +11,9 @@
             <RouterLink
                     to="/game"
                     class="btn btn-secondary"
-                  >
+              >
                     Pong
             </RouterLink>
-            <!-- <button class="btn btn-primary">Listen</button> -->
           </div>
         </div>
       </div>
