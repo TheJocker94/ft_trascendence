@@ -40,6 +40,10 @@ export class AuthService {
         if (!isPasswordValid) {
             throw new Error('Credentials are not valid');
         }
+        await this.prisma.user.update({
+            where: { id: user.id },
+            data: { isOnline: true },
+        });
         const tokens = await this.getTokens(user.id, user.email);
         await this.updateRtHash(user.id, tokens.refreshToken);
         return tokens;
@@ -67,7 +71,10 @@ export class AuthService {
     async logout(userId: string) {
         await this.prisma.user.update({
             where: { id: userId },
-            data: { hashedRt: null },
+            data: {
+                hashedRt: null,
+                isOnline: false
+            },
         });
     }
     async refreshTokens(userId: string, rt: string) {

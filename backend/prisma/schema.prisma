@@ -9,28 +9,30 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(uuid())
-  username String? @unique
-  email    String  @unique
-  isAdmin  Boolean @default(false)
+  id             String  @id @default(uuid())
+  username       String? @unique
+  email          String  @unique
+  profilePicture String? @default("path_to_default_pic.jpg")
+  hash           String
+  hashedRt       String?
+  isOnline       Boolean @default(false)
 
-  hash     String
-  hashedRt String?
+  winrate Float? @default(0)
+  Wins    Int    @default(0)
+  Losses  Int    @default(0)
+  Played  Int    @default(0)
 
-  winrate   Float?
-  Wins      Int       @default(0)
-  Losses    Int       @default(0)
-  Played    Int       @default(0)
-  Friends   Contacts? @relation("Friends", fields: [friendsId], references: [id])
-  friendsId String?
-  Blocked   Contacts? @relation("Blocked", fields: [blockedId], references: [id])
-  blockedId String?
+  friendsId String? @map("friends_id")
+  friends   User?   @relation("FriendsRelation", fields: [friendsId], references: [id])
+  friendOf  User[]  @relation("FriendsRelation")
+
+  blockedById String? @map("blocked_by_id")
+  blockedBy   User?   @relation("BlockedByRelation", fields: [blockedById], references: [id])
+  blocked     User[]  @relation("BlockedByRelation")
+
+  blockingId  String? @map("blocking_id")
+  blocking    User?   @relation("BlockingRelation", fields: [blockingId], references: [id])
+  blockedByMe User[]  @relation("BlockingRelation")
 
   @@map("users")
-}
-
-model Contacts {
-  id      String @id @default(uuid())
-  friends User[] @relation("Friends")
-  blocked User[] @relation("Blocked")
 }
