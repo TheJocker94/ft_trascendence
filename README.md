@@ -9,6 +9,3 @@ game:TODO
 
 Frontend:
 Gioco finito, da implementare multiplayer(Socket.io o Nest, non so)
-
-
-sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pg_container
