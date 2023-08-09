@@ -1,6 +1,5 @@
 import http from '@/http';
 import { type ISignedIn } from '@/models/ISignedIn';
-import axios from 'axios';
 // import { IUser } from '@/models/IUser';
 
 class AuthService {
@@ -25,13 +24,12 @@ class AuthService {
   //     withCredentials: false,
   //   });
   // }
-
+  
   // 42
-  signInFortyTwo() {
-    const oauthURL = 'http://localhost:3000/auth/42/signin';
-    window.location.href = oauthURL;
+  signInFortyTwo(params: string) {
+    return http.get<ISignedIn>(`/auth/42/signin${params}`, {
+    });
   }
-
   //   signInFortyTwo(params: string) {
   //   return http.get<ISignedIn>(`/auth/42/signin${params}`, {
   //     headers: {},
@@ -45,21 +43,21 @@ class AuthService {
   //   });
   // }
 
-  /* Two Factor Auth:  */
+	/* Two Factor Auth:  */
 
-  // async generateQrCode() {
-  // 	const response = await http.post('/2fa/generate', {}, { responseType : 'blob'});
-  // 	const fileUrl = window.URL.createObjectURL(response.data);
-  // 	return fileUrl;
-  // }
+	// async generateQrCode() {
+	// 	const response = await http.post('/2fa/generate', {}, { responseType : 'blob'});
+	// 	const fileUrl = window.URL.createObjectURL(response.data);
+	// 	return fileUrl;
+	// }
 
-  // turnOnTwoFA(twoFaCode : string) {
-  // 	return http.post('/2fa/turn-on', { twoFaCode : twoFaCode });
-  // }
+	// turnOnTwoFA(twoFaCode : string) {
+	// 	return http.post('/2fa/turn-on', { twoFaCode : twoFaCode });
+	// }
 
-  // authenticateTwoFA(twoFaCode : string) {
-  // 	return http.post('/2fa/authenticate', { twoFaCode : twoFaCode });
-  // }
+	// authenticateTwoFA(twoFaCode : string) {
+	// 	return http.post('/2fa/authenticate', { twoFaCode : twoFaCode });
+	// }
 
   /** Get a new access_token. Must provide the refresh token */
   refresh() {

@@ -90,9 +90,10 @@ export const useAuthStore = defineStore('auth', {
     // },
 
     // 42
-    async signInFortyTwo(): Promise<IError | undefined> {
+    async signInFortyTwo(params: string): Promise<IError | undefined> {
       try {
-        const resp = await api.signInFortyTwo();
+        const resp = await api.signInFortyTwo(params);
+        console.log(resp.data)
         this.setState(resp.data.accessToken, resp.data.refreshToken);
 				// this.twoFaEnabled = resp.data.twoFaEnabled;
 
