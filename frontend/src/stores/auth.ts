@@ -53,9 +53,10 @@ export const useAuthStore = defineStore('auth', {
     async signUpLocal(email: string, username:string, password: string){
       try {
         const resp = await api.signUpLocal(email, username, password);
-		const tokData = api.decodePayload(resp.data.accessToken);
+        const tokData = api.decodePayload(resp.data.accessToken);
         // console.log("Acces token is",resp.data.access_token.accesToken)
-        this.setState(resp.data.accessToken, resp.data.refreshToken, true);
+        // this.setState(resp.data.accessToken, resp.data.refreshToken, true); //questo giusto dopo per ora facciamo registration false
+        this.setState(resp.data.accessToken, resp.data.refreshToken);
         console.log(this.token)
 				// this.twoFaEnabled = resp.data.twoFaEnabled;
 

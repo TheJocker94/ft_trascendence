@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from "@/stores/auth";
 import HomeView from '../views/HomeView.vue'
 import GameView from '../views/GameView.vue'
+import ProfileView from '../views/ProfileView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -18,6 +19,15 @@ const router = createRouter({
       path: '/game',
       name: 'game',
       component: GameView,
+      meta: {
+        title: 'game',
+        requiresAuth: true
+      },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
       meta: {
         title: 'game',
         requiresAuth: true

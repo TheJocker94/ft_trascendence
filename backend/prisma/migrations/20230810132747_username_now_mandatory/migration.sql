@@ -6,4 +6,4 @@
 */
 -- AlterTable
 ALTER TABLE "users" ALTER COLUMN "username" SET NOT NULL,
-ALTER COLUMN "profilePicture" SET DEFAULT '@/assets/morpheus.png';
+ALTER COLUMN "profilePicture" SET DEFAULT 'src/assets/morpheus.png';

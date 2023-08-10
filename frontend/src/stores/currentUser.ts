@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-// import UserService from '@/services/UserService';
+import UserService from '@/services/UserService';
 // import FriendService from '@/services/FriendService';
 // import FriendService from '@/services/FriendService';
 import type { IUser } from '@/models/IUser';
@@ -36,15 +36,13 @@ export const useCurrentUserStore = defineStore('currentUser', {
     async initStore(userId: string | null, email: string | null) {
       if (userId)
         this.userId = userId;
-	  if (email)
+      if (email)
         this.email = email;
-	  console.log("userId is", this.userId)
-	  console.log("email is", this.email)
       try {
         /*
         Da implementare chiamate User
         */
-        // const user = await UserService.getUserById(this.userId);
+        const user = await UserService.getUserById(this.userId);
         // const avatar = await UserService.getAvatarOfUser(this.userId); 
         /*
         Da implementare chiamate Friends
@@ -52,7 +50,8 @@ export const useCurrentUserStore = defineStore('currentUser', {
         // const friends = await FriendService.getFriendships(this.userId, "accepted");
         // const pendings = await FriendService.getFriendships(this.userId, "pending");
         // const sent = await FriendService.getFriendships(this.userId, "sent");
-        // this.setStore(user.data, avatar/*, { friends, pendings, sent }*/);
+        // this.setStore(user.data, avatar);
+        this.setStore(user.data, user.data.profilePicture/*, { friends, pendings, sent }*/);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;

@@ -14,12 +14,12 @@ class UserService {
   async paginate(link: string) {
     return await http.get(link);
   }
-  getUserById(id: number) {
-    return http.get<IUser>(`/users/${id}`);
+  getUserById(id: string) {
+    return http.get<IUser>(`/user/${id}`);
   }
 
-  async getAvatarOfUser(userId: number): Promise<string> {
-    const response = await http.get(`/users/${userId}/avatar`, { responseType: 'arraybuffer' });
+  async getAvatarOfUser(userId: string): Promise<string> {
+    const response = await http.get(`/user/${userId}/avatar`, { responseType: 'arraybuffer' });
 		return formatImage(response.data);
   }
   async setMyAvatar(myUserId: number, avatar: File): Promise<string> {

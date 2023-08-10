@@ -55,7 +55,11 @@ export class UserController {
   deleteUser(@Body() userData): Promise<User> {
     return this.userService.deleteUser(userData);
   }
-  @Get('/id:userId')
+  // @Get('/id:userId')
+  // getUser(@Param('userId') userId: string): Promise<UserDto | null> {
+  //   return this.userService.getUser(userId);
+  // }
+  @Get('/:userId')
   getUser(@Param('userId') userId: string): Promise<UserDto | null> {
     return this.userService.getUser(userId);
   }
