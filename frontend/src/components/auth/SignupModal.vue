@@ -10,6 +10,10 @@
             <Field v-model="credentials.email" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="email_addr_signup" name="email_addr" type="emailSig" />
             <ErrorMessage name="email_addr_signup" />
         
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="username_signup">Your Username</label>
+            <Field v-model="credentials.username" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="username_signup" name="username" type="username" />
+            <ErrorMessage name="username_signup" />
+
             <label class="block text-gray-700 text-sm font-bold mb-2" for="password_signin">Your Password</label>
             <Field v-model="credentials.password" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="password_signup" name="acc_pazzword" type="password" />
             <ErrorMessage name="acc_pazzword" />
@@ -45,20 +49,23 @@ const router = useRouter();
 const auth = ref(useAuthStore())
 const credentials = reactive({
   email:"",
-  password:""
+  password:"",
+  username:""
 })
 
 //Validation schema
 const schema = yup.object().shape({
   email_addr: yup.string().email().required().label('Email Address'),
   acc_pazzword: yup.string().min(5).required().label('Your Password'),
+  username: yup.string().min(5).required().label('Your Username'),
 });
 // Submit function
 async function onSubmit() {
   console.log("Sommettiti")
   console.log("email", credentials.email)
   console.log("pass", credentials.password)
-  const e = await auth.value.signUpLocal(credentials.email, credentials.password);
+  console.log("user", credentials.username)
+  const e = await auth.value.signUpLocal(credentials.email, credentials.username, credentials.password);
   if (e)
   {
     alert(e.message)

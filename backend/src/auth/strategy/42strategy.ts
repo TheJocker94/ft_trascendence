@@ -7,21 +7,21 @@ import { User_42 } from '../interfaces';
 
 @Injectable()
 export class FortyTwoStrategy extends PassportStrategy(Strategy, '42auth') {
-    constructor(private readonly authService: AuthService) {
-        super({
-            clientID: process.env.FORTYTWO_CLIENT_ID,
-            clientSecret: process.env.FORTYTWO_SECRET,
-            callbackURL: process.env.FORTYTWO_CALLBACK,
-            profileFields: {
-                id: 'id',
-                username: 'login',
-                email: 'email',
-                avatar: 'image_url',
-            },
-        });
-    }
+  constructor(private readonly authService: AuthService) {
+    super({
+      clientID: process.env.FORTYTWO_CLIENT_ID,
+      clientSecret: process.env.FORTYTWO_SECRET,
+      callbackURL: process.env.FORTYTWO_CALLBACK,
+      profileFields: {
+        id: 'id',
+        username: 'login',
+        email: 'email',
+        avatar: 'image_url',
+      },
+    });
+  }
 
-    validate(accessToken: string, refreshToken: string, profile: User_42) {
-        return profile;
-    }
+  validate(accessToken: string, refreshToken: string, profile: User_42) {
+    return profile;
+  }
 }

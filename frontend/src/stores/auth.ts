@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', {
     ): Promise<IError | undefined> {
       try {
         const resp = await api.signInLocal(email, password);
-		const tokData = api.decodePayload(resp.data.accessToken);
+        const tokData = api.decodePayload(resp.data.accessToken);
         console.log(resp.data.accessToken);
         console.log(resp.data.refreshToken);
 
@@ -50,9 +50,9 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async signUpLocal(email: string, password: string){
+    async signUpLocal(email: string, username:string, password: string){
       try {
-        const resp = await api.signUpLocal(email, password);
+        const resp = await api.signUpLocal(email, username, password);
 		const tokData = api.decodePayload(resp.data.accessToken);
         // console.log("Acces token is",resp.data.access_token.accesToken)
         this.setState(resp.data.accessToken, resp.data.refreshToken, true);
@@ -96,14 +96,12 @@ export const useAuthStore = defineStore('auth', {
     // 42
     async signInFortyTwo(accessToken: string, refreshToken: string): Promise<IError | undefined> {
       try {
-		  const tokData = api.decodePayload(accessToken);
-		  this.setState(accessToken, refreshToken);
-		  // this.twoFaEnabled = resp.data.twoFaEnabled;
-		  
-		  // if (!this.twoFaEnabled)
-		  
-		  console.log("awman", tokData);
-		  await useCurrentUserStore().initStore(tokData.id, tokData.email);
+      const tokData = api.decodePayload(accessToken);
+      this.setState(accessToken, refreshToken);
+      // this.twoFaEnabled = resp.data.twoFaEnabled;
+      // if (!this.twoFaEnabled)
+      console.log("awman", tokData);
+      await useCurrentUserStore().initStore(tokData.id, tokData.email);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
@@ -122,10 +120,9 @@ export const useAuthStore = defineStore('auth', {
     //   }
     // },
 	async initStoreasync(){
-		if (this.token) {
-		  await useCurrentUserStore().initStore(null, null);
-		}
-	  },
+		if (this.token)
+      await useCurrentUserStore().initStore(null, null);
+    },
 
     setState(token: string, refreshToken: string,  registerInProgress: boolean = false){
       this.token = token;
