@@ -33,9 +33,13 @@ export const useCurrentUserStore = defineStore('currentUser', {
 	// 	},
   // },
   actions: {
-    async initStore(userId: string | null) {
+    async initStore(userId: string | null, email: string | null) {
       if (userId)
         this.userId = userId;
+	  if (email)
+        this.email = email;
+	  console.log("userId is", this.userId)
+	  console.log("email is", this.email)
       try {
         /*
         Da implementare chiamate User

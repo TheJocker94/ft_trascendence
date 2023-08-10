@@ -66,7 +66,7 @@ async function onSubmit() {
     return;
   }
   else
-		router.push('/');
+	router.push('/');
 }
 
 </script>

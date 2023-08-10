@@ -57,6 +57,13 @@ export class AuthController {
     async callback_42(@Req() request: any, @Res() response: Response) {
         const profile = request.user;
         const tokens = await this.authService.signin42(profile);
-        response.send(tokens);
+        // response.send(tokens);
+		// window.opener.postMessage({ accessToken: 'YOUR_ACCESS_TOKEN', refreshToken: 'YOUR_REFRESH_TOKEN' }, '*');
+		const script = `
+        <script>
+		window.opener.postMessage(${JSON.stringify(tokens)}, '*');
+		window.close(); // Close the popup after sending the message
+        </script>`;
+		response.send(script);
     }
 }

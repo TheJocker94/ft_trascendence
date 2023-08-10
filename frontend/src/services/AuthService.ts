@@ -10,7 +10,16 @@ class AuthService {
   signUpLocal(email: string, password: string) {
     return http.post<ISignedIn>('/auth/local/signup', { email, password });
   }
-
+    /* --------------------------- for the jwt decode --------------------------- */
+  decodePayload(token: string) {
+	const payloadBase64Url = token.split('.')[1];
+	const payloadBase64 = payloadBase64Url.replace(/-/g, '+').replace(/_/g, '/');
+	const payloadJson = atob(payloadBase64);
+	const tokData = JSON.parse(payloadJson);
+	// id = tokData.id;
+	// console.log("id", id);
+	return JSON.parse(payloadJson);
+  }
   // Google
   // signInGoogle(params: string) {
   //   return http.get<ISignedIn>(`/auth/google/signin${params}`, {

@@ -23,6 +23,12 @@
 </template>
 
 <script setup lang="ts">
+declare global {
+  interface Window {
+    accessToken: string;
+	refreshToken: string;
+  }
+}
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
@@ -32,20 +38,26 @@ import SigninModal from '@/components/auth/SigninModal.vue';
 
 const authStore = ref(useAuthStore());
 const router = useRouter();
+let signInWindow: Window | null = null;
 
-async function receiveMessageFortyTwo  (event: MessageEvent<any>){
-  window.removeEventListener('message', receiveMessageFortyTwo);
-  const e = await authStore.value.signInFortyTwo(event.data);
-  if (e) alert(e.message);
-	// else if (authStore.twoFaEnabled)
-	// 	twofaModal.show();
-  else router.push('/');
+window.addEventListener('message', receiveMessageFortyTwo);
+
+async function receiveMessageFortyTwo  (event?: MessageEvent<any>){
+  const { accessToken, refreshToken } = event.data;
+  window.accessToken = accessToken;
+  window.refreshToken = refreshToken;
+  console.log("access:", window.accessToken);
+  console.log("refresh:", window.refreshToken);
+  authStore.value.signInFortyTwo(window.accessToken, window.refreshToken);
+  router.push('/');
+
 }
+
 
 async function loginFortyTwo() {
-  window.addEventListener('message', receiveMessageFortyTwo);
-  openSignInWindow(`http://localhost:3000/auth/42/signin`);
+	openSignInWindow(`http://localhost:3000/auth/42/signin`);
 }
+
 // async function log42() {
 
 //   const e = await authStore.value.signInFortyTwo();
