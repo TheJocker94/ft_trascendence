@@ -1,7 +1,7 @@
 import { Expose } from 'class-transformer';
 import { IsString, IsOptional, IsBoolean, IsNumber, IsEmail, IsArray } from 'class-validator';
 
-export class UserDto {
+export class userListDto {
 
     @Expose()
     @IsString()
@@ -11,10 +11,6 @@ export class UserDto {
     @IsString()
     @IsOptional()
     username: string;
-
-    @Expose()
-    @IsEmail()
-    email: string;
 
     @Expose()
     @IsString()
@@ -42,16 +38,4 @@ export class UserDto {
     @IsBoolean()
     @IsOptional()
     isOnline?: boolean;
-
-    @Expose()
-    @IsArray()
-    friendsId: string[];
-
-    @Expose()
-    @IsArray()
-    blockedById: string[];
-
-    @Expose()
-    @IsArray()
-    blockedId: string[];
 }

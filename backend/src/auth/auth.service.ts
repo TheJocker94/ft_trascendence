@@ -17,12 +17,23 @@ export class AuthService {
         if (existingUser) {
             throw new ConflictException('Email already in use');
         }
+        const existingUsername = await this.prisma.user.findUnique({
+            where: { username: dto.username },
+        });
+        if (existingUsername) {
+            throw new ConflictException('Username already in use');
+        }
         const hash = await this.hashData(dto.password);
         const user = await this.prisma.user.create({
             data: {
                 email: dto.email,
                 hash,
+                username: dto.username,
             },
+        });
+        await this.prisma.user.update({
+            where: { id: user.id },
+            data: { isOnline: true },
         });
         const tokens = await this.getTokens(user.id, user.email);
         await this.updateRtHash(user.id, tokens.refreshToken);
@@ -59,10 +70,16 @@ export class AuthService {
                 data: {
                     email: profile.email,
                     hash: this.generateRandomPassword(),
+                    username: profile.username,
+                    profilePicture: profile.avatar,
                 },
             });
         }
-
+        await this.prisma.user.update({
+            where: { id: user.id },
+            data: { isOnline: true },
+        });
+        console.log(profile);
         const tokens = await this.getTokens(user.id, user.email);
         await this.updateRtHash(user.id, tokens.refreshToken);
         return tokens;

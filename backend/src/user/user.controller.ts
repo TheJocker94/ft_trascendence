@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '.prisma/client';
-import { UserDto } from './dto';
+import { UserDto, userListDto, userUpdateImageDto, userUpdateMailDto, userUpdateNameDto } from './dto';
+import { GetCurrUserId } from 'src/auth/common/decorators';
 
 @Controller('user')
 export class UserController {
@@ -12,12 +13,43 @@ export class UserController {
         return this.userService.createUser(userData);
     }
 
-    @Post('update')
-    updateUser(@Body() userData): Promise<User> {
-        return this.userService.updateUser(userData);
+    @Get()
+    getUsers(): Promise<userListDto[]> {
+        return this.userService.getListUsers();
     }
 
-    @Get(':userId')
+    @Post('update_username')
+    updateUsername(
+        @Body() userData: userUpdateNameDto,
+        @GetCurrUserId() currentUserId: string
+    ): Promise<User> {
+        const idToUse = userData.id || currentUserId;
+        return this.userService.updateUsername({ ...userData, id: idToUse });
+    }
+
+    @Post('update_email')
+    updateEmail(
+        @Body() userData: userUpdateMailDto,
+        @GetCurrUserId() currentUserId: string
+    ): Promise<User> {
+        const idToUse = userData.id || currentUserId;
+        return this.userService.updateEmail({ ...userData, id: idToUse });
+    }
+
+    @Post('update_image')
+    updateImage(
+        @Body() userData: userUpdateImageDto,
+        @GetCurrUserId() currentUserId: string
+    ): Promise<User> {
+        const idToUse = userData.id || currentUserId;
+        return this.userService.updateImage({ ...userData, id: idToUse });
+    }
+
+    @Post('delete')
+    deleteUser(@Body() userData): Promise<User> {
+        return this.userService.deleteUser(userData);
+    }
+    @Get('/id:userId')
     getUser(@Param('userId') userId: string): Promise<UserDto | null> {
         return this.userService.getUser(userId);
     }

@@ -10,9 +10,9 @@ datasource db {
 
 model User {
   id             String  @id @default(uuid())
-  username       String? @unique
+  username       String  @unique
   email          String  @unique
-  profilePicture String? @default("path_to_default_pic.jpg")
+  profilePicture String? @default("@/assets/morpheus.png")
   hash           String
   hashedRt       String?
   isOnline       Boolean @default(false)
