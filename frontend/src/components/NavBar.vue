@@ -79,11 +79,11 @@
         <div class="dropdown dropdown-end">
           <label tabindex="0" class="btn btn-ghost btn-circle avatar">
             <div class="w-10 rounded-full">
-              <img :src=avatar />
+              <img :src=userStore.avatar />
             </div>
           </label>
           <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-            <li><a>{{username}}</a></li>
+            <li><a>{{userStore.username}}</a></li>
             <li><a>Settings</a></li>
             <li><a>Nizz super mega ultra</a></li>
             <li><a @click="auth.logout()">Logout</a></li>
@@ -97,23 +97,21 @@
 <script setup lang="ts">
 // import axios from 'axios';
 // import { useCurrentUserStore } from '@/stores/Current_User';
-import { ref, onUpdated } from 'vue'
+import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth';
 import { useCurrentUserStore } from '@/stores/currentUser';
 
 const auth = ref(useAuthStore());
 const userStore = ref(useCurrentUserStore());
 console.log("UserStore",userStore.value.username);
-const username = ref(userStore.value.username);
-const avatar = ref(userStore.value.avatar);
-console.log("Username",username.value);
-console.log("Avatar",avatar.value);
-onUpdated(() => {
-  username.value = userStore.value.username;
-  avatar.value = userStore.value.avatar;
-  console.log("New Username",username.value);
-  console.log("New Avatar",avatar.value);
-});
+// const username = ref(userStore.value.username);
+// const avatar = ref(userStore.value.avatar);
+// console.log("Username",username.value);
+// console.log("Avatar",avatar.value);
+// onBeforeMount( async () => {
+//   if (userStore.value.userId)
+//     await userStore.value.initStore(null, null);
+// });
 // const Current_User = reactive(useCurrentUserStore());
 // const logout = ()=> {
 //   const token = 'Bearer ' + localStorage.getItem('accessToken'); // ottieni il token dalla localStorage
