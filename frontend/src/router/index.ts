@@ -25,13 +25,13 @@ const router = createRouter({
       },
     },
     {
-      path: '/profile',
-      name: 'profile',
-      component: ProfileView,
+      name: "profile",
+      path: "/users/:userid",
       meta: {
-        title: 'game',
+        title: 'Profile',
         requiresAuth: true
       },
+      component: ProfileView,
     },
   ]
 })

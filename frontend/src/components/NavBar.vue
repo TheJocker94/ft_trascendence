@@ -83,10 +83,17 @@
             </div>
           </label>
           <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-            <li><a>{{userStore.username}}</a></li>
+            <li><router-link
+              :to="{
+                name: 'profile',
+                params: { userid: userStore.userId },
+              }"
+              class="dropdown-item"
+              >{{userStore.username}}</router-link
+            ></li>
             <li><a>Settings</a></li>
             <li><a>Nizz super mega ultra</a></li>
-            <li><a @click="auth.logout()">Logout</a></li>
+            <li><a @click="logout()">Logout</a></li>
           </ul>
         </div>
       </div>
@@ -100,34 +107,14 @@
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth';
 import { useCurrentUserStore } from '@/stores/currentUser';
+import { useRouter } from 'vue-router';
 
 const auth = ref(useAuthStore());
+const router = useRouter();
 const userStore = ref(useCurrentUserStore());
 console.log("UserStore",userStore.value.username);
-// const username = ref(userStore.value.username);
-// const avatar = ref(userStore.value.avatar);
-// console.log("Username",username.value);
-// console.log("Avatar",avatar.value);
-// onBeforeMount( async () => {
-//   if (userStore.value.userId)
-//     await userStore.value.initStore(null, null);
-// });
-// const Current_User = reactive(useCurrentUserStore());
-// const logout = ()=> {
-//   const token = 'Bearer ' + localStorage.getItem('accessToken'); // ottieni il token dalla localStorage
-//   console.log(token);
-  
-//   axios.post('http://localhost:3000/auth/logout', {
-//     headers: {
-//       'Authorization': token
-//     }
-//   })
-//     .then(response => {
-//       localStorage.setItem("accessToken", "");
-//       console.log(response.data);
-//     })
-//     .catch(error => {
-//       console.error(error);
-//     });
-// }
+const logout = () => {
+  auth.value.logout();
+  router.push({ name: 'home' });
+};
 </script>

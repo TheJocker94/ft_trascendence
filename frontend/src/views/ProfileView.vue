@@ -1,96 +1,81 @@
 <template>
-<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">
-<link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css">
-<main class="profile-page">
-    <section class="relative block h-500-px">
-      <div class="absolute top-0 w-full h-full bg-center bg-cover" style="
-              background-image: url('https://images.unsplash.com/photo-1499336315816-097655dcfbda?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=2710&amp;q=80');
-            ">
-        <span id="blackOverlay" class="w-full h-full absolute opacity-50 bg-black"></span>
+  <div class="">
+    <div class="max-w-sm h-auto mx-auto my-20 rounded-md overflow-hidden shadow-lg">
+      <img class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600" src="test" alt="profilePic" />
+
+      <div class="px-6 py-4">
+        <div class="flex flex-col">
+          <div class="font-bold text-xl text-center text-white-800 hover:text-white-500 hover:cursor-pointer">{{currentUser.username}}</div>
+          <p class="text-white-600 text-sm text-center">Tizio</p>
+        </div>
+        <div class="flex flex-row justify-center font-semibold mx-auto my-4">
+          <div class="my-auto text-white bg-white-500 hover:bg-white-600 hover:cursor-pointer rounded-3xl py-2 px-4 mx-2">Follow</div>
+          <div class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Message</div>
+        </div>
       </div>
-      <div class="top-auto bottom-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden h-70-px" style="transform: translateZ(0px)">
-        <svg class="absolute bottom-0 overflow-hidden" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" version="1.1" viewBox="0 0 2560 100" x="0" y="0">
-          <polygon class="text-blueGray-200 fill-current" points="2560 0 2560 100 0 100"></polygon>
-        </svg>
-      </div>
-    </section>
-    <section class="relative py-16 bg-blueGray-200">
-      <div class="container mx-auto px-4">
-        <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg -mt-64">
-          <div class="px-6">
-            <div class="flex flex-wrap justify-center">
-              <div class="w-full lg:w-3/12 px-4 lg:order-2 flex justify-center">
-                <div class="relative">
-                  <img alt="..." src="https://demos.creative-tim.com/notus-js/assets/img/team-2-800x800.jpg" class="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16 max-w-150-px">
-                </div>
-              </div>
-              <div class="w-full lg:w-4/12 px-4 lg:order-3 lg:text-right lg:self-center">
-                <div class="py-6 px-3 mt-32 sm:mt-0">
-                  <button class="bg-pink-500 active:bg-pink-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-1 ease-linear transition-all duration-150" type="button">
-                    Connect
-                  </button>
-                </div>
-              </div>
-              <div class="w-full lg:w-4/12 px-4 lg:order-1">
-                <div class="flex justify-center py-4 lg:pt-4 pt-8">
-                  <div class="mr-4 p-3 text-center">
-                    <span class="text-xl font-bold block uppercase tracking-wide text-blueGray-600">22</span><span class="text-sm text-blueGray-400">Friends</span>
-                  </div>
-                  <div class="mr-4 p-3 text-center">
-                    <span class="text-xl font-bold block uppercase tracking-wide text-blueGray-600">10</span><span class="text-sm text-blueGray-400">Photos</span>
-                  </div>
-                  <div class="lg:mr-4 p-3 text-center">
-                    <span class="text-xl font-bold block uppercase tracking-wide text-blueGray-600">89</span><span class="text-sm text-blueGray-400">Comments</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="text-center mt-12">
-              <h3 class="text-4xl font-semibold leading-normal mb-2 text-blueGray-700 ">
-                Jenna Stones
-              </h3>
-              <div class="text-sm leading-normal mt-0 mb-2 text-blueGray-400 font-bold uppercase">
-                <i class="fas fa-map-marker-alt mr-2 text-lg text-blueGray-400"></i>
-                Los Angeles, California
-              </div>
-              <div class="mb-2 text-blueGray-600 mt-10">
-                <i class="fas fa-briefcase mr-2 text-lg text-blueGray-400"></i>Solution Manager - Creative Tim Officer
-              </div>
-              <div class="mb-2 text-blueGray-600">
-                <i class="fas fa-university mr-2 text-lg text-blueGray-400"></i>University of Computer Science
-              </div>
-            </div>
-            <div class="mt-10 py-10 border-t border-blueGray-200 text-center">
-              <div class="flex flex-wrap justify-center">
-                <div class="w-full lg:w-9/12 px-4">
-                  <p class="mb-4 text-lg leading-relaxed text-blueGray-700">
-                    An artist of considerable range, Jenna the name taken by
-                    Melbourne-raised, Brooklyn-based Nick Murphy writes,
-                    performs and records all of his own music, giving it a
-                    warm, intimate feel with a solid groove structure. An
-                    artist of considerable range.
-                  </p>
-                  <a href="#pablo" class="font-normal text-pink-500">Show more</a>
-                </div>
-              </div>
-            </div>
+<!-- Friend list with avatar TODO -->
+      <h4 class="text-sm text-center my-2 font-semibold text-white-700">Friends</h4>
+      <div class="avatar-group -space-x-6">
+        <div class="avatar">
+          <div class="w-12">
+            <img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+          </div>
+        </div>
+        <div class="avatar">
+          <div class="w-12">
+            <img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+          </div>
+        </div>
+        <div class="avatar">
+          <div class="w-12">
+            <img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+          </div>
+        </div>
+        <div class="avatar placeholder">
+          <div class="w-12 bg-neutral-focus text-neutral-content">
+            <span>+99</span>
           </div>
         </div>
       </div>
-      <footer class="relative bg-blueGray-200 pt-8 pb-6 mt-8">
-    <div class="container mx-auto px-4">
-      <div class="flex flex-wrap items-center md:justify-between justify-center">
-        <div class="w-full md:w-6/12 px-4 mx-auto text-center">
-          <div class="text-sm text-blueGray-500 font-semibold py-1">
-            Made with <a href="https://www.creative-tim.com/product/notus-js" class="text-blueGray-500 hover:text-gray-800" target="_blank">Notus JS</a> by <a href="https://www.creative-tim.com" class="text-blueGray-500 hover:text-blueGray-800" target="_blank"> Creative Tim</a>.
-          </div>
-        </div>
+<!--Description user TODO -->
+      <div>
+        <h4 class="text-sm text-center my-2 font-semibold text-white-700">About me</h4>
+        <p class="text-xs mx-6 text-justify">I specialize in designing and developing user interfaces and digital products. I don’t restrict myself to design.</p>
       </div>
+      <!-- <div class="bg-white-500 text-white mt-5 px-6 pt-4 pb-2 flex flex-row justify-center">
+        <div class="flex flex-row mx-1 hover:cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="mx-2 bi bi-facebook" viewBox="0 0 16 16">
+            <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z" />
+          </svg>
+          <h5 class="my-auto text-sm">Facebook</h5>
+        </div>
+        <div class="flex flex-row mx-1 hover:cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class=" mx-2 bi bi-linkedin" viewBox="0 0 16 16">
+            <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z" />
+          </svg>
+          <h5 class="my-auto text-sm">LinkedIn</h5>
+        </div>
+        <div class="flex flex-row mx-1 hover:cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="mx-2 bi bi-twitter" viewBox="0 0 16 16">
+            <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z" />
+          </svg>
+          <h5 class="my-auto text-sm">Facebook</h5>
+        </div>
+      </div> -->
     </div>
-  </footer>
-    </section>
-  </main>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { useCurrentUserStore } from '@/stores/currentUser';
+import { ref, onBeforeMount } from 'vue';
+const test = "@/assets/morpheus.png";
+
+const currentUser = ref(useCurrentUserStore());
+onBeforeMount( async () => {
+  if (currentUser.value.userId)
+    await currentUser.value.initStore(null, null);
+  console.log("Current user",currentUser.value.avatar);
+});
+
 </script>
