@@ -7,9 +7,9 @@ user profile: WIP
 chat:Mich metti qua i tuoi update
 game:TODO
 
+TODO    da aggiungere ma gia presente il service: getReceivedFriendRequest, getSentFriendRequest.
 
-nuove routes: 
-
+routes:
     per ottenere dati:
 
     LISTA_TUTTI_GLI_UTENTI: /user           tipo: GET
@@ -21,8 +21,20 @@ nuove routes:
     EMAIL: /user/update_email           tipo: POST     richiede: @body con {newEmail: 'la_nuova_mail'}
     IMAGE: /user/update_image           tipo: POST    richiede: @body con {newImage: 'il_nuovo_path_alla_pic'}
 
+NUOVE ROUTES:
+
+    AGGIUNGI AMICO: /user/add_friend                        tipo: POST      richiede @body con {friendId: 'id dell'amico da aggiungere'}        TESTATA
+    ACCETTA RICHIESTA AMICIZIA: /user/accept_friend_request tipo POST       richiede @body con {friendId: 'id dell'amico da aggiungere'}        TESTATA
+    RIMUOVI AMICO/DECLINA RICHIESTA: /user/remove_friend    tipo DELETE     richiede @body con {friendId: 'id dell'amico da aggiungere'}        TESTATA
+    OTTIENI LISTA AMICI: /user/friends                      tipo GET                                                                            NON TESTATA
+    BLOCCA UTENTE: /user/block_user                         tipo POST       richiede @body con {blockedId: 'id dell'utente da bloccare'}        TESTATA
+    RIMUOVI DA LISTA BLOCCATI: /user/block_remove           tipo POST       richiede @body con {userIdToUnblock: 'id dell'utente da sbloccare'} TESTATA
+    OTTIENI LISTA BLOCCATI: /user/blocked_users             tipo GET                                                                            TESTATA POCO
+
+
     tutte le routes tranne signin e signup richiedono sempre BEARER + accesToken come authorization.
     il refreshToken viene richiesto nella refresh route.(poi ci lavoriamo assieme quando la implementiamo lato frontend).
+
 
 Frontend:
 Gioco finito, da implementare multiplayer(Socket.io o Nest, non so)
