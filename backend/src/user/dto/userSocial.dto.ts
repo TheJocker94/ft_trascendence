@@ -1,21 +1,22 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 
-export class FriendDto {
-    @IsNotEmpty()
-    @IsString()
-    userId: string;
-
-    @IsNotEmpty()
-    @IsString()
-    username: string;
-
-    status?: string;
-}
-
 export class AddFriendDto {
     @IsNotEmpty()
     @IsString()
     friendId: string;
+}
+
+export class FriendsDto {
+    id: string;
+    username: string;
+    email: string;
+    profilePicture: string;
+}
+
+export class blockUserDto {
+    @IsNotEmpty()
+    @IsString()
+    blockedId: string;
 }
 
 export class BlockedUserDto {
@@ -26,4 +27,17 @@ export class BlockedUserDto {
     @IsNotEmpty()
     @IsString()
     username: string;
+}
+
+export class BlockedUserResponseDto {
+    id: string;
+    username: string;
+    email: string;
+    profilePicture: string;
+}
+
+export class removeBlockedDto {
+    @IsNotEmpty()
+    @IsString()
+    userIdToUnblock: string;
 }

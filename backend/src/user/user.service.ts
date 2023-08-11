@@ -13,10 +13,13 @@ import {
 import { UserDto } from './dto/user.dto';
 import { userListDto } from './dto/userList.dto';
 import {
+  BlockedUserResponseDto,
+  FriendsDto,
   userUpdateImageDto,
   userUpdateMailDto,
   userUpdateNameDto,
 } from './dto';
+import { Friendship } from '.prisma/client';
 
 @Injectable()
 export class UserService {
@@ -152,6 +155,178 @@ export class UserService {
   }
 
 
+  async acceptFriendRequest(senderId: string, receiverId: string): Promise<void> {
+    const friendship = await this.prisma.friendship.findFirst({
+      where: {
+        OR: [
+          { senderId: senderId, receiverId: receiverId, status: 'PENDING' },
+          { senderId: receiverId, receiverId: senderId, status: 'PENDING' }
+        ]
+      }
+    });
+
+    if (!friendship) {
+      throw new Error('No pending friend request found.');
+    }
+    if (friendship.senderId !== receiverId) {
+      throw new Error('You cannot accept a friend request that you sent.');
+    }
+
+    if (await this.isUserBlocked(senderId, receiverId) || await this.isUserBlocked(receiverId, senderId)) {
+      throw new Error('Friend request cannot be accepted as one user has blocked the other.');
+    }
+
+    await this.prisma.friendship.update({
+      where: { id: friendship.id },
+      data: { status: 'ACCEPTED' }
+    });
+  }
+
+  async removeFriendship(senderId: string, receiverId: string): Promise<void> {
+    await this.prisma.friendship.deleteMany({
+      where: {
+        OR: [
+          { senderId: senderId, receiverId: receiverId },
+          { senderId: receiverId, receiverId: senderId }
+        ]
+      }
+    });
+  }
+
+  async getFriends(userId: string): Promise<FriendsDto[]> {
+    const friendships = await this.prisma.friendship.findMany({
+      where: {
+        OR: [
+          { senderId: userId, status: 'ACCEPTED' },
+          { receiverId: userId, status: 'ACCEPTED' }
+        ]
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            profilePicture: true
+          }
+        },
+        receiver: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            profilePicture: true
+          }
+        }
+      }
+    });
+
+    const friends = friendships.map(friendship => {
+      if (friendship.senderId === userId) {
+        return friendship.receiver;
+      } else {
+        return friendship.sender;
+      }
+    });
+    return friends;
+  }
+
+  async getSentFriendRequests(userId: string): Promise<Friendship[]> {
+    return this.prisma.friendship.findMany({
+      where: {
+        senderId: userId,
+        status: 'PENDING'
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            profilePicture: true
+          }
+        }
+      }
+    });
+  }
+
+  async blockUser(blockerId: string, blockedId: string): Promise<void> {
+    if (blockerId === blockedId) {
+      throw new Error('You cannot block yourself.');
+    }
+    if (await this.isUserBlocked(blockerId, blockedId)) {
+      throw new Error('User is already blocked.');
+    }
+    if (await this.areUsersFriends(blockerId, blockedId)) {
+      await this.removeFriendship(blockerId, blockedId);
+    }
+
+    await this.prisma.blockedUser.create({
+      data: {
+        blockerId: blockerId,
+        blockedId: blockedId
+      }
+    });
+    await this.prisma.blockedUser.deleteMany({
+      where: {
+        blockerId: blockedId,
+        blockedId: blockerId
+      }
+    });
+  }
+
+  async removeBlockedUser(blockerId: string, blockedId: string): Promise<void> {
+    if (!await this.isUserBlocked(blockerId, blockedId)) {
+      throw new Error('User is not blocked.');
+    }
+    await this.prisma.blockedUser.delete({
+      where: {
+        blockerId_blockedId: {
+          blockerId: blockerId,
+          blockedId: blockedId
+        }
+      }
+    });
+  }
+
+  async getReceivedFriendRequests(userId: string): Promise<Friendship[]> {
+    return this.prisma.friendship.findMany({
+      where: {
+        receiverId: userId,
+        status: 'PENDING'
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            profilePicture: true
+          }
+        }
+      }
+    });
+  }
+
+  async getBlockedUsers(userId: string): Promise<BlockedUserResponseDto[]> {
+    const blockedRelations = await this.prisma.blockedUser.findMany({
+      where: {
+        blockerId: userId
+      },
+      include: {
+        blocked: {
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            profilePicture: true
+          }
+        }
+      }
+    });
+    return blockedRelations.map(relation => relation.blocked);
+  }
+
   private async areUsersFriends(userId1: string, userId2: string): Promise<boolean> {
     const existingFriendship = await this.prisma.friendship.findFirst({
       where: {
@@ -167,6 +342,9 @@ export class UserService {
         ]
       }
     });
+    console.log('userId1' + userId1);
+    console.log('userId2' + userId2);
+    console.log(!!existingFriendship);
     return !!existingFriendship;
   }
 
