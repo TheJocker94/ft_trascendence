@@ -31,6 +31,11 @@ class UserService {
   updateMe(attrs: Partial<IUser>) {
     return http.patch<Partial<IUser>>('/users', attrs);
   }
+  async updateUserName(newUser: string): Promise<IUser> {
+	const response = await http.post('/user/update_username', {newUsername: newUser});
+    return (response.data);
+    // return http.post('/user/updateUsername', username);
+  }
   async resetDefaultAvatar(myUserId: number): Promise<string> {
     const response = await http.delete(`/users/${myUserId}/avatar`, { responseType: 'arraybuffer' });
 		return formatImage(response.data);
