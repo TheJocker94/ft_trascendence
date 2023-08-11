@@ -6,9 +6,9 @@
       <div class="px-6 py-4">
         <div class="flex flex-col">
           <div class="font-bold text-xl text-center text-white-800 hover:text-white-500 hover:cursor-pointer">{{currentUser.username}}
-			<!-- <button @click="showUsernameChange" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded">
-        	Change Username
-			</button> -->
+			<button @click="updateName('pisellogigantesco')" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded">
+          Change Username
+			</button>
 		</div>
           <p class="text-white-600 text-sm text-center">Tizio</p>
         </div>
@@ -73,15 +73,15 @@
 <script setup lang="ts">
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { ref, onBeforeMount } from 'vue';
-// import test from "../assets/morpheus.png";
 
 const currentUser = ref(useCurrentUserStore());
-const test = currentUser.value.avatar;
-// const new_test = '/' + test;
 onBeforeMount( async () => {
   if (currentUser.value.userId)
     await currentUser.value.initStore(null, null);
   console.log("Current user",currentUser.value.avatar);
 });
+async function updateName(username: string) {
+  await currentUser.value.updateUser(username);
+}
 
 </script>
