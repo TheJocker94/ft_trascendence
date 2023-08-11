@@ -41,15 +41,13 @@ export class AuthService {
   }
 
   async signinLocal(dto: AuthDto): Promise<Tokens> {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ email: dto.email }, { username: dto.username }],
+      },
     });
-    if (!user) {
-      throw new Error('Credentials are not valid');
-    }
-    const isPasswordValid = await bcrypt.compare(dto.password, user.hash);
-    if (!isPasswordValid) {
-      throw new Error('Credentials are not valid');
+    if (!user || !(await bcrypt.compare(dto.password, user.hash))) {
+      throw new Error('Invalid credentials');
     }
     await this.prisma.user.update({
       where: { id: user.id },

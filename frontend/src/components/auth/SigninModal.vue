@@ -6,7 +6,7 @@
     <dialog id="my_modal_1" class="modal">
         <form  method="dialog" class="modal-box">
             <Form @submit="onSubmit" :validation-schema="schema" class=" shadow-md rounded px-8 pt-6 pb-8 mb-4 ">
-              <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Your Email</label>
+              <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Your Email or Username</label>
               <Field v-model="credentials.email" class="shadow appearance-none border rounded w-full py-2 px-3 text-white-700 leading-tight focus:outline-none focus:shadow-outline" id="email_addr" name="email_addr" type="emailSig" />
               <ErrorMessage name="email_addr" />
           
@@ -50,15 +50,16 @@ const router = useRouter();
 const auth = ref(useAuthStore());
 const credentials = reactive({
   email:"",
-  password:""
+  password:"",
+  username:""
 })
 
 //Validation schema
 const schema = yup.object().shape({
-  email_addr: yup.string().email().required().label('Email Address'),
+  email_addr: yup.string().required().label('Email Address/Password'),
   acc_pazzword: yup.string().min(5).required().label('Your Password'),
 });
-// Submit function
+// // Submit function
 async function onSubmit() {
   console.log("Sommettiti")
   console.log("email", credentials.email)
@@ -73,5 +74,4 @@ async function onSubmit() {
   else
 		router.push('/');
 }
-
 </script>
