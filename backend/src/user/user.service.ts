@@ -20,22 +20,7 @@ import {
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async createUser(data): Promise<User> {
-    return this.prisma.user.create({
-      data,
-    });
-  }
-
-  async updateUser(data): Promise<User> {
-    return this.prisma.user.update({
-      where: {
-        id: data.id,
-      },
-      data,
-    });
-  }
+  constructor(private readonly prisma: PrismaService) { }
 
   async getUser(userId: string): Promise<UserDto> {
     if (userId === undefined) {
@@ -71,7 +56,7 @@ export class UserService {
     return userListDtos;
   }
 
-  async updateUsername(userData: userUpdateNameDto): Promise<User> {
+  async updateUsername(userData: userUpdateNameDto): Promise<UserDto> {
     const user = await this.prisma.user.findUnique({
       where: {
         username: userData.newUsername,
@@ -91,17 +76,17 @@ export class UserService {
       });
       if (!updatedUser) {
         console.log('No user was updated for ID:', userData.id);
-      } else {
-        console.log('Updated user:', updatedUser);
       }
-      return updatedUser;
+      const updatedtoUser = plainToClass(UserDto, updatedUser, transformationOptions);
+      console.log('Updated user:', updatedtoUser);
+      return updatedtoUser;
     } catch (error) {
       console.error('Error updating username:', error);
       throw error;
     }
   }
 
-  async updateEmail(userData: userUpdateMailDto): Promise<User> {
+  async updateEmail(userData: userUpdateMailDto): Promise<UserDto> {
     const user = await this.prisma.user.findUnique({
       where: {
         email: userData.newEmail,
@@ -121,18 +106,18 @@ export class UserService {
       });
       if (!updatedUser) {
         console.log('No mail was updated for ID:', userData.id);
-      } else {
-        console.log('Updated mail:', updatedUser);
       }
-      return updatedUser;
+      const updatedtoUser = plainToClass(UserDto, updatedUser, transformationOptions);
+      console.log('Updated user:', updatedtoUser);
+      return updatedtoUser;
     } catch (error) {
       console.error('Error updating email:', error);
       throw error;
     }
   }
 
-  async updateImage(userData: userUpdateImageDto): Promise<User> {
-    return this.prisma.user.update({
+  async updateImage(userData: userUpdateImageDto): Promise<UserDto> {
+    const updatedUser = await this.prisma.user.update({
       where: {
         id: userData.id,
       },
@@ -140,6 +125,59 @@ export class UserService {
         profilePicture: userData.newImage,
       },
     });
+    const updatedtoUser = plainToClass(UserDto, updatedUser, transformationOptions);
+    console.log('Updated user:', updatedtoUser);
+    return updatedtoUser;
+  }
+
+  async addFriend(senderId: string, receiverId: string): Promise<any> {
+    if (senderId === receiverId) {
+      throw new Error('You cannot send a friend request to yourself.');
+    }
+    if (await this.isUserBlocked(senderId, receiverId) || await this.isUserBlocked(receiverId, senderId)) {
+      throw new Error('Friend request cannot be sent as one user has blocked the other.');
+    }
+
+    if (await this.areUsersFriends(senderId, receiverId)) {
+      throw new Error('Friendship already exists or is pending.');
+    }
+
+    await this.prisma.friendship.create({
+      data: {
+        senderId: senderId,
+        receiverId: receiverId,
+        status: 'PENDING'
+      }
+    });
+  }
+
+
+  private async areUsersFriends(userId1: string, userId2: string): Promise<boolean> {
+    const existingFriendship = await this.prisma.friendship.findFirst({
+      where: {
+        OR: [
+          {
+            senderId: userId1,
+            receiverId: userId2
+          },
+          {
+            senderId: userId2,
+            receiverId: userId1
+          }
+        ]
+      }
+    });
+    return !!existingFriendship;
+  }
+
+  private async isUserBlocked(blockerId: string, blockedId: string): Promise<boolean> {
+    const blockCheck = await this.prisma.blockedUser.findFirst({
+      where: {
+        blockerId: blockerId,
+        blockedId: blockedId
+      }
+    });
+    return !!blockCheck;
   }
 
   async deleteUser(userId: string): Promise<User> {

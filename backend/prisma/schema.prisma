@@ -12,27 +12,45 @@ model User {
   id             String  @id @default(uuid())
   username       String  @unique
   email          String  @unique
-  profilePicture String? @default("src/assets/morpheus.png")
+  profilePicture String? @default("/src/assets/morpheus.png")
   hash           String
   hashedRt       String?
   isOnline       Boolean @default(false)
+  winrate        Float?  @default(0)
+  Wins           Int     @default(0)
+  Losses         Int     @default(0)
+  Played         Int     @default(0)
 
-  winrate Float? @default(0)
-  Wins    Int    @default(0)
-  Losses  Int    @default(0)
-  Played  Int    @default(0)
+  sentFriendRequests     Friendship[] @relation("Friendship_Sender")
+  receivedFriendRequests Friendship[] @relation("Friendship_Receiver")
 
-  friendsId String? @map("friends_id")
-  friends   User?   @relation("FriendsRelation", fields: [friendsId], references: [id])
-  friendOf  User[]  @relation("FriendsRelation")
-
-  blockedById String? @map("blocked_by_id")
-  blockedBy   User?   @relation("BlockedByRelation", fields: [blockedById], references: [id])
-  blocked     User[]  @relation("BlockedByRelation")
-
-  blockingId  String? @map("blocking_id")
-  blocking    User?   @relation("BlockingRelation", fields: [blockingId], references: [id])
-  blockedByMe User[]  @relation("BlockingRelation")
+  blockedUsers   BlockedUser[] @relation("Blocker_Relation")
+  usersBlockedBy BlockedUser[] @relation("Blocked_Relation")
 
   @@map("users")
+}
+
+model Friendship {
+  id         String           @id @default(uuid())
+  senderId   String
+  sender     User             @relation("Friendship_Sender", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User             @relation("Friendship_Receiver", fields: [receiverId], references: [id])
+  status     FriendshipStatus
+
+  @@unique([senderId, receiverId])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
+model BlockedUser {
+  blockerId String
+  blocker   User   @relation("Blocker_Relation", fields: [blockerId], references: [id])
+  blockedId String
+  blocked   User   @relation("Blocked_Relation", fields: [blockedId], references: [id])
+
+  @@id([blockerId, blockedId])
 }
