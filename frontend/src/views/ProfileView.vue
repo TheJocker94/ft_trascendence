@@ -1,11 +1,15 @@
 <template>
   <div class="">
     <div class="max-w-sm h-auto mx-auto my-20 rounded-md overflow-hidden shadow-lg">
-      <img class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600" :src="test" alt="Morpheus" />
+      <img class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600" :src="currentUser.avatar" alt="Morpheus" />
 
       <div class="px-6 py-4">
         <div class="flex flex-col">
-          <div class="font-bold text-xl text-center text-white-800 hover:text-white-500 hover:cursor-pointer">{{currentUser.username}}</div>
+          <div class="font-bold text-xl text-center text-white-800 hover:text-white-500 hover:cursor-pointer">{{currentUser.username}}
+			<!-- <button @click="showUsernameChange" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded">
+        	Change Username
+			</button> -->
+		</div>
           <p class="text-white-600 text-sm text-center">Tizio</p>
         </div>
         <div class="flex flex-row justify-center font-semibold mx-auto my-4">
@@ -69,10 +73,11 @@
 <script setup lang="ts">
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { ref, onBeforeMount } from 'vue';
-// const test = require("@/assets/morpheus.png");
-
+// import test from "../assets/morpheus.png";
 
 const currentUser = ref(useCurrentUserStore());
+const test = currentUser.value.avatar;
+// const new_test = '/' + test;
 onBeforeMount( async () => {
   if (currentUser.value.userId)
     await currentUser.value.initStore(null, null);
