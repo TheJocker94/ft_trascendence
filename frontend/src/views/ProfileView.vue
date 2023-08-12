@@ -2,14 +2,31 @@
   <div class="">
     <div class="max-w-sm h-auto mx-auto my-20 rounded-md overflow-hidden shadow-lg">
       <img class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600" :src="currentUser.avatar" alt="Morpheus" />
-
+    <!-- boh --> 
+    <div class="flex justify-center mt-2">
+      <button @click="triggerImageUpload" class="bg-blue-500 text-white px-4 py-2 rounded">
+        Change Profile Picture
+      </button>
+      <input type="file" ref="imageInput" @change="handleImageChange" style="display: none;" />
+	</div><!-- boh -->
       <div class="px-6 py-4">
-        <div class="flex flex-col">
-          <div class="font-bold text-xl text-center text-white-800 hover:text-white-500 hover:cursor-pointer">{{currentUser.username}}
-			<button @click="updateName('pisellogigantesco')" class="ml-2 bg-blue-500 text-white px-4 py-2 rounded">
-          Change Username
-			</button>
-		</div>
+		<div class="flex flex-col">
+    <div class="flex items-center">
+      <div class="font-bold text-xl text-center text-white-800 hover:text-white-500 hover:cursor-pointer">
+        {{ currentUser.username }}
+      </div>
+      <button @click="showUsernameChange" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">
+        Change Username
+      </button>
+    </div>
+    <div v-if="isChangingUsername">
+      <input v-model="newUsername" placeholder="Enter new username" />
+      <button @click="updateName" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">
+        Update
+      </button>
+     <p v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</p> <!-- Display error message -->
+    <!-- </div> -->
+  </div>
           <p class="text-white-600 text-sm text-center">Tizio</p>
         </div>
         <div class="flex flex-row justify-center font-semibold mx-auto my-4">
@@ -44,7 +61,7 @@
 <!--Description user TODO -->
       <div>
         <h4 class="text-sm text-center my-2 font-semibold text-white-700">About me</h4>
-        <p class="text-xs mx-6 text-justify">I specialize in designing and developing user interfaces and digital products. I don’t restrict myself to design.</p>
+        <p class="text-xs mx-6 text-justify">I specialize in designing and developing user interfaces and digital products. I don't restrict myself to design.</p>
       </div>
       <!-- <div class="bg-white-500 text-white mt-5 px-6 pt-4 pb-2 flex flex-row justify-center">
         <div class="flex flex-row mx-1 hover:cursor-pointer">
@@ -75,13 +92,58 @@ import { useCurrentUserStore } from '@/stores/currentUser';
 import { ref, onBeforeMount } from 'vue';
 
 const currentUser = ref(useCurrentUserStore());
+const isChangingUsername = ref(false);
+const newUsername = ref('');
+const errorMessage = ref('');
+
+const imageInput = ref<HTMLInputElement | null>(null);//its for the image
+const triggerImageUpload = () => {
+  if (imageInput.value) {
+    imageInput.value.click();
+  }
+};
+const handleImageChange = async () => {
+  if (imageInput.value && imageInput.value.files) {
+    const file = imageInput.value.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const dataUrl = event.target?.result;
+        if (typeof dataUrl === 'string') {
+          await currentUser.value.updatePicture(dataUrl);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+};
+
+
+
+const showUsernameChange = () => {
+	isChangingUsername.value = !isChangingUsername.value;
+};
+
 onBeforeMount( async () => {
   if (currentUser.value.userId)
     await currentUser.value.initStore(null, null);
   console.log("Current user",currentUser.value.avatar);
 });
-async function updateName(username: string) {
-  await currentUser.value.updateUser(username);
+// async function updateName(username: string) {
+//   await currentUser.value.updateUser(username);
+// }
+async function updateName() {
+  if (!newUsername.value.trim()) {  // Check if username is empty or just whitespace
+    errorMessage.value = 'Username cannot be empty';  // Set the error message
+    return;  // Exit the function without updating
+  }
+  else
+  {
+    errorMessage.value = '';
+  }
+  await currentUser.value.updateUser(newUsername.value);
+  isChangingUsername.value = false;
+  newUsername.value = '';
 }
 
 </script>

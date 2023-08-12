@@ -71,6 +71,10 @@ export const useCurrentUserStore = defineStore('currentUser', {
 		const updatedUser = await UserService.updateUserName(user);
     this.setStore(updatedUser, updatedUser.profilePicture/*, { friends, pendings, sent }*/);
     },
+	async updatePicture(picture: string) {
+      const updatedPicture = await UserService.updateProfilePicture(picture);
+      this.setStore(updatedPicture, updatedPicture.profilePicture/*, { friends, pendings, sent }*/);
+    },
     // async updateFriends(userId: number) {
     //   this.friendLists.friends = await FriendService.getFriendships(userId, "accepted");
     // },

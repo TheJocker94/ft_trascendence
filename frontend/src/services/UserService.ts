@@ -36,6 +36,11 @@ class UserService {
     return (response.data);
     // return http.post('/user/updateUsername', username);
   }
+  async updateProfilePicture(newPicture: string): Promise<IUser> {
+	const response = await http.post('/user/update_image', {newImage: newPicture});
+    return (response.data);
+    // return http.post('/user/updateUsername', username);
+  }
   async resetDefaultAvatar(myUserId: number): Promise<string> {
     const response = await http.delete(`/users/${myUserId}/avatar`, { responseType: 'arraybuffer' });
 		return formatImage(response.data);
