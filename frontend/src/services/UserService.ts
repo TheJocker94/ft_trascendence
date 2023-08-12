@@ -14,8 +14,15 @@ class UserService {
   async paginate(link: string) {
     return await http.get(link);
   }
-  getUserById(id: string) {
-    return http.get<IUser>(`/user/${id}`);
+  async getUserById(id: string | string[] ) {
+    const response = await http.get<IUser>(`/user/${id}`);
+    return (response.data)
+  }
+
+  async getUsers() {
+    const response = await http.get<IUser[]>(`/user`);
+    console.log("Lore invia ", response.data)
+    return (response.data)
   }
 
   async getAvatarOfUser(userId: string): Promise<string> {

@@ -51,7 +51,7 @@ export const useCurrentUserStore = defineStore('currentUser', {
         // const pendings = await FriendService.getFriendships(this.userId, "pending");
         // const sent = await FriendService.getFriendships(this.userId, "sent");
         // this.setStore(user.data, avatar);
-        this.setStore(user.data, user.data.profilePicture/*, { friends, pendings, sent }*/);
+        this.setStore(user, user.profilePicture/*, { friends, pendings, sent }*/);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;

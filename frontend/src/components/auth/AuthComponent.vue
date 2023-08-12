@@ -46,8 +46,8 @@ async function receiveMessageFortyTwo  (event?: MessageEvent<any>){
   const { accessToken, refreshToken } = event.data;
   window.accessToken = accessToken;
   window.refreshToken = refreshToken;
-  console.log("access:", window.accessToken);
-  console.log("refresh:", window.refreshToken);
+  // console.log("access:", window.accessToken);
+  // console.log("refresh:", window.refreshToken);
   authStore.value.signInFortyTwo(window.accessToken, window.refreshToken);
   router.push('/');
 

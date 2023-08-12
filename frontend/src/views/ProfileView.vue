@@ -34,6 +34,14 @@
           <div class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Message</div>
         </div>
       </div>
+      <!-- Search friend bar -->
+      <div>
+        <input v-model="searchQuery" @input="performSearch" placeholder="Search by username" />
+        <ul v-if="searchResults.length > 0">
+          <li v-for="result in searchResults" :key="result.id" @click="navigateToUser(result.id)">{{ result.username }} - {{ result.id }}</li>
+        </ul>
+        <p v-else>No results found.</p>
+      </div>
 <!-- Friend list with avatar TODO -->
       <h4 class="text-sm text-center my-2 font-semibold text-white-700">Friends</h4>
       <div class="avatar-group -space-x-6">
@@ -89,12 +97,33 @@
 
 <script setup lang="ts">
 import { useCurrentUserStore } from '@/stores/currentUser';
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, computed, onUpdated } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import UserService from '@/services/UserService';
+import type { IUser } from '@/models/IUser';
 
+const router = useRouter();
+const route = useRoute();
+const userId = ref(route.params.userid);
+const profile = ref(UserService.getUserById(userId.value));
+console.log("Profile is ", profile.value)
+console.log("Profile username is ", profile.value)
+console.log("userId is ", userId.value)
+
+onUpdated( async () => {
+  userId.value = route.params.userid;
+  console.log("userId is ", userId.value);
+  // profile.value = await UserService.getUserById(userId.value);
+  // console.log("Profile is ", profile.value)
+
+
+});
 const currentUser = ref(useCurrentUserStore());
 const isChangingUsername = ref(false);
 const newUsername = ref('');
 const errorMessage = ref('');
+
+let list = ref<IUser[]>()
 
 const imageInput = ref<HTMLInputElement | null>(null);//its for the image
 const triggerImageUpload = () => {
@@ -127,6 +156,15 @@ const showUsernameChange = () => {
 onBeforeMount( async () => {
   if (currentUser.value.userId)
     await currentUser.value.initStore(null, null);
+  const pippo = await UserService.getUsers();
+//   pippo.forEach(obj => {
+//   console.log(obj.username);
+// });
+//   console.log("Pippo riceve", pippo)
+  list.value = pippo;
+const usernameIdArray: string[] = pippo.map(obj => `${obj.username}: ${obj.id}`);
+
+console.log(usernameIdArray);
   console.log("Current user",currentUser.value.avatar);
 });
 // async function updateName(username: string) {
@@ -146,4 +184,19 @@ async function updateName() {
   newUsername.value = '';
 }
 
+// search bar
+
+const searchQuery = ref('');
+const searchResults = computed(() => {
+  const lowercaseQuery = searchQuery.value.toLowerCase();
+  return list.value!.filter(obj => obj.username.toLowerCase().includes(lowercaseQuery));
+});
+const performSearch = () => {
+  // This function is triggered when the input value changes
+
+};
+const navigateToUser = (userId: string) => {
+  console.log("Id", userId)
+  router.push(`/users/${userId}`);
+};
 </script>
