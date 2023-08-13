@@ -39,12 +39,12 @@ import SigninModal from '@/components/auth/SigninModal.vue';
 
 const authStore = ref(useAuthStore());
 const router = useRouter();
-let signInWindow: Window | null = null;
+// let signInWindow: Window | null = null;
 
 window.addEventListener('message', receiveMessageFortyTwo);
 
 async function receiveMessageFortyTwo  (event?: MessageEvent<any>){
-  const { accessToken, refreshToken } = event.data;
+  const { accessToken, refreshToken } = event!.data;
   window.accessToken = accessToken;
   window.refreshToken = refreshToken;
   // console.log("access:", window.accessToken);

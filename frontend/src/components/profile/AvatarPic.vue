@@ -6,7 +6,7 @@
           <div class="avatar indicator mx-auto">
             <div class="indicator-item indicator-bottom">
               <button @click="triggerImageUpload" class="text-white-800 bg-gray-500 hover:bg-gray-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">
-                Update
+                <i class="fa-solid fa-upload"></i>
               </button>
               <input type="file" ref="imageInput" @change="handleImageChange" style="display: none;" />
             </div> 
