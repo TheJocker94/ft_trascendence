@@ -25,6 +25,8 @@ services:
     build:
       context: ./frontend
       dockerfile: dockerfile
+    # command added for refresh in develope
+    command: ["npm", "run", "dev", "--prefix", "/data", "--", "--host", "0.0.0.0"]
     # command:
     #   [
     #     "/bin/sh",

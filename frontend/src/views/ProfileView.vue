@@ -1,45 +1,52 @@
 <template>
   <div class="">
     <div class="max-w-sm h-auto mx-auto my-20 rounded-md overflow-hidden shadow-lg">
+      <!-- boh --> 
+      <Suspense>
+        <template #fallback>
+          <div>loading</div>
+      </template>
+        <AvatarPic :idProfile="userId"/>
+      </Suspense>
+      <!-- <div class="flex justify-center mt-2">
       <img class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600" :src="currentUser.avatar" alt="Morpheus" />
-    <!-- boh --> 
-    <div class="flex justify-center mt-2">
       <button @click="triggerImageUpload" class="bg-blue-500 text-white px-4 py-2 rounded">
         Change Profile Picture
       </button>
       <input type="file" ref="imageInput" @change="handleImageChange" style="display: none;" />
-	</div><!-- boh -->
-      <div class="px-6 py-4">
-		<div class="flex flex-col">
+      </div> -->
+  <!-- boh -->
+      <!-- <div class="px-6 py-4"> -->
+        <AvatarUserName :idProfile="userId"/>
+		<!-- <div class="flex flex-col">
     <div class="flex items-center">
-      <div class="font-bold text-xl text-center text-white-800 hover:text-white-500 hover:cursor-pointer">
+      <div class="font-bold text-xl text-center mx-auto text-white-800 hover:text-white-500 hover:cursor-pointer">
         {{ currentUser.username }}
       </div>
-      <button @click="showUsernameChange" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">
-        Change Username
-      </button>
     </div>
+    <button @click="showUsernameChange" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">
+      Change Username
+    </button>
     <div v-if="isChangingUsername">
       <input v-model="newUsername" placeholder="Enter new username" />
       <button @click="updateName" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">
         Update
       </button>
-     <p v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</p> <!-- Display error message -->
-    <!-- </div> -->
+     <p v-if="errorMessage" class="text-red-500 mt-2">{{ errorMessage }}</p> 
   </div>
-          <p class="text-white-600 text-sm text-center">Tizio</p>
-        </div>
-        <div class="flex flex-row justify-center font-semibold mx-auto my-4">
+          
+        </div> -->
+        <!-- <div class="flex flex-row justify-center font-semibold mx-auto my-4">
           <div class="my-auto text-white bg-white-500 hover:bg-white-600 hover:cursor-pointer rounded-3xl py-2 px-4 mx-2">Follow</div>
           <div class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Message</div>
         </div>
-      </div>
+      </div> -->
       <!-- Search friend bar -->
       <div>
         <input v-model="searchQuery" @input="performSearch" placeholder="Search by username" />
         <ul v-if="searchResults.length > 0">
           <li v-for="result in searchResults" :key="result.id" @click="navigateToUser(result.id)">{{ result.username }}</li>
-		  <!-- <li v-for="result in searchResults" :key="result.id" @click="navigateToUser(result.id)">{{ result.username }}- {{ result.id }}</li> -->
+        <!-- <li v-for="result in searchResults" :key="result.id" @click="navigateToUser(result.id)">{{ result.username }}- {{ result.id }}</li> -->
         </ul>
         <p v-else>No results found.</p>
       </div>
@@ -98,6 +105,8 @@
 
 <script setup lang="ts">
 import { useCurrentUserStore } from '@/stores/currentUser';
+import AvatarPic from '@/components/profile/AvatarPic.vue'
+import AvatarUserName from '@/components/profile/AvatarUserName.vue';
 import { ref, onBeforeMount, computed, onUpdated } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import UserService from '@/services/UserService';
@@ -105,59 +114,22 @@ import type { IUser } from '@/models/IUser';
 
 const router = useRouter();
 const route = useRoute();
-const userId = ref(route.params.userid);
-const profile = ref(UserService.getUserById(userId.value));
-console.log("Profile is ", profile.value)
-console.log("Profile username is ", profile.value)
+const userId = ref<string | string[]>();
 console.log("userId is ", userId.value)
 
 onUpdated( async () => {
   userId.value = route.params.userid;
   console.log("userId is ", userId.value);
-  // profile.value = await UserService.getUserById(userId.value);
-  // console.log("Profile is ", profile.value)
-
-
 });
 const currentUser = ref(useCurrentUserStore());
-const isChangingUsername = ref(false);
-const newUsername = ref('');
-const errorMessage = ref('');
 
 let list = ref<IUser[]>()
-
-const imageInput = ref<HTMLInputElement | null>(null);//its for the image
-const triggerImageUpload = () => {
-  if (imageInput.value) {
-    imageInput.value.click();
-  }
-};
-const handleImageChange = async () => {
-  if (imageInput.value && imageInput.value.files) {
-    const file = imageInput.value.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const dataUrl = event.target?.result;
-        if (typeof dataUrl === 'string') {
-          await currentUser.value.updatePicture(dataUrl);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-};
-
-
-
-const showUsernameChange = () => {
-	isChangingUsername.value = !isChangingUsername.value;
-};
 
 onBeforeMount( async () => {
   if (currentUser.value.userId)
     await currentUser.value.initStore(null, null);
   const pippo = await UserService.getUsers();
+  userId.value = route.params.userid;
 //   pippo.forEach(obj => {
 //   console.log(obj.username);
 // });
@@ -171,19 +143,6 @@ console.log(usernameIdArray);
 // async function updateName(username: string) {
 //   await currentUser.value.updateUser(username);
 // }
-async function updateName() {
-  if (!newUsername.value.trim()) {  // Check if username is empty or just whitespace
-    errorMessage.value = 'Username cannot be empty';  // Set the error message
-    return;  // Exit the function without updating
-  }
-  else
-  {
-    errorMessage.value = '';
-  }
-  await currentUser.value.updateUser(newUsername.value);
-  isChangingUsername.value = false;
-  newUsername.value = '';
-}
 
 // search bar
 
@@ -198,6 +157,6 @@ const performSearch = () => {
 };
 const navigateToUser = (userId: string) => {
   console.log("Id", userId);
-  router.push(`/user-profile/${userId}`);
+  router.push(`/users/${userId}`);
 };
 </script>
