@@ -38,7 +38,8 @@
       <div>
         <input v-model="searchQuery" @input="performSearch" placeholder="Search by username" />
         <ul v-if="searchResults.length > 0">
-          <li v-for="result in searchResults" :key="result.id" @click="navigateToUser(result.id)">{{ result.username }} - {{ result.id }}</li>
+          <li v-for="result in searchResults" :key="result.id" @click="navigateToUser(result.id)">{{ result.username }}</li>
+		  <!-- <li v-for="result in searchResults" :key="result.id" @click="navigateToUser(result.id)">{{ result.username }}- {{ result.id }}</li> -->
         </ul>
         <p v-else>No results found.</p>
       </div>
@@ -196,7 +197,7 @@ const performSearch = () => {
 
 };
 const navigateToUser = (userId: string) => {
-  console.log("Id", userId)
-  router.push(`/users/${userId}`);
+  console.log("Id", userId);
+  router.push(`/user-profile/${userId}`);
 };
 </script>

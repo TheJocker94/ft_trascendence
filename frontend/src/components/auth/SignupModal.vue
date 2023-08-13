@@ -59,6 +59,7 @@ const schema = yup.object().shape({
   acc_pazzword: yup.string().min(5).required().label('Your Password'),
   username: yup.string().min(5).required().label('Your Username'),
 });
+
 // Submit function
 async function onSubmit() {
   console.log("Sommettiti")
