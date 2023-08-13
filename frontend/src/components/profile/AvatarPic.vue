@@ -20,35 +20,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, onUpdated } from 'vue';
+import { ref, watchEffect } from 'vue';
 import { useCurrentUserStore } from '@/stores/currentUser';
-// import { useRoute } from 'vue-router';
 import UserService from '@/services/UserService';
 import type { IUser } from '@/models/IUser';
 
 const props = defineProps({
   idProfile: String,
 });
-// const route = useRoute();
 
 const profile = ref<IUser>();
-// const userId = ref<string | string[]>();
-// userId.value = route.params.userid;
+
 async function fetchUsers() {
   console.log("id new new ", props.idProfile);
   profile.value = await UserService.getUserById(props.idProfile!);
 }
 
-onBeforeMount(async () => {
-  console.log("id new new ", props.idProfile);
-  await fetchUsers();
-  console.log("Profile component is ", profile.value);
-});
-
-onUpdated(async () => {
-  console.log("update ", props.idProfile);
-  await fetchUsers();
-  console.log("Profile component update is ", profile.value);
+// Using watchEffect to observe changes to props.idProfile
+watchEffect(() => {
+  fetchUsers();
 });
 
 const currentUser = ref(useCurrentUserStore());
@@ -71,7 +61,7 @@ const handleImageChange = async () => {
       };
       reader.readAsDataURL(file);
       if (currentUser.value.userId)
-    await currentUser.value.initStore(null, null);
+        await currentUser.value.initStore(null, null);
     }
   }
 };
