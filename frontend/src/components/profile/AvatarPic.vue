@@ -2,20 +2,24 @@
 	<div>
     <div v-if="profile">
       <div v-if="currentUser.userId===profile?.id">
-        <img class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600" :src="currentUser.avatar" alt="Morpheus" />
+        <div class="flex justify-center items-center">
+          <div class="avatar indicator mx-auto">
+            <div class="indicator-item indicator-bottom">
+              <button @click="triggerImageUpload" class="text-white-800 bg-gray-500 hover:bg-gray-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">
+                Update
+              </button>
+              <input type="file" ref="imageInput" @change="handleImageChange" style="display: none;" />
+            </div> 
+            <div class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600 relative">
+              <img :src="currentUser.avatar" alt="Morpheus" />
+            </div>
+          </div>
+        </div>
       </div>
       <div v-else>
         <img class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600" :src="profile.profilePicture" alt="Morpheus" />
       </div>
     </div>
-	<div class="flex justify-center mt-2">
-    <div v-if="currentUser.userId===profile?.id">
-      <button @click="triggerImageUpload" class="bg-blue-500 text-white px-4 py-2 rounded">
-        Change Profile Picture
-      </button>
-      <input type="file" ref="imageInput" @change="handleImageChange" style="display: none;" />
-    </div>
-	</div>
 	</div>
 </template>
 

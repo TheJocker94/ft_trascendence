@@ -22,8 +22,10 @@
 					</div>
 				</div>
 				<div v-else class="flex flex-row justify-center font-semibold mx-auto my-4">
-					<div class="my-auto text-white bg-white-500 hover:bg-white-600 hover:cursor-pointer rounded-3xl py-2 px-4 mx-2">Follow</div>
-					<div class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Message</div>
+					<!-- Follow if not friends/Unfollow else -->
+					<div class="my-auto text-white-800 bg-gray-500 hover:bg-gray-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">Follow</div>
+					<div class="my-auto text-white-800 bg-red-500 hover:bg-red-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">Block</div>
+					<div class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Invite</div>
 				</div>
 			</div>
 		</div>
