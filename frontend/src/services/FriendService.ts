@@ -13,11 +13,11 @@ class FriendService {
   async sendFriendRequest(idfriend:string) {
     return await http.post(`/user/add_friend`, { friendId: idfriend });
   }
-  async acceptFriendship(applicantId: number, recipientId: number) {
-    return await http.patch(`/users/${applicantId}/friends/${recipientId}`);
+  async acceptFriendship(idfriend:string) {
+    return await http.post(`/user/accept_friend_request`, { friendId: idfriend });
   }
-  async endFriendship(applicantId: number, recipientId: number, status: string) {
-    return await http.delete(`/users/${applicantId}/friends/${recipientId}?status=${status}`);
-  }
+async endFriendship(idfriend:string) {
+    return await http.delete(`/user/remove_friend`, { friendId: idfriend } );
+}
 }
 export default new FriendService();

@@ -91,8 +91,22 @@
               class="dropdown-item"
               >{{userStore.username}}</router-link
             ></li>
-            <li><a>Friends requests</a></li>
-            <li><a>Nizz super mega ultra</a></li>
+            
+            <li>
+              <div onclick="my_modal_5.showModal()">Notifications</div>
+              <div class="modal-container">
+                <dialog id="my_modal_5" class="custom-modal modal-box bg-red-800">
+                  <!-- <form method="dialog" class="modal-box bg-red-800"> -->
+                  <h3 class="font-bold text-lg">Hello!</h3>
+                  <p class="py-4">Press ESC key or click the button below to close</p>
+                  <!-- </form> -->
+                  <div class="modal-action">
+                    <!-- if there is a button in form, it will close the modal -->
+                    <button class="btn" onclick="my_modal_5.close()">Close</button>
+                  </div>
+                </dialog>
+              </div>
+            </li>
             <li><a @click="logout()">Logout</a></li>
           </ul>
         </div>
@@ -118,3 +132,22 @@ const logout = () => {
   router.push({ name: 'home' });
 };
 </script>
+
+<!-- <style scoped>
+#my_modal_5 {
+  /* Center the modal relative to the viewport */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* Adjust the size */
+  width: 70%;  /* Adjust this value as per your requirement */
+  max-width: 600px;  /* Adjust this value as per your requirement */
+  
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2000; /* Ensure it's on top */
+}
+</style> -->
