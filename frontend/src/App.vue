@@ -5,7 +5,6 @@ import NavBar from './components/NavBar.vue';
 import { useAuthStore } from './stores/auth';
 import { useCurrentUserStore } from './stores/currentUser';
 import { ref, onBeforeMount } from 'vue';
-import imageUrl from '@/assets/auth.jpg'; 
 const authStore = ref(useAuthStore());
 const userStore = ref(useCurrentUserStore());
 onBeforeMount( async () => {
@@ -15,13 +14,30 @@ onBeforeMount( async () => {
 </script>
 
 <template>
-  <div class="bg-cover bg-center bg-no-repeat h-screen" :style="`background-image: url(${imageUrl})`">
-    <NavBar v-if="authStore.isLoggedIn"/>
-    <RouterView />
-
-  </div>
+  <!-- <div class="page-container">
+    <div class="content"> -->
+      <!-- <div class="bg-cover bg-center bg-no-repeat h-screen" :style="`background-image: url(${imageUrl})`"> -->
+        <NavBar v-if="authStore.isLoggedIn"/>
+        <RouterView />
+      <!-- </div> -->
+    <!-- </div>
+    <FooterBar v-if="authStore.isLoggedIn"/>
+  </div> -->
 </template>
 
-<style scoped>
+<!-- <style scoped>
+.page-container {
+  display: grid;
+  grid-template-rows: 1fr auto; /* Make the content area take up remaining space, and the footer area auto-sized */
+  min-height: 100vh;
+}
 
-</style>
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.router-view {
+  flex-grow: 1;
+}
+</style> -->

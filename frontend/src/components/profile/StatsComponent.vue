@@ -16,7 +16,7 @@
 
 			<div class="stat place-items-center">
 				<div class="stat-title">Winrate</div>
-				<div class="stat-value">{{ profile?.winrate }}</div>
+				<div class="stat-value">{{ profile?.winrate }} %</div>
 				<!-- <div class="stat-desc">From January 1st to February 1st</div> -->
 			</div>
 			
