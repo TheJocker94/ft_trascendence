@@ -10,14 +10,20 @@ class FriendService {
     });
     return list;
   }
-  async sendFriendRequest(idfriend:string) {
-    return await http.post(`/user/add_friend`, { friendId: idfriend });
+  async sendFriendRequest(friendId:string) {
+    return await http.post<string>(`/user/add_friend`,{
+        friendId})
+    }
+  async acceptFriendship(friendId:string) {
+    return await http.post(`/user/accept_friend_request`, {
+      friendId});
   }
-  async acceptFriendship(idfriend:string) {
-    return await http.post(`/user/accept_friend_request`, { friendId: idfriend });
-  }
-async endFriendship(idfriend:string) {
-    return await http.delete(`/user/remove_friend`, { friendId: idfriend } );
+  async endFriendship(friendId:string): Promise<string> {
+    return await http.delete(`/user/remove_friend`, {
+      data: {
+        friendId: friendId
+      }
+    });
 }
 }
 export default new FriendService();
