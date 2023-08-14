@@ -91,7 +91,7 @@
               class="dropdown-item"
               >{{userStore.username}}</router-link
             ></li>
-            <li><a>Settings</a></li>
+            <li><a>Friends requests</a></li>
             <li><a>Nizz super mega ultra</a></li>
             <li><a @click="logout()">Logout</a></li>
           </ul>
