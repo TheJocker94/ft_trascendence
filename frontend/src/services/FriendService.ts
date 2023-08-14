@@ -18,7 +18,7 @@ class FriendService {
     return await http.post(`/user/accept_friend_request`, {
       friendId});
   }
-  async endFriendship(friendId:string): Promise<string> {
+  async endFriendship(friendId:string) {
     return await http.delete(`/user/remove_friend`, {
       data: {
         friendId: friendId
