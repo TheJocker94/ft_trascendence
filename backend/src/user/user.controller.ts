@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Param, Put, Res, HttpCode, HttpStatus, Delete } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from '.prisma/client';
+import { User, Friendship } from '.prisma/client';
 import {
   AddFriendDto,
   BlockedUserResponseDto,
@@ -61,7 +61,7 @@ export class UserController {
   async addFriend(@Body() addFriendDto: AddFriendDto, @GetCurrUserId() senderId: string): Promise<any> {
     const { friendId } = addFriendDto;
     await this.userService.addFriend(senderId, friendId);
-    return { success: true, message: 'Friend request sent successfully!' };
+    return 'Friend request sent successfully!';
   }
 
 
@@ -69,14 +69,14 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   async acceptFriendRequest(@Body() dto: AddFriendDto, @GetCurrUserId() userId: string): Promise<any> {
     await this.userService.acceptFriendRequest(userId, dto.friendId);
-    return { success: true, message: 'Friend request accepted!' };
+    return 'Friend request accepted!';
   }
 
   @Delete('remove_friend')
   @HttpCode(HttpStatus.NO_CONTENT)
   async removeFriendship(@Body() dto: AddFriendDto, @GetCurrUserId() userId: string): Promise<any> {
     await this.userService.removeFriendship(userId, dto.friendId);
-    return { success: true, message: 'Friend removed!' };
+    return 'Friend removed!';
   }
 
   @Get('friends')
@@ -85,14 +85,23 @@ export class UserController {
     return this.userService.getFriends(userId);
   }
 
+  @Get('received_friend_requests')
+  @HttpCode(HttpStatus.OK)
+  async getReceivedFriendsRequests(@GetCurrUserId() userId: string): Promise<FriendsDto[]> {
+    return this.userService.getReceivedFriendRequests(userId);
+  }
+
+  @Get('sent_friend_requests')
+  @HttpCode(HttpStatus.OK)
+  async getSentFriendsRequests(@GetCurrUserId() userId: string): Promise<FriendsDto[]> {
+    return this.userService.getSentFriendRequests(userId);
+  }
+
   @Post('block_user')
   @HttpCode(HttpStatus.CREATED)
   async blockUser(@Body() blockUserDto: blockUserDto, @GetCurrUserId() blockerId: string): Promise<any> {
     await this.userService.blockUser(blockerId, blockUserDto.blockedId);
-    return {
-      success: true,
-      message: 'User blocked successfully!'
-    };
+    return 'User blocked successfully!';
   }
 
   @Post('block_remove')
@@ -103,10 +112,7 @@ export class UserController {
   ): Promise<any> {
     const { userIdToUnblock } = removeBlockedDto;
     await this.userService.removeBlockedUser(blockerId, userIdToUnblock);
-    return {
-      success: true,
-      message: 'User unblocked successfully!'
-    };
+    return 'User unblocked successfully!';
   }
 
   @Get('blocked_users')

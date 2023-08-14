@@ -9,8 +9,8 @@ export class AddFriendDto {
 export class FriendsDto {
     id: string;
     username: string;
-    email: string;
     profilePicture: string;
+    isOnline: boolean;
 }
 
 export class blockUserDto {
@@ -19,20 +19,9 @@ export class blockUserDto {
     blockedId: string;
 }
 
-export class BlockedUserDto {
-    @IsNotEmpty()
-    @IsString()
-    userId: string;
-
-    @IsNotEmpty()
-    @IsString()
-    username: string;
-}
-
 export class BlockedUserResponseDto {
     id: string;
     username: string;
-    email: string;
     profilePicture: string;
 }
 
