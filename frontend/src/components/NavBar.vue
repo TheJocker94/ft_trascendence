@@ -93,24 +93,26 @@
             ></li>
             
             <li>
-              <div onclick="my_modal_5.showModal()">Notifications</div>
-              <div class="modal-container">
-                <dialog id="my_modal_5" class="custom-modal modal-box bg-red-800">
-                  <!-- <form method="dialog" class="modal-box bg-red-800"> -->
-                  <h3 class="font-bold text-lg">Hello!</h3>
-                  <p class="py-4">Press ESC key or click the button below to close</p>
-                  <!-- </form> -->
-                  <div class="modal-action">
-                    <!-- if there is a button in form, it will close the modal -->
-                    <button class="btn" onclick="my_modal_5.close()">Close</button>
-                  </div>
-                </dialog>
-              </div>
+				<div @click="openModal" >Notifications</div>
             </li>
             <li><a @click="logout()">Logout</a></li>
           </ul>
         </div>
       </div>
+	  <div v-if="isModalOpen" class="modal-container" @click="closeModal">
+					<dialog @click.stop class="custom-modal modal-box bg-black-100 w-3/5 h-1/2 flex flex-col justify-between">
+						<div class="flex justify-between mb-4">
+							<button class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Friend Request</button>
+							<button class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Channel</button>
+							<button class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Game</button>
+						</div>
+						<p class="py-4">Press ESC key or click the button below to close</p>
+						<div class="modal-action self-end">
+							<!-- if there is a button in form, it will close the modal -->
+							<button v-if="isModalOpen" @click="closeModal" class="btn">Close</button>
+						</div>
+					</dialog>
+				</div>
     </div>
   </div>
 </template>
@@ -123,6 +125,16 @@ import { useAuthStore } from '@/stores/auth';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { useRouter } from 'vue-router';
 
+const isModalOpen = ref(false);
+
+const openModal = () => {
+	isModalOpen.value = true;
+};
+
+const closeModal = () => {
+	isModalOpen.value = false;
+};
+
 const auth = ref(useAuthStore());
 const router = useRouter();
 const userStore = ref(useCurrentUserStore());
@@ -133,21 +145,31 @@ const logout = () => {
 };
 </script>
 
-<!-- <style scoped>
-#my_modal_5 {
-  /* Center the modal relative to the viewport */
+<style scoped>
+.modal-container {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  /* Adjust the size */
-  width: 70%;  /* Adjust this value as per your requirement */
-  max-width: 600px;  /* Adjust this value as per your requirement */
-  
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 2000; /* Ensure it's on top */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.5);
+  margin: 0; /* Reset margin */
+  padding: 0; /* Reset padding */
+  box-sizing: border-box; /* Ensure padding and borders are included in the total width and height */
 }
-</style> -->
+
+.custom-modal {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  margin: 0; /* Reset margin */
+  padding: 0; /* Reset padding */
+  box-sizing: border-box; /* Ensure padding and borders are included in the total width and height */
+  width: 60%; /* Set a specific width; adjust as needed */
+}
+</style>
