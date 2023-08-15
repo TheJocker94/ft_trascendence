@@ -39,6 +39,18 @@ import { useCurrentUserStore } from '@/stores/currentUser';
 import UserService from '@/services/UserService';
 import FriendService from '@/services/FriendService';
 import type { IUser } from '@/models/IUser';
+import { onMounted } from 'vue';
+
+onMounted(() => {
+    const hasSentFriendRequest = localStorage.getItem(`friendRequestSentTo_${props.idProfile}`);
+    if (hasSentFriendRequest) {
+        friendsButton.value = false;
+    }
+});
+
+//! If there's a way to undo the friend request or if the friend request
+//! is accepted/rejected, you might want to clear the flag from the local storage.
+//! localStorage.removeItem(`friendRequestSentTo_${props.idProfile}`);
 
 const currentUser = ref(useCurrentUserStore());
 const isChangingUsername = ref(false);
@@ -85,11 +97,12 @@ async function friendRequest() {
 	if (response.data)
 	{
 		friendsButton.value = false;
+		localStorage.setItem(`friendRequestSentTo_${props.idProfile}`, 'true');
 	}
 }
 
 async function friendremove() {
-    const response = await FriendService.endFriendship("64a3a5e2-b537-4896-ab69-b936449e964d");
+    const response = await FriendService.endFriendship("a8f5159f-4f94-4c3d-bb1c-f029c04883fc");
 	console.log("Dio asinello", response)
 	if (response)
 	{

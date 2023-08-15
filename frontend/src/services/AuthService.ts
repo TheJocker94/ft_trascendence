@@ -33,6 +33,10 @@ class AuthService {
   //     withCredentials: false,
   //   });
   // }
+
+  getEmailFromUsername(username: string) {
+    return http.get<string | null>(`/auth/getEmailFromUsername?username=${username}`).then(response => response.data);
+}
   
   // 42
   signInFortyTwo(params: string) {

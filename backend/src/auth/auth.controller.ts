@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Redirect,
   Req,
   Res,
@@ -24,6 +25,12 @@ export class AuthController {
     private prisma: PrismaService,
     private authService: AuthService,
   ) {}
+
+  @Public()
+  @Get('getEmailFromUsername')
+  async getEmailFromUsername(@Query('username') username: string): Promise<string | null> {
+	  return this.authService.getEmailFromUsername(username);
+  }
 
   @Public()
   @Post('local/signup')

@@ -41,11 +41,25 @@ export class AuthService {
   }
 
   async signinLocal(dto: AuthDto): Promise<Tokens> {
-    const user = await this.prisma.user.findFirst({
-      where: {
-        OR: [{ email: dto.email }, { username: dto.username }],
-      },
-    });
+    let user;
+
+    // Check if the input is an email
+    if (dto.email) {
+        user = await this.prisma.user.findFirst({
+            where: { email: dto.email }
+        });
+    } 
+    // If not, check if it's a username
+    else if (dto.username) {
+        user = await this.prisma.user.findFirst({
+            where: { username: dto.username }
+        });
+    }
+	// const user = await this.prisma.user.findFirst({
+    //   where: {
+    //     OR: [{ email: dto.email }, { username: dto.username }],
+    //   },
+    // });
     if (!user || !(await bcrypt.compare(dto.password, user.hash))) {
       throw new Error('Invalid credentials');
     }
@@ -57,6 +71,13 @@ export class AuthService {
     await this.updateRtHash(user.id, tokens.refreshToken);
     return tokens;
   }
+
+  async getEmailFromUsername(username: string): Promise<string | null> {
+    const user = await this.prisma.user.findFirst({
+        where: { username: username }
+    });
+    return user ? user.email : null;
+}
 
   async signin42(profile: any): Promise<Tokens> {
     let user = await this.prisma.user.findUnique({

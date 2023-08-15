@@ -43,7 +43,9 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { Form, Field, ErrorMessage } from 'vee-validate';
+import AuthService from '../../services/AuthService';
 import * as yup from 'yup';
+import axios from 'axios';
 
 // Router, authStore, credentials
 const router = useRouter();
@@ -59,19 +61,61 @@ const schema = yup.object().shape({
   email_addr: yup.string().required().label('Email Address/Password'),
   acc_pazzword: yup.string().min(5).required().label('Your Password'),
 });
-// // Submit function
-async function onSubmit() {
-  console.log("Sommettiti")
-  console.log("email", credentials.email)
-  console.log("pass", credentials.password)
-  const e = await auth.value.signInLocal(credentials.email, credentials.password);
-  if (e)
-  {
-    alert(e.message)
-    console.log("danger", "failure", e.message);
-    return;
-  }
-  else
-	router.push('/');
+
+// async function getEmailFromUsername(username: string): Promise<string | null>
+// {
+// 	try {
+// 		const response = await axios.get(`/auth/getEmailFromUsername?username=${username}`);
+// 		console.log("here is what am holding ", response.data);
+// 		return response.data;
+// 	} catch (error) {
+// 		console.error("Error fetching email for username:", error);
+// 		return null;
+// 	}
+// }
+
+async function onSubmit()
+{
+	console.log("Sommettiti");
+	let email: string | null = credentials.email;
+
+	// Check if the provided input is a username and not an email
+	if (!email.includes('@')) {
+		// Call the backend to get the email associated with the username
+		email = await AuthService.getEmailFromUsername(email);
+		if (!email) {
+			console.log("danger", "failure", "Username not found");
+			return;
+		}
+	}
+
+	console.log("email", email);
+	console.log("pass", credentials.password);
+
+	const e = await auth.value.signInLocal(email, credentials.password);
+	if (e) {
+		alert(e.message);
+		console.log("danger", "failure", e.message);
+		return;
+	} else {
+		router.push('/');
+	}
 }
+
+
+// // Submit function
+// async function onSubmit() {
+//   console.log("Sommettiti")
+//   console.log("email", credentials.email)
+//   console.log("pass", credentials.password)
+//   const e = await auth.value.signInLocal(credentials.email, credentials.password);
+//   if (e)
+//   {
+//     alert(e.message)
+//     console.log("danger", "failure", e.message);
+//     return;
+//   }
+//   else
+// 	router.push('/');
+// }
 </script>
