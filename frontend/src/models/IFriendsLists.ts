@@ -1,6 +1,6 @@
 export interface IFriend {
-	id: number;
-	username: number;
+	id: string;
+	username: string;
 	isOnline: boolean;
 	profilePicture: string;
 }

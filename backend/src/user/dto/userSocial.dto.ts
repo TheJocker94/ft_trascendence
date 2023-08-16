@@ -23,6 +23,7 @@ export class BlockedUserResponseDto {
     id: string;
     username: string;
     profilePicture: string;
+	isOnline: boolean;
 }
 
 export class removeBlockedDto {

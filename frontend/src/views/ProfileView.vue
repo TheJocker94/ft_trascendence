@@ -49,10 +49,12 @@ import StatsComponent from '@/components/profile/StatsComponent.vue';
 import SearchBar from '@/components/profile/SearchBar.vue';
 import { ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
+import { useFriendStore } from '@/stores/friend';
 
 const route = useRoute();
 const userId = ref<string | string[]>();
 const currentUser = ref(useCurrentUserStore());
+const friendStore = ref(useFriendStore());
 watchEffect(async () => {
   userId.value = route.params.userid;
   console.log("userId is ", userId.value);

@@ -323,7 +323,8 @@ export class UserService {
           select: {
             id: true,
             username: true,
-            profilePicture: true
+            profilePicture: true,
+			isOnline: true
           }
         }
       }

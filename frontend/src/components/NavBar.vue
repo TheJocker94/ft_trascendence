@@ -102,9 +102,39 @@
 	  <div v-if="isModalOpen" class="modal-container" @click="closeModal">
 					<dialog @click.stop class="custom-modal modal-box bg-black-100 w-3/5 h-1/2 flex flex-col justify-between">
 						<div class="flex justify-between mb-4">
-							<button class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Friend Request</button>
-							<button class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Channel</button>
-							<button class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Game</button>
+							<button @click="showFriendRequest = true, showChannelInvite = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Friend Request</button>
+							<button @click="showChannelInvite = true, showFriendRequest = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Channel</button>
+							<button @click="showGameRequest = true, showFriendRequest = false, showChannelInvite = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Game</button>
+						</div>
+						<div v-if="showFriendRequest">
+							<ul>
+								<li v-for="friend in friendStore.pending" :key="friend.id">
+									<router-link
+									:to="{
+										name: 'profile',
+										params: { userid: friend.id },
+									}"
+									@click="closeModal"
+									class="btn btn-ghost btn-circle avatar">
+										<div class="w-6 rounded-full">
+												<img :src=friend.profilePicture />
+										</div>
+									</router-link>
+									{{ friend.username }}
+									
+									<!-- Accept button -->
+									<button @click="acceptRequest(friend.id)"> <i class="fa-solid fa-circle-check" style="color: #21b02b;"></i> </button>
+									
+									<!-- Reject button -->
+									<button @click="declineRequest(friend.id)"><i class="fa-solid fa-circle-xmark" style="color: #d41616;"></i></button>
+								</li>
+							</ul>
+						</div>
+						<div v-if="showChannelInvite">
+							<p>balh balhadifj ioawjekvds</p>
+						</div>
+						<div v-if="showGameRequest">
+							<p>what you said ah what yes</p>
 						</div>
 						<p class="py-4">Press ESC key or click the button below to close</p>
 						<div class="modal-action self-end">
@@ -124,6 +154,40 @@ import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { useRouter } from 'vue-router';
+import { useFriendStore } from '@/stores/friend';
+import type { IFriend } from '@/models/IFriendsLists';
+import FriendService from '@/services/FriendService';
+import axios, { AxiosError } from 'axios';
+import type { IError } from '@/models/IError';
+
+const friendStore = ref(useFriendStore());
+
+const showFriendRequest = ref(true);
+const showChannelInvite = ref(false);
+const showGameRequest = ref(false);
+const userStore = ref(useCurrentUserStore());
+
+async function acceptRequest(userId: string) {
+	try {
+		await FriendService.acceptFriendship(userId);
+		friendStore.value.updatePendings(userStore.value.userId);
+		friendStore.value.updateFriends(userStore.value.userId);
+	} catch (err) {
+		const e = err as AxiosError<IError>;
+		if (axios.isAxiosError(e)) return e.response?.data;
+	}
+}
+
+async function declineRequest(userId: string) {
+	try {
+		await FriendService.endFriendship(userId);
+		friendStore.value.updatePendings(userStore.value.userId);
+		friendStore.value.updateFriends(userStore.value.userId);
+	} catch (err) {
+		const e = err as AxiosError<IError>;
+		if (axios.isAxiosError(e)) return e.response?.data;
+	}
+}
 
 const isModalOpen = ref(false);
 
@@ -137,7 +201,6 @@ const closeModal = () => {
 
 const auth = ref(useAuthStore());
 const router = useRouter();
-const userStore = ref(useCurrentUserStore());
 console.log("UserStore",userStore.value.username);
 const logout = () => {
   auth.value.logout();
@@ -168,7 +231,7 @@ const logout = () => {
   left: 50%;
   top: 50%;
   margin: 0; /* Reset margin */
-  padding: 0; /* Reset padding */
+  padding: 20px; /* Reset padding */
   box-sizing: border-box; /* Ensure padding and borders are included in the total width and height */
   width: 60%; /* Set a specific width; adjust as needed */
 }

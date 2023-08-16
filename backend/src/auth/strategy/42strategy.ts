@@ -16,12 +16,19 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42auth') {
         id: 'id',
         username: 'login',
         email: 'email',
-        avatar: 'image_url',
       },
     });
   }
 
-  validate(accessToken: string, refreshToken: string, profile: User_42) {
-    return profile;
+  validate(accessToken: string, refreshToken: string, profile: any) {
+    const rawProfile = JSON.parse(profile._raw);
+    const avatar = rawProfile.image?.link;
+    return {
+      id: profile.id,
+      username: profile.username,
+      email: profile.email,
+      avatar: avatar,
+    };
   }
+
 }

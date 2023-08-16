@@ -19,6 +19,21 @@ class FriendService {
       friendId});
   }
 
+  async blockUser(userId: string) {
+    const response = await http.post<string>(`/user/block_user`, {
+      blockedId: userId});
+	console.log("hello there me ", response.data);
+	console.log(response);
+	return (response.data);
+  }
+
+  async unBlockUser(userId: string) {
+    const response = await http.post<string>(`/user/block_remove`, {
+		userIdToUnblock: userId});
+	console.log("hello there me ", response.data);
+	console.log(response);
+	return (response.data);
+  }
 
 async getFriendRequest(friendId:string) {
     const response =  await http.get<IFriend[]>(`/user/received_friend_requests`, { 
@@ -30,6 +45,21 @@ async getFriendRequest(friendId:string) {
 	return response.data;
   }
 
+  async getBlockedRequest() {
+    const response =  await http.get<IFriend[]>(`/user/blocked_users`);
+	console.log("Friends resposne: ", response.data);
+	return response.data;
+  }
+
+  async getFriendSent(friendId:string) {
+	const response =  await http.get<IFriend[]>(`/user/sent_friend_requests`, { 
+		data: {
+			friendId: friendId
+		  }
+	});
+	console.log("Friends resposne: ", response.data);
+	return response.data;
+  }
 
   async getFriendList(friendId:string) {
     const response =  await http.get<IFriend[]>(`/user/friends`, { 
