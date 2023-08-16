@@ -18,6 +18,29 @@ class FriendService {
     return await http.post(`/user/accept_friend_request`, {
       friendId});
   }
+
+
+async getFriendRequest(friendId:string) {
+    const response =  await http.get<IFriend[]>(`/user/received_friend_requests`, { 
+		data: {
+			friendId: friendId
+		  }
+	});
+	console.log("Friends resposne: ", response.data);
+	return response.data;
+  }
+
+
+  async getFriendList(friendId:string) {
+    const response =  await http.get<IFriend[]>(`/user/friends`, { 
+		data: {
+			friendId: friendId
+		  }
+	});
+	console.log("Friends resposne: ", response.data);
+	return response.data;
+  }
+
   async endFriendship(friendId:string) {
     return await http.delete(`/user/remove_friend`, {
       data: {

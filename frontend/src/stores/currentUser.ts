@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 
 import UserService from '@/services/UserService';
+import { useFriendStore } from './friend';
 // import FriendService from '@/services/FriendService';
 // import FriendService from '@/services/FriendService';
 import type { IUser } from '@/models/IUser';
@@ -10,11 +11,12 @@ import type { IError } from '@/models/IError';
 import { useLocalStorage, } from '@vueuse/core';
 
 export const useCurrentUserStore = defineStore('currentUser', {
-  state: () => ({
+	state: () => ({
     userId: useLocalStorage('userId', ''),
     username: '',
     email: '',
     avatar: '',
+	friendStore: useFriendStore(),
     // friendLists: {
     //   friends: [],
     //   pendings: [],
@@ -52,6 +54,7 @@ export const useCurrentUserStore = defineStore('currentUser', {
         // const sent = await FriendService.getFriendships(this.userId, "sent");
         // this.setStore(user.data, avatar);
         this.setStore(user, user.profilePicture/*, { friends, pendings, sent }*/);
+		this.friendStore.initStore(this.userId);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;

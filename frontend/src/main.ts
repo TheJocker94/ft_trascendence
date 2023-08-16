@@ -4,6 +4,22 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
+// import { io } from 'socket.io-client';
+
+// const socket = io("http://localhost:3000");
+
+// 	socket.on('messageFromServer', (dataFromServer) =>{
+// 		console.log(dataFromServer);
+// 	socket.emit('messageToServer', {data: 'Data from the client!'});
+// 	})
+
+// socket.on("connect", () => {
+//   console.log('Connected to the server balh blah balh');
+// });
+
+// socket.on("disconnect", () => {
+//   console.log('Disconnected from the server');
+// });
 
 const app = createApp(App)
 app.use(createPinia())

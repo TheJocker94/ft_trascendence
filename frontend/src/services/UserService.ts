@@ -16,8 +16,9 @@ class UserService {
   }
   async getUserById(id: string | string[] ) {
     const response = await http.get<IUser>(`/user/${id}`);
+	console.log("wtf reponse: ", response.data);
     return (response.data)
-  }
+}
 
   async getUsers() {
     const response = await http.get<IUser[]>(`/user`);

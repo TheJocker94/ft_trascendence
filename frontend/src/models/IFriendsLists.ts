@@ -1,6 +1,8 @@
 export interface IFriend {
 	id: number;
 	username: number;
+	isOnline: boolean;
+	profilePicture: string;
 }
 
 export interface IFriendLists {

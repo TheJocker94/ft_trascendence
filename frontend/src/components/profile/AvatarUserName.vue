@@ -26,7 +26,7 @@
 			<!-- Follow if not friends/Unfollow else -->
 			<div v-if="friendsButton" @click="friendRequest()" class="my-auto text-white-800 bg-gray-500 hover:bg-gray-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">Add Friend</div>
 			<div @click="friendremove()" class="my-auto text-white-800 bg-red-500 hover:bg-red-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">Block</div>
-			<div class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Invite</div>
+			<div @click="getPendingRequest()" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Invite</div>
 		</div>
 	</div>
 	</div>
@@ -101,8 +101,27 @@ async function friendRequest() {
 	}
 }
 
+/* -------------------------------------------------------------------------- */
+/*                            accept friend request                           */
+/* -------------------------------------------------------------------------- */
+// async function acceptFriendRequest() {
+//     const response = await FriendService.acceptFriendship(props.idProfile!);
+// 	console.log("friendRequest accpeted: ", response.data)
+// }
+
+async function getPendingRequest() {
+    const response = await FriendService.getFriendRequest(props.idProfile!);
+	console.log("what suca", response.data)
+}
+
+// async function getFriendList() {
+//     const response = await FriendService.getFriendList(props.idProfile!);
+// 	console.log("what suca", response.data)
+// }
+
+
 async function friendremove() {
-    const response = await FriendService.endFriendship("a8f5159f-4f94-4c3d-bb1c-f029c04883fc");
+    const response = await FriendService.endFriendship("0c9f3edf-84c3-4a59-942c-6a260bf4ab3b");
 	console.log("Dio asinello", response)
 	if (response)
 	{
