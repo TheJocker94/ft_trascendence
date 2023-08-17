@@ -10,14 +10,20 @@
               </button>
               <input type="file" ref="imageInput" @change="handleImageChange" style="display: none;" />
             </div> 
-            <div class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600 relative">
-              <img :src="currentUser.avatar" alt="Morpheus" />
-            </div>
+              <div class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600 relative">
+                <div class="h-full w-full overflow-hidden rounded-full">
+                  <img :src="currentUser.avatar" alt="avatar" class="h-full w-full object-cover" />
+                </div>
+              </div>
           </div>
         </div>
       </div>
       <div v-else>
-        <img class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600" :src="profile.profilePicture" alt="Morpheus" />
+        <div class="object-cover rounded-full h-36 w-36 mx-auto m-1 p-1 border-4 border-white-600">
+          <div class="h-full w-full overflow-hidden rounded-full">
+            <img :src="profile.profilePicture" alt="avatar" class="h-full w-full object-cover" />
+          </div>
+        </div>
       </div>
     </div>
 	</div>
