@@ -35,7 +35,7 @@
   
 
 <script setup lang="ts">
-import { ref, watchEffect, computed, watch } from 'vue';
+import { ref, watchEffect, computed, watch, nextTick } from 'vue';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import UserService from '@/services/UserService';
 import FriendService from '@/services/FriendService';
@@ -117,6 +117,10 @@ watchEffect(async () => {
 //   isIdExistsInOtherBlocked.value = friendStore.value.blocked.some(friend => friend.id === props.idProfile);
 // });
 
+// nextTick(() => {
+//   console.log(state.message); // Output: Hello, Vue 3!
+// });
+
 watch(() => friendStore.value.friends, () => {
     updateReactiveChecks();
 }, { deep: true });
@@ -145,6 +149,7 @@ async function friendRequest(userId: string) {
     friendStore.value.updateSent(currentUser.value.userId);
     friendStore.value.updateBlocked();
 	updateReactiveChecks();
+	location.reload();
   } catch (err) {
     const e = err as AxiosError<IError>;
     if (axios.isAxiosError(e)) return e.response?.data;
@@ -161,6 +166,7 @@ async function friendBlock() {
     friendStore.value.updateSent(currentUser.value.userId);
     friendStore.value.updateBlocked();
 	updateReactiveChecks();
+	location.reload();
   } catch (err) {
     const e = err as AxiosError<IError>;
     if (axios.isAxiosError(e)) return e.response?.data;
@@ -173,6 +179,7 @@ async function unblockFunction() {
     // Update the state after the API call
     friendStore.value.updateBlocked();
 	updateReactiveChecks();
+	location.reload();
   } catch (err) {
     const e = err as AxiosError<IError>;
     if (axios.isAxiosError(e)) return e.response?.data;
