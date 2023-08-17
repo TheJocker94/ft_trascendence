@@ -45,7 +45,6 @@ import { useAuthStore } from '@/stores/auth';
 import { Form, Field, ErrorMessage } from 'vee-validate';
 import AuthService from '../../services/AuthService';
 import * as yup from 'yup';
-import axios from 'axios';
 
 // Router, authStore, credentials
 const router = useRouter();

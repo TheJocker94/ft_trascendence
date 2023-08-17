@@ -35,12 +35,11 @@
   
 
 <script setup lang="ts">
-import { ref, watchEffect, computed, watch, nextTick } from 'vue';
+import { ref, watchEffect, computed, watch} from 'vue';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import UserService from '@/services/UserService';
 import FriendService from '@/services/FriendService';
 import type { IUser } from '@/models/IUser';
-import { onMounted } from 'vue';
 import { useFriendStore } from '@/stores/friend';
 import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';

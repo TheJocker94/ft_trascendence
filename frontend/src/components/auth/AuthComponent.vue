@@ -31,14 +31,14 @@ declare global {
   }
 }
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+// import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { openSignInWindow } from './OauthPopup';
 import SignupModal from '@/components/auth/SignupModal.vue';
 import SigninModal from '@/components/auth/SigninModal.vue';
 
 const authStore = ref(useAuthStore());
-const router = useRouter();
+// const router = useRouter();
 // let signInWindow: Window | null = null;
 
 window.addEventListener('message', receiveMessageFortyTwo);
@@ -50,7 +50,8 @@ async function receiveMessageFortyTwo  (event?: MessageEvent<any>){
   // console.log("access:", window.accessToken);
   // console.log("refresh:", window.refreshToken);
   authStore.value.signInFortyTwo(window.accessToken, window.refreshToken);
-  router.push('/');
+  // router.push('/');
+  // location.reload();
 
 }
 

@@ -7,8 +7,14 @@
         </label>
         <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 ">
           <li>
-            <a>Chat</a>
-            <ul class="p-2">
+            <RouterLink
+              to="/friends"
+              active-class="is-active"
+            >
+
+              <a>Chat</a>
+            </RouterLink>
+            <!-- <ul class="p-2">
               <li>
                 <RouterLink
                 to="/friends"
@@ -17,22 +23,23 @@
                 </RouterLink>
               </li>
               <li><a>Invite</a></li>
-            </ul>
+            </ul> -->
           </li>
           <li>
-            <a>Game</a>
+            <a active-class="is-active">Game</a>
             <ul class="p-2">
               <li>
                 <RouterLink
                 to="/game"
+                active-class="is-active"
                 >
                 Pong
                 </RouterLink>
               </li>
-              <li><a>Stats</a></li>
+              <li active-class="is-active"><a>Stats</a></li>
             </ul>
           </li>
-          <li><a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Hot girl near you</a></li>
+          <li><a active-class="is-active" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Hot girl near you</a></li>
         </ul>
       </div>
       <RouterLink
@@ -46,32 +53,26 @@
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
         <li tabindex="0" class="z-10">
-          <details>
-            <summary>Chat</summary>
-            <ul class="p-2">
-              <li><RouterLink
-                to="/friends"
-              >
-                Friends
-              </RouterLink></li>
-              <li><a>Invite</a></li>
-            </ul>
-          </details>
+          <RouterLink
+            to="/friends"
+          >
+            <summary active-class="is-active">Chat</summary>
+          </RouterLink>
         </li>
         <li tabindex="0" class="z-10">
           <details>
-            <summary>Game</summary>
+            <summary active-class="is-active">Game</summary>
             <ul class="p-2">
-              <li><RouterLink
+              <li active-class="is-active"><RouterLink
                 to="/game"
               >
                 Pong
               </RouterLink></li>
-              <li><a>Stats</a></li>
+              <li><a active-class="is-active">Stats</a></li>
             </ul>
           </details>
         </li>
-        <li><a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Hot girl near you</a></li>
+        <li><a active-class="is-active" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Hot girl near you</a></li>
       </ul>
     </div>
     <div class="navbar-end">
@@ -99,12 +100,12 @@
           </ul>
         </div>
       </div>
-	  <div v-if="isModalOpen" class="modal-container" @click="closeModal">
+      <div v-if="isModalOpen" class="modal-container" @click="closeModal">
 					<dialog @click.stop class="custom-modal modal-box bg-black-100 w-3/5 h-1/2 flex flex-col justify-between">
 						<div class="flex justify-between mb-4">
-							<button @click="showFriendRequest = true, showChannelInvite = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Friend Request</button>
-							<button @click="showChannelInvite = true, showFriendRequest = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Channel</button>
-							<button @click="showGameRequest = true, showFriendRequest = false, showChannelInvite = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Game</button>
+							<button active-class="is-active" @click="showFriendRequest = true, showChannelInvite = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Friend Request</button>
+							<button active-class="is-active" @click="showChannelInvite = true, showFriendRequest = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Channel</button>
+							<button active-class="is-active" @click="showGameRequest = true, showFriendRequest = false, showChannelInvite = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Game</button>
 						</div>
 						<div v-if="showFriendRequest">
 							<ul>
@@ -152,19 +153,31 @@
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth';
 import { useCurrentUserStore } from '@/stores/currentUser';
-import { useRouter } from 'vue-router';
+import { onBeforeRouteLeave, useRouter } from 'vue-router';
 import { useFriendStore } from '@/stores/friend';
-import type { IFriend } from '@/models/IFriendsLists';
 import FriendService from '@/services/FriendService';
 import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
 
+onBeforeRouteLeave(() => {
+  closeAllDropdowns();
+  return true; // Allow the route change to proceed
+});
 const friendStore = ref(useFriendStore());
 
 const showFriendRequest = ref(true);
 const showChannelInvite = ref(false);
 const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
+
+const closeAllDropdowns = () => {
+  // Close all dropdowns
+  const dropdowns = document.querySelectorAll('.dropdown-content');
+  dropdowns.forEach(dropdown => {
+    dropdown.classList.remove('open'); // Assuming 'open' class makes the dropdown visible
+  });
+};
+
 
 async function acceptRequest(userId: string) {
 	try {
