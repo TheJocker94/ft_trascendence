@@ -5,75 +5,56 @@
         <label tabindex="0" class="btn btn-ghost lg:hidden">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" /></svg>
         </label>
-        <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 ">
+        <ul tabindex="0" class="menu menu-sm dropdown-content mt-1 z-[1] p-2 shadow bg-base-100 rounded-box w-52 ">
           <li>
             <RouterLink
               to="/friends"
-              active-class="is-active"
+              
             >
 
               <a>Chat</a>
             </RouterLink>
-            <!-- <ul class="p-2">
-              <li>
-                <RouterLink
-                to="/friends"
-                >
-                Friends
-                </RouterLink>
-              </li>
-              <li><a>Invite</a></li>
-            </ul> -->
           </li>
           <li>
-            <a active-class="is-active">Game</a>
-            <ul class="p-2">
-              <li>
                 <RouterLink
                 to="/game"
-                active-class="is-active"
+                
                 >
-                Pong
+                Game
                 </RouterLink>
-              </li>
-              <li active-class="is-active"><a>Stats</a></li>
-            </ul>
           </li>
-          <li><a active-class="is-active" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Hot girl near you</a></li>
+          <li><a  href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Hot girl near you</a></li>
         </ul>
       </div>
       <RouterLink
             to="/"
             class="btn btn-ghost normal-case text-xl"
-            active-class="is-active"
+            
           >
             Pong
           </RouterLink>
     </div>
     <div class="navbar-center hidden lg:flex">
-      <ul class="menu menu-horizontal px-1">
-        <li tabindex="0" class="z-10">
-          <RouterLink
-            to="/friends"
-          >
-            <summary active-class="is-active">Chat</summary>
-          </RouterLink>
-        </li>
-        <li tabindex="0" class="z-10">
-          <details>
-            <summary active-class="is-active">Game</summary>
-            <ul class="p-2">
-              <li active-class="is-active"><RouterLink
-                to="/game"
-              >
-                Pong
-              </RouterLink></li>
-              <li><a active-class="is-active">Stats</a></li>
-            </ul>
-          </details>
-        </li>
-        <li><a active-class="is-active" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Hot girl near you</a></li>
-      </ul>
+      <!-- <div class="dropdown "> -->
+        <ul class="menu menu-horizontal dropdown-content px-1">
+          <li tabindex="0" class="z-10">
+            <RouterLink
+              to="/friends"
+            >
+              <summary >Chat</summary>
+            </RouterLink>
+          </li>
+          <li tabindex="0" class="z-10">
+            <RouterLink
+                  to="/game"
+                >
+                  Pong
+                </RouterLink>
+          </li>
+          <li><a  href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Hot girl near you</a></li>
+        </ul>
+      <!-- </div> -->
+      
     </div>
     <div class="navbar-end">
       <div class="flex-none">
@@ -83,7 +64,7 @@
               <img :src=userStore.avatar />
             </div>
           </label>
-          <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+          <ul tabindex="0" class="menu menu-sm dropdown-content mt-1 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
             <li><router-link
               :to="{
                 name: 'profile',
@@ -103,9 +84,9 @@
       <div v-if="isModalOpen" class="modal-container" @click="closeModal">
 					<dialog @click.stop class="custom-modal modal-box bg-black-100 w-3/5 h-1/2 flex flex-col justify-between">
 						<div class="flex justify-between mb-4">
-							<button active-class="is-active" @click="showFriendRequest = true, showChannelInvite = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Friend Request</button>
-							<button active-class="is-active" @click="showChannelInvite = true, showFriendRequest = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Channel</button>
-							<button active-class="is-active" @click="showGameRequest = true, showFriendRequest = false, showChannelInvite = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Game</button>
+							<button  @click="showFriendRequest = true, showChannelInvite = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Friend Request</button>
+							<button  @click="showChannelInvite = true, showFriendRequest = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Channel</button>
+							<button  @click="showGameRequest = true, showFriendRequest = false, showChannelInvite = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Game</button>
 						</div>
 						<div v-if="showFriendRequest">
 							<ul>
