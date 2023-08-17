@@ -59,9 +59,12 @@
     <div class="navbar-end">
       <div class="flex-none">
         <div class="dropdown dropdown-end">
-          <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-            <div class="w-10 rounded-full">
-              <img :src=userStore.avatar />
+          <label tabindex="0" class="btn btn-ghost btn-circle avatar indicator">
+            
+              <span v-if="friendStore.pending.length > 0" class="indicator-item indicator-start badge badge-secondary">{{friendStore.pending.length}}</span>
+              <div class="w-10 rounded-full">
+                <img :src=userStore.avatar />
+
             </div>
           </label>
           <ul tabindex="0" class="menu menu-sm dropdown-content mt-1 z-[1] p-2 shadow bg-base-100 rounded-box w-52">

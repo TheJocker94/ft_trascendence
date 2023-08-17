@@ -11,9 +11,53 @@ const myApi: AxiosInstance = axios.create({
 	withCredentials: undefined
 });
 
-myApi.interceptors.request.use( config => {
-	config.headers!['Authorization'] = useAuthStore().tokenBearer;
+myApi.interceptors.request.use(config => {
+	if (useAuthStore().needsRefresh){
+		config.headers['Authorization'] = useAuthStore().refreshBearer;
+		console.log("Sono in refresh")
+	}
+	else
+	{
+		config.headers['Authorization'] = useAuthStore().tokenBearer;
+		console.log("Non sono in refresh")
+	}
 	return config;
-});
+  });
+
+export const refreshAccessTokenFn = async () => {
+	try {	  
+		const response = await myApi.post('/auth/refresh');
+  
+		// Handle the response and update the access token
+		useAuthStore().token = response.data.accessToken;
+		useAuthStore().refreshToken = response.data.refreshToken;
+		console.log("Refreshed access token:", response.data.accessToken);
+	} catch (error) {
+		// Handle error
+		console.error("Error refreshing access token:", error);
+	}
+  };  
+  
+  myApi.interceptors.response.use(
+	(response) => {
+		return response;
+	},
+	async (error) => {
 		
+		const originalRequest = error.config;
+		const errMessage = error.response.data.message as string;
+		console.log("Ciao non funziono!", errMessage)
+		if (errMessage.includes('Unauthorized') && !originalRequest._retry) {
+			console.log("Ciao non funziono mai!")
+			useAuthStore().needsRefresh = true;
+			console.log("Token is ", useAuthStore().needsRefresh)
+			console.log("Token refresh is ", useAuthStore().tokenBearer)
+			console.log("Token access is ", useAuthStore().refreshBearer)
+		originalRequest._retry = true;
+		await refreshAccessTokenFn();
+		return myApi(originalRequest);
+		}
+		return Promise.reject(error);
+	}
+  );	
 export default myApi

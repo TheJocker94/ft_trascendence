@@ -5,6 +5,7 @@ import { useLocalStorage } from '@vueuse/core';
 
 import type { IError } from '@/models/IError';
 import axios, { AxiosError } from 'axios';
+import AuthService from '@/services/AuthService';
 
 
 export const useAuthStore = defineStore('auth', {
@@ -12,6 +13,7 @@ export const useAuthStore = defineStore('auth', {
       token: useLocalStorage('token', ''),
       refreshToken: useLocalStorage('refreshToken', ''),
       registerInProgress: useLocalStorage('registerInProgress', false),
+      needsRefresh: false,
     }),
     getters: {
 
@@ -24,6 +26,9 @@ export const useAuthStore = defineStore('auth', {
 		},
     tokenBearer(): string {
       return this.token === '' ? '' : 'Bearer ' + this.token;
+    },
+    refreshBearer(): string {
+      return this.refreshToken === '' ? '' : 'Bearer ' + this.refreshToken;
     },
   },
   actions: {
@@ -43,6 +48,7 @@ export const useAuthStore = defineStore('auth', {
 				// this.twoFaEnabled = resp.data.twoFaEnabled;
 				// if (!this.twoFaEnabled)
             // await useCurrentUserStore().initStore(resp.data.id);
+            // await this.renewToken();
 		await useCurrentUserStore().initStore(tokData.id, tokData.email);
       } catch (err) {
         const e = err as AxiosError<IError>;
@@ -65,6 +71,17 @@ export const useAuthStore = defineStore('auth', {
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
+      }
+    },
+    async renewToken() {
+      try {
+        const response = await AuthService.refresh() // Make sure you have an API method to renew the token
+        console.log("response", response.data);
+        const newAccessToken = response.data.access_token;
+        this.token = newAccessToken;
+      } catch (err) {
+        console.error('Error renewing token:', err);
+        // Handle token renewal error here
       }
     },
     // google
