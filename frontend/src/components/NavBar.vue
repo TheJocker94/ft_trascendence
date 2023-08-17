@@ -87,39 +87,80 @@
       <div v-if="isModalOpen" class="modal-container" @click="closeModal">
 					<dialog @click.stop class="custom-modal modal-box bg-black-100 w-3/5 h-1/2 flex flex-col justify-between">
 						<div class="flex justify-between mb-4">
-							<button  @click="showFriendRequest = true, showChannelInvite = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Friend Request</button>
-							<button  @click="showChannelInvite = true, showFriendRequest = false, showGameRequest = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Channel</button>
-							<button  @click="showGameRequest = true, showFriendRequest = false, showChannelInvite = false" class="btn text-yellow-600 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Join Game</button>
+							<button  @click="showFriendRequest = true, showChannelInvite = false, showGameRequest = false" :class="{
+                'btn': true,
+                'py-1': true,
+                'px-4': true,
+                'border-2': true,
+                'border-white-500': true,
+                'hover:bg-white-500': true,
+                'hover:cursor-pointer': true,
+                'rounded-3xl': true,
+                'mx-2': true,
+                'text-white': !showFriendRequest,
+                'text-primary': showFriendRequest,
+              }">Friend Request</button>
+							<button  @click="showChannelInvite = true, showFriendRequest = false, showGameRequest = false" :class="{
+                'btn': true,
+                'py-1': true,
+                'px-4': true,
+                'border-2': true,
+                'border-white-500': true,
+                'hover:bg-white-500': true,
+                'hover:cursor-pointer': true,
+                'rounded-3xl': true,
+                'mx-2': true,
+                'text-white': !showChannelInvite,
+                'text-primary': showChannelInvite,
+              }">Join Channel</button>
+							<button  @click="showGameRequest = true, showFriendRequest = false, showChannelInvite = false" :class="{
+                'btn': true,
+                'py-1': true,
+                'px-4': true,
+                'border-2': true,
+                'border-white-500': true,
+                'hover:bg-white-500': true,
+                'hover:cursor-pointer': true,
+                'rounded-3xl': true,
+                'mx-2': true,
+                'text-white': !showGameRequest,
+                'text-primary': showGameRequest,
+              }">Join Game</button>
 						</div>
 						<div v-if="showFriendRequest">
-							<ul>
-								<li v-for="friend in friendStore.pending" :key="friend.id">
-									<router-link
-									:to="{
-										name: 'profile',
-										params: { userid: friend.id },
-									}"
-									@click="closeModal"
-									class="btn btn-ghost btn-circle avatar">
-										<div class="w-6 rounded-full">
-												<img :src=friend.profilePicture />
-										</div>
-									</router-link>
-									{{ friend.username }}
-									
-									<!-- Accept button -->
-									<button @click="acceptRequest(friend.id)"> <i class="fa-solid fa-circle-check" style="color: #21b02b;"></i> </button>
-									
-									<!-- Reject button -->
-									<button @click="declineRequest(friend.id)"><i class="fa-solid fa-circle-xmark" style="color: #d41616;"></i></button>
-								</li>
-							</ul>
+              <div v-if="friendStore.pending.length > 0">
+                <ul>
+                  <li v-for="friend in friendStore.pending" :key="friend.id" class=" ">
+                    <router-link
+                    :to="{
+                      name: 'profile',
+                      params: { userid: friend.id },
+                    }"
+                    @click="closeModal"
+                    class="btn btn-ghost btn-circle avatar">
+                      <div class="w-6 rounded-full">
+                          <img :src=friend.profilePicture />
+                      </div>
+                    </router-link>
+                    {{ friend.username }}
+                    
+                    <!-- Accept button -->
+                    <button @click="acceptRequest(friend.id)"> <i class="fa-solid fa-circle-check" style="color: #21b02b;"></i> </button>
+                    
+                    <!-- Reject button -->
+                    <button @click="declineRequest(friend.id)"><i class="fa-solid fa-circle-xmark" style="color: #d41616;"></i></button>
+                  </li>
+                </ul>
+              </div>
+              <div v-else>
+                <p class=" text-center">No friend's requests</p>
+              </div>
 						</div>
 						<div v-if="showChannelInvite">
-							<p>balh balhadifj ioawjekvds</p>
+							<p class=" text-center">balh balhadifj ioawjekvds</p>
 						</div>
 						<div v-if="showGameRequest">
-							<p>what you said ah what yes</p>
+							<p class=" text-center">what you said ah what yes</p>
 						</div>
 						<div class="modal-action self-end">
 							<!-- if there is a button in form, it will close the modal -->
