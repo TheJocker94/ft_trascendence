@@ -61,7 +61,7 @@ async getFriendRequest(friendId:string) {
 	return response.data;
   }
 
-  async getFriendList(friendId:string) {
+  async getFriendList(friendId:string | string[]) {
     const response =  await http.get<IFriend[]>(`/user/friends`, { 
 		data: {
 			friendId: friendId

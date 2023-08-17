@@ -136,7 +136,6 @@
 						<div v-if="showGameRequest">
 							<p>what you said ah what yes</p>
 						</div>
-						<p class="py-4">Press ESC key or click the button below to close</p>
 						<div class="modal-action self-end">
 							<!-- if there is a button in form, it will close the modal -->
 							<button v-if="isModalOpen" @click="closeModal" class="btn">Close</button>
