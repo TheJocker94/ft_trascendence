@@ -58,6 +58,9 @@ export const refreshAccessTokenFn = async () => {
 		await refreshAccessTokenFn();
 		return myApi(originalRequest);
 		}
+		if (errMessage.includes('Access Denied') && !originalRequest._retry) {
+			useAuthStore().logout;
+		}
 		return Promise.reject(error);
 	}
   );	

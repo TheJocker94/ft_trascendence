@@ -43,30 +43,10 @@ export class SocketGateway {
 
   handleConnection(client: Socket) {
     console.log('Client connected:', client.id);
-
-    // Extract the username from the handshake data
-    const username = client.handshake.auth.username;
-
-    if (!username) {
-      // Close the connection if no username is provided
-      client.disconnect();
-      return;
-    }
-
-    // Attach the username to the socket for future use
-    client['username'] = username;
-
-    console.log('User connected:', username);
   }
 
   handleDisconnect(client: Socket) {
     console.log('Client disconnected:', client.id);
-
-    // You can access the attached username if needed
-    const username = client['username'];
-    if (username) {
-      console.log('User disconnected:', username);
-    }
   }
   // @SubscribeMessage('sendMessage')
   // handleMessage(client: Socket, payload: string): void {

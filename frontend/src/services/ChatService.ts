@@ -1,9 +1,9 @@
 import http from '@/http';
 import { type IUser } from '@/models/IUser';
 
-class UserService {
-  async paginate(link: string) {
-    return await http.get(link);
+class ChatService {
+  async chat() {
+    return await http.get('/api/chat');
   }
   async getUserById(id: string | string[] ) {
     const response = await http.get<IUser>(`/user/${id}`);
@@ -58,4 +58,4 @@ class UserService {
     })
   }
 }
-export default new UserService();
+export default new ChatService();
