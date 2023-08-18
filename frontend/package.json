@@ -24,6 +24,7 @@
     "vue": "^3.3.4",
     "vue-responsive-components": "^0.2.3",
     "vue-router": "^4.2.2",
+    "vue-socket.io": "^3.0.10",
     "yup": "^1.2.0"
   },
   "devDependencies": {

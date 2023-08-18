@@ -4,6 +4,8 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
+import VueSocketIO from 'vue-socket.io'
+
 // import { io } from 'socket.io-client';
 
 // const socket = io("http://localhost:3000");
@@ -24,5 +26,8 @@ import router from './router'
 const app = createApp(App)
 app.use(createPinia())
 app.use(router)
-
+// app.use(new VueSocketIO({
+//     debug: true,
+//     connection: 'http://localhost:3000',
+//   }))
 app.mount('#app')

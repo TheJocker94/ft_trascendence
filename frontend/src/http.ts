@@ -13,13 +13,13 @@ const myApi: AxiosInstance = axios.create({
 
 myApi.interceptors.request.use(config => {
 	if (useAuthStore().needsRefresh){
-		config.headers['Authorization'] = useAuthStore().refreshBearer;
 		console.log("Sono in refresh")
+		config.headers['Authorization'] = useAuthStore().refreshBearer;
 	}
 	else
 	{
-		config.headers['Authorization'] = useAuthStore().tokenBearer;
 		console.log("Non sono in refresh")
+		config.headers['Authorization'] = useAuthStore().tokenBearer;
 	}
 	return config;
   });
@@ -31,6 +31,7 @@ export const refreshAccessTokenFn = async () => {
 		// Handle the response and update the access token
 		useAuthStore().token = response.data.accessToken;
 		useAuthStore().refreshToken = response.data.refreshToken;
+		useAuthStore().needsRefresh = false;
 		console.log("Refreshed access token:", response.data.accessToken);
 	} catch (error) {
 		// Handle error
