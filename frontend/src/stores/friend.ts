@@ -52,7 +52,7 @@ export const useFriendStore = defineStore('friend', {
         // const pendings = await FriendService.getFriendships(this.userId, "pending");
         // this.setStore(user.data, avatar);
 		this.setStore(friend, pending, sent, blocked);
-		console.log("initialized ", this.friends, this.pending);
+		// console.log("initialized ", this.friends, this.pending);
 	} catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;

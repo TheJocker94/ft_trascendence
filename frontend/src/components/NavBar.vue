@@ -8,7 +8,7 @@
         <ul tabindex="0" class="menu menu-sm dropdown-content mt-1 z-[1] p-2 shadow bg-base-100 rounded-box w-52 ">
           <li>
             <RouterLink
-              to="/friends"
+              to="/chat"
               
             >
 
@@ -39,7 +39,7 @@
         <ul class="menu menu-horizontal dropdown-content px-1">
           <li tabindex="0" class="z-10">
             <RouterLink
-              to="/friends"
+              to="/chat"
             >
               <summary >Chat</summary>
             </RouterLink>
@@ -238,7 +238,7 @@ const closeModal = () => {
 
 const auth = ref(useAuthStore());
 const router = useRouter();
-console.log("UserStore",userStore.value.username);
+// console.log("UserStore",userStore.value.username);
 const logout = () => {
   auth.value.logout();
   router.push({ name: 'home' });

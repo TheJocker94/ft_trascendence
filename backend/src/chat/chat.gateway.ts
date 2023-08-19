@@ -15,41 +15,27 @@ import { Server, Socket } from 'socket.io';
   },
   allowEIO3: true,
 })
-export class SocketGateway {
-  // @WebSocketServer()
-  // server: Server;
-  // @SubscribeMessage('join_room')
-  // async handleSetClientDataEvent(
-  //   @MessageBody()
-  //   payload: any,
-  // ) {
-  //   console.log(payload);
-  //   const roomName = payload.roomName;
-  //   this.server.socketsJoin(roomName);
-  // }
-  // async emitter(title: string, data: any, roomName?: string) {
-  //   console.log('Emitting room...' + roomName);
-  //   console.log('Emitting topic...' + title);
-  //   console.log('Emitting data...' + data);
-  //   if (roomName !== undefined || roomName !== null) {
-  //     this.server.to(roomName).emit(title, data);
-  //   } else {
-  //     this.server.to('vehicle.list').emit(title, data);
-  //   }
-  // }
+export class ChatGateway {
   @WebSocketServer()
   server: Server;
   users = 0;
 
   handleConnection(client: Socket) {
     console.log('Client connected:', client.id);
-
     // Extract the username from the handshake data
     const username = client.handshake.auth.username;
+    const message = `Welcome to the chat, ${username}`;
+    this.server.emit('messageFromServer', message);
+    // this.server.on('dataToServer', (data) => {
+    //   console.log('Received data from client:');
+    //   console.log(data);
+    // });
+    // console.log('User connected:', username);
 
     if (!username) {
       // Close the connection if no username is provided
       client.disconnect();
+      console.log('Client disconnectedddd');
       return;
     }
 
@@ -58,10 +44,39 @@ export class SocketGateway {
 
     console.log('User connected:', username);
   }
+  // Create a method to get a list of connected users
+  getConnectedUsers(): { userID: string; username: string }[] {
+    const users = [];
+    for (const [id, socket] of this.server.sockets.sockets) {
+      if (socket['username']) {
+        users.push({
+          userID: id,
+          username: socket['username'],
+        });
+      }
+    }
+    console.log('Users are :', users);
+    return users;
+  }
+  @SubscribeMessage('dataToServer')
+  handleWelcome(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Received data from client:');
+    console.log(data);
+    // this.server.emit('dataFromServer', data);
+    client.emit('dataFromServer', data);
+  }
+  // Create a message handler to emit the list of users to the client
+  @SubscribeMessage('getUsers')
+  handleGetUsers(@ConnectedSocket() client: Socket): void {
+    const users = this.getConnectedUsers();
+    client.emit('users', users);
+  }
 
   handleDisconnect(client: Socket) {
     console.log('Client disconnected:', client.id);
-
     // You can access the attached username if needed
     const username = client['username'];
     if (username) {
@@ -73,13 +88,13 @@ export class SocketGateway {
   //   console.log('Received message:', payload);
   //   this.server.emit('receiveMessage', payload);
   // }
-  @SubscribeMessage('sendMessage')
-  handleMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: string,
-  ): void {
-    console.log('Received message:', payload);
-    // Emit the payload to all connected clients
-    this.server.emit('receiveMessage', payload);
-  }
+  // @SubscribeMessage('sendMessage')
+  // handleMessage(
+  //   @ConnectedSocket() client: Socket,
+  //   @MessageBody() payload: string,
+  // ): void {
+  //   console.log('Received message:', payload);
+  //   // Emit the payload to all connected clients
+  //   this.server.emit('receiveMessage', payload);
+  // }
 }
