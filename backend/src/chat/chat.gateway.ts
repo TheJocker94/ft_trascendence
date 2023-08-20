@@ -25,10 +25,10 @@ export class ChatGateway {
     // Extract the username from the handshake data
     const username = client.handshake.auth.username;
     const message = `Welcome to the chat, ${username}`;
-    this.server.emit('messageFromServer', message);
-    // this.server.on('dataToServer', (data) => {
+    this.server.emit('welcome', message);
+    // this.server.on('messageToServer', (data) => {
     //   console.log('Received data from client:');
-    //   console.log(data);
+    //   console.log('Message received is ', data);
     // });
     // console.log('User connected:', username);
 
@@ -58,15 +58,31 @@ export class ChatGateway {
     console.log('Users are :', users);
     return users;
   }
-  @SubscribeMessage('dataToServer')
-  handleWelcome(
+
+  // @SubscribeMessage('dataToServer')
+  // handleWelcome(
+  //   @ConnectedSocket() client: Socket,
+  //   @MessageBody() data: any,
+  // ): void {
+  //   console.log('Received data from client:');
+  //   console.log(data);
+  //   // this.server.emit('dataFromServer', data);
+  //   client.emit('dataFromServer', data);
+  // }
+
+  @SubscribeMessage('messageToServer')
+  handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
+    @MessageBody() text: any,
   ): void {
     console.log('Received data from client:');
-    console.log(data);
+    console.log(text.text);
+    console.log('Username client :', client['username']);
     // this.server.emit('dataFromServer', data);
-    client.emit('dataFromServer', data);
+    this.server.emit('messageFromServer', {
+      text: text.text,
+      username: client['username'],
+    });
   }
   // Create a message handler to emit the list of users to the client
   @SubscribeMessage('getUsers')
