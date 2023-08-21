@@ -1,4 +1,11 @@
 import { Scene } from 'phaser';
+import { socketGame } from '@/plugins/Socket.io';
+import { useCurrentUserStore } from '@/stores/currentUser';
+import { ref } from 'vue';
+
+const userStore = ref(useCurrentUserStore());
+
+
 const SPEED = 300;
 // dopo una certa velocità la palla non rimbalza più e passa attraverso il muro //*FIXED*
 // idea: creare una animazione che rompe il muro quando la palla lo colpisce
@@ -167,6 +174,30 @@ export default class PlayScene extends Scene {
 
     // Render the dashed line on the screen
     this.dashedLine.strokePath();
+
+    // event listener movement
+    socketGame.on('move', (data: { direction: string, player: number, room: string}) => {
+      console.log(data);
+      console.log("i am in game")
+      if (data.room === userStore.value.roomId) {
+        if (data.player === 1){
+          if (data.direction === 'up')
+            this.enemy.setVelocityY(-SPEED);
+          else if (data.direction === 'down')
+            this.enemy.setVelocityY(SPEED);
+          else
+            this.enemy.setVelocityY(0);
+        }
+        else if (data.player === 2){
+          if (data.direction === 'up')
+            this.player.setVelocityY(-SPEED);
+          else if (data.direction === 'down')
+            this.player.setVelocityY(SPEED);
+          else
+            this.player.setVelocityY(0);
+        }
+      }
+    });
   }
   update() {
 
@@ -190,7 +221,7 @@ export default class PlayScene extends Scene {
       // this.ball.setVelocityX(-1000);
     }
     this.movePlayer();
-    this.moveEnemy();
+    // this.moveEnemy();
     this.ballCollision();
     this.endGame();
     if (this.ball.y <= 5 || this.ball.y >= this.scale.height - 5) {
@@ -225,22 +256,44 @@ export default class PlayScene extends Scene {
   }
 
   movePlayer() {
-    if (this.wasd.up.isDown)
-      this.player.setVelocityY(-SPEED);
-    else if (this.wasd.down.isDown)
-      this.player.setVelocityY(SPEED);
-    else
-      this.player.setVelocityY(0);
+    if (this.wasd.up.isDown){
+      // if (userStore.value.playerNo === 1)
+        // this.player.setVelocityY(-SPEED);
+      socketGame.emit('movePlayer', { direction: 'up', player: userStore.value.playerNo, room: userStore.value.roomId
+    });
+
+    }
+    else if (this.wasd.down.isDown){
+      // if (userStore.value.playerNo === 1)
+      // this.player.setVelocityY(SPEED);
+      socketGame.emit('movePlayer', { direction: 'down', player: userStore.value.playerNo, room: userStore.value.roomId });
+
+    }
+    else{
+      // if (userStore.value.playerNo === 1)
+        socketGame.emit('movePlayer', { direction: 'none', player: userStore.value.playerNo, room: userStore.value.roomId });
+      // this.player.setVelocityY(0);
+
+    }
   }
 
-  moveEnemy() {
-    if (this.cursor.up.isDown)
-      this.enemy.setVelocityY(-SPEED);
-    else if (this.cursor.down.isDown)
-      this.enemy.setVelocityY(SPEED);
-    else
-      this.enemy.setVelocityY(0);
-  }
+  
+
+  // moveEnemy() {
+  //   if (this.cursor.up.isDown)
+  //   {
+  //     this.enemy.setVelocityY(-SPEED);
+
+  //   }
+  //   else if (this.cursor.down.isDown){
+  //     this.enemy.setVelocityY(SPEED);
+
+  //   }
+  //   else{
+
+  //     this.enemy.setVelocityY(0);
+  //   }
+  // }
 
   ballCollision() {
     this.ball.setData('onPaddlePlayer', false);

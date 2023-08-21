@@ -5,6 +5,7 @@ import { socketGame } from '@/plugins/Socket.io';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { onMounted, onUnmounted, ref } from 'vue'
 const userStore = ref(useCurrentUserStore());
+const press = ref(false);
 const goGame = ref(false);
 // On Loading the page
 onMounted(async () => {
@@ -30,21 +31,25 @@ socketGame.on('gameCreated', function (data) {
 
     //alert("Game Created! ID is: "+ JSON.stringify(data));
   });
-// Join a game
-const joinGame = () => {
-  socketGame.emit('joinGame');
-  socketGame.on('gameJoined', (data: any) => {
-    console.log(data);
+  socketGame.on('playerNo', function (data) {
+    console.log("Game Created! ID room is: " + data.room)
+    console.log('Your id is: ' + data.player);
+    userStore.value.initGame(data.room, data.player);
+  });
+  
+  socketGame.on('startingGame', function (data) {
+    console.log("Game Created! ID room is: " + data)
     goGame.value = true;
-  })
-}
+    //alert("Game Created! ID is: "+ JSON.stringify(data));
+  });
+
 </script>
 
 <template>
   <div class="flex flex-col items-center justify-center mt-48">
-    <div v-if="!goGame" class="flex flex-col items-center">
-      <button @click="createGame()" class="btn  btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-4">Create Game</button>
-      <button @click="joinGame()" class="btn  btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">Join Game</button>
+    <div v-if="!press" class="flex flex-col items-center">
+      <button @click="createGame(), press = !press" class="btn  btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-4">Create Game</button>
+      <!-- <button @click="joinGame()" class="btn  btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">Join Game</button> -->
     </div>
     <div v-if="goGame">
       <Suspense>

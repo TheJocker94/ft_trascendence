@@ -5,6 +5,7 @@ import {
   ConnectedSocket,
   MessageBody,
 } from '@nestjs/websockets';
+import type { IRoom, IBall, IPlayer } from './models/IGame';
 import { Server, Socket } from 'socket.io';
 @WebSocketGateway({
   namespace: '/game',
@@ -20,13 +21,15 @@ export class GameGateway {
   @WebSocketServer()
   server: Server;
   users = 0;
-  private createdGameRooms: string[] = [];
+  //interface room
+  private Rooms: IRoom[] = [];
+  private usersConnected: string[] = [];
   handleConnection(client: Socket) {
     console.log('Client game connected:', client.id);
     // Extract the username from the handshake data
     const username = client.handshake.auth.username;
     const message = `Welcome to the game, ${username}`;
-    this.server.emit('welcome', message);
+    client.emit('welcome', message);
     // client.emit('welcome', message);
     // this.server.on('messageToServer', (data) => {
     //   console.log('Received data from client:');
@@ -43,8 +46,9 @@ export class GameGateway {
 
     // Attach the username to the socket for future use
     client['username'] = username;
-
+    this.usersConnected.push(username);
     console.log('User connected:', username);
+    console.log('Users in server are ', this.usersConnected);
   }
   // Create a method to get a list of connected users
   getConnectedUsers(): { userID: string; username: string }[] {
@@ -74,29 +78,75 @@ export class GameGateway {
   @SubscribeMessage('createGame')
   handleCreateGame(@ConnectedSocket() client: Socket): void {
     console.log('Create game received');
-
-    // Search for an available room
-    const availableRoom = this.createdGameRooms.find(
-      (roomId) => this.server.sockets.adapter.rooms.get(roomId)?.size < 2,
-    );
-
-    if (availableRoom) {
-      client.join(availableRoom);
-      client.emit('gameCreated', { IdRoom: availableRoom });
-      console.log('Client joined room:', availableRoom);
-    } else {
-      const gameId = (Math.random() + 1).toString(36).slice(2, 18);
-      console.log(
-        'Game created by client',
-        client['username'],
-        'Game id is ',
-        gameId,
-      );
-      this.createdGameRooms.push(gameId);
-      client.join(gameId);
-      client.emit('gameCreated', { IdRoom: gameId });
-      console.log('Client created and joined new room:', gameId);
+    let room: IRoom;
+    if (
+      this.Rooms.length > 0 &&
+      this.Rooms[this.Rooms.length - 1].players.length === 1
+    ) {
+      room = this.Rooms[this.Rooms.length - 1];
     }
+    if (room) {
+      client.join(room.roomId.toString());
+      client.emit('playerNo', { player: 2, room: room.roomId.toString() });
+
+      // add player to room
+      room.players.push({
+        username: client['username'],
+        playerNo: 2,
+        score: 0,
+      });
+      this.server.to(room.roomId.toString()).emit('startingGame', room);
+      // io.to(room.id).emit('startingGame');
+
+      // setTimeout(() => {
+      //     io.to(room.id).emit('startedGame', room);
+
+      //     // start game
+      //     startGame(room);
+      // }, 3000);
+    } else {
+      room = {
+        roomId: this.Rooms.length + 1,
+        players: [
+          {
+            username: client['username'],
+            playerNo: 1,
+            score: 0,
+          },
+        ],
+        ball: {
+          x: 395,
+          y: 245,
+        },
+        winner: '',
+      };
+      this.Rooms.push(room);
+      client.join(room.roomId.toString());
+      client.emit('playerNo', { player: 1, room: room.roomId.toString() });
+    }
+    console.log('Room created is ', room);
+  }
+
+  @SubscribeMessage('choice')
+  handleChoice(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() choice: string,
+  ): void {
+    if (choice === 'standard') {
+      this.server.emit('choose', 'standard');
+    } else if (choice === 'powerup') {
+      this.server.emit('choose', 'powerup');
+    }
+  }
+  @SubscribeMessage('movePlayer')
+  handlemove(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Move received is ', data);
+    // if (data.roomId) {
+    this.server.emit('move', data);
+    // }
   }
 
   @SubscribeMessage('messageToServer')
@@ -127,6 +177,10 @@ export class GameGateway {
     if (username) {
       console.log('User disconnected:', username);
     }
+    this.usersConnected = this.usersConnected.filter(
+      (user) => user !== username,
+    );
+    console.log('Users connected are ', this.usersConnected);
   }
   // @SubscribeMessage('sendMessage')
   // handleMessage(client: Socket, payload: string): void {

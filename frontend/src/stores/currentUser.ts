@@ -16,7 +16,10 @@ export const useCurrentUserStore = defineStore('currentUser', {
     username: '',
     email: '',
     avatar: '',
-	friendStore: useFriendStore(),
+    friendStore: useFriendStore(),
+    // Game info
+    roomId: '',
+    playerNo: 0,
     // friendLists: {
     //   friends: [],
     //   pendings: [],
@@ -59,6 +62,12 @@ export const useCurrentUserStore = defineStore('currentUser', {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
       }
+    },
+    initGame(roomId: string, playerNo: number) {
+      if (roomId)
+        this.roomId = roomId;
+      if (playerNo)
+        this.playerNo = playerNo;
     },
     setStore(user: IUser, avatar: string, /*friendLists: IFriendLists*/) {
       this.userId = user.id;
