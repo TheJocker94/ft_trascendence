@@ -7,7 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 @WebSocketGateway({
-  namespace: '/chat',
+  namespace: '/game',
   cors: {
     origin: '*',
     methods: ['GET', 'POST'],
@@ -16,16 +16,16 @@ import { Server, Socket } from 'socket.io';
   },
   allowEIO3: true,
 })
-export class ChatGateway {
+export class GameGateway {
   @WebSocketServer()
   server: Server;
   users = 0;
-
+  private createdGameRooms: string[] = [];
   handleConnection(client: Socket) {
-    console.log('Client connected:', client.id);
+    console.log('Client game connected:', client.id);
     // Extract the username from the handshake data
     const username = client.handshake.auth.username;
-    const message = `Welcome to the chat, ${username}`;
+    const message = `Welcome to the game, ${username}`;
     this.server.emit('welcome', message);
     // client.emit('welcome', message);
     // this.server.on('messageToServer', (data) => {
@@ -37,7 +37,7 @@ export class ChatGateway {
     if (!username) {
       // Close the connection if no username is provided
       client.disconnect();
-      console.log('Client disconnectedddd');
+      console.log('Client game disconnectedddd');
       return;
     }
 
@@ -71,6 +71,33 @@ export class ChatGateway {
   //   // this.server.emit('dataFromServer', data);
   //   client.emit('dataFromServer', data);
   // }
+  @SubscribeMessage('createGame')
+  handleCreateGame(@ConnectedSocket() client: Socket): void {
+    console.log('Create game received');
+
+    // Search for an available room
+    const availableRoom = this.createdGameRooms.find(
+      (roomId) => this.server.sockets.adapter.rooms.get(roomId)?.size < 2,
+    );
+
+    if (availableRoom) {
+      client.join(availableRoom);
+      client.emit('gameCreated', { IdRoom: availableRoom });
+      console.log('Client joined room:', availableRoom);
+    } else {
+      const gameId = (Math.random() + 1).toString(36).slice(2, 18);
+      console.log(
+        'Game created by client',
+        client['username'],
+        'Game id is ',
+        gameId,
+      );
+      this.createdGameRooms.push(gameId);
+      client.join(gameId);
+      client.emit('gameCreated', { IdRoom: gameId });
+      console.log('Client created and joined new room:', gameId);
+    }
+  }
 
   @SubscribeMessage('messageToServer')
   handleMessage(

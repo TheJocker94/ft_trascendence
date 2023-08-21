@@ -1,5 +1,5 @@
 <template>
-  <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+  <div class="card flex-shrink-0 w-full max-w-lg shadow-2xl bg-base-100">
     <div class="card-body">
       <div v-for="(message, index) in messages" :key="index" :class="['chat', message.myself === true ? 'chat-end' : 'chat-start']">
         <div class="chat-header">
@@ -11,18 +11,24 @@
           {{ message.status }}
         </div> -->
       </div>
-      <div class="form-control">
+      <!-- Input + button together -->
+      <div class="join  max-w-lg">
+        <input v-model="msg" @keyup.enter="sendMessage" class="input input-bordered join-item" placeholder="Message"/>
+        <button @click="sendMessage" class="btn join-item btn-primary rounded-r-full">Send</button>
+      </div>
+      <!-- Input + button apart -->
+      <!-- <div class="form-control">
         <input v-model="msg" @keyup.enter="sendMessage" type="text" placeholder="Message" class="input input-bordered" />
       </div>
       <div class="form-control">
         <button @click="sendMessage" class="btn btn-primary">Send</button>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import socket from "@/plugins/Socket.io";
+import {socket} from "@/plugins/Socket.io";
 // import SelectUsername from '@/components/chat/SelectUsername.vue'
 import { ref, onMounted, onUnmounted} from 'vue';
 // import { useChatStore } from '@/stores/chat';
@@ -45,12 +51,10 @@ const sendMessage = () => {
     myself: true
   };
   messages.value.push(newMessage);
-  console.log("Message is ", msg.value);
   socket.emit('messageToServer', {text: msg.value});
   msg.value = '';
   };
 socket.on('messageFromServer', (dataFromServer)=> {
-    console.log("I ame here ",dataFromServer.text);
     if (dataFromServer.username === userStore.value.username)
       return;
     const newMessage = {
@@ -94,7 +98,7 @@ onMounted( async () => {
   // })
   });
 onUnmounted(() => {
-   socket.off('connect');
+  socket.off('connect');
   socket.off('connect_error');
   socket.disconnect();
 });

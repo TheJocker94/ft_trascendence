@@ -6,7 +6,8 @@ let gameInstance: Game | null = null
 const containerId = 'game-container'
 const game = await import('@/game/game')
 
-onMounted(() => {
+
+onMounted(async () => {
   gameInstance = game.launch(containerId)
 })
 

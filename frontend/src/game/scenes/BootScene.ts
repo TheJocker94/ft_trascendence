@@ -35,7 +35,6 @@ import nizz3 from '@/game/assets/suonisp/nizz3.mp3'
 import nizz4 from '@/game/assets/suonisp/nizz4.mp3'
 import nizz5 from '@/game/assets/suonisp/nizz5.mp3'
 
-
 export default class BootScene extends Scene {
   constructor () {
     super({ key: 'BootScene' })
