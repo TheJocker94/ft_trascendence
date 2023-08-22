@@ -148,6 +148,17 @@ export class GameGateway {
     this.server.emit('move', data);
     // }
   }
+  // ballUpdate
+  @SubscribeMessage('ballUpdate')
+  handleBallUpdate(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Ball update received is ', data);
+    // if (data.roomId) {
+    this.server.emit('ballUpdateServer', data);
+    // }
+  }
 
   @SubscribeMessage('messageToServer')
   handleMessage(
