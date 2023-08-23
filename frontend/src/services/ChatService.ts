@@ -1,19 +1,19 @@
 import http from '@/http';
 import { type IUser } from '@/models/IUser';
 
-class UserService {
-  async paginate(link: string) {
-    return await http.get(link);
+class ChatService {
+  async chat() {
+    return await http.get('/api/chat');
   }
   async getUserById(id: string | string[] ) {
     const response = await http.get<IUser>(`/user/${id}`);
-	// console.log("wtf reponse: ", response.data);
+	console.log("wtf reponse: ", response.data);
     return (response.data)
 }
 
   async getUsers() {
     const response = await http.get<IUser[]>(`/user`);
-    // console.log("Lore invia ", response.data)
+    console.log("Lore invia ", response.data)
     return (response.data)
   }
 
@@ -58,4 +58,4 @@ class UserService {
     })
   }
 }
-export default new UserService();
+export default new ChatService();

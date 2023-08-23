@@ -1,17 +1,9 @@
 import { defineStore } from 'pinia';
 import { useRouter } from 'vue-router';
-import api from '@/services/AuthService';
-import { useCurrentUserStore } from '@/stores/currentUser';
-import { useLocalStorage } from '@vueuse/core';
-
-import type { IError } from '@/models/IError';
-import axios, { AxiosError } from 'axios';
-import AuthService from '@/services/AuthService';
-
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
-    username: null,
+    username: '',
     connected: false,
     users: 0,
     messages: []

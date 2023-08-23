@@ -1,33 +1,16 @@
-import './assets/index.css'
-// import Socketio from "@/plugins/Socket.io";
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-import App from './App.vue'
-import router from './router'
-import VueSocketIO from 'vue-socket.io'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import router from './router';
 
-// import { io } from 'socket.io-client';
+import './assets/index.css';
 
-// const socket = io("http://localhost:3000");
+const app = createApp(App);
 
-// 	socket.on('messageFromServer', (dataFromServer) =>{
-// 		console.log(dataFromServer);
-// 	socket.emit('messageToServer', {data: 'Data from the client!'});
-// 	})
+// Use Pinia
+app.use(createPinia());
 
-// socket.on("connect", () => {
-//   console.log('Connected to the server balh blah balh');
-// });
+// Use Router
+app.use(router);
 
-// socket.on("disconnect", () => {
-//   console.log('Disconnected from the server');
-// });
-
-const app = createApp(App)
-app.use(createPinia())
-app.use(router)
-// app.use(new VueSocketIO({
-//     debug: true,
-//     connection: 'http://localhost:3000',
-//   }))
-app.mount('#app')
+app.mount('#app');

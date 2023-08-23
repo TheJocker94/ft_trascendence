@@ -1,5 +1,11 @@
 import { Scene } from 'phaser'
+import { socketGame } from '@/plugins/Socket.io';
+import { useCurrentUserStore } from '@/stores/currentUser';
+import { ref } from 'vue';
 
+const userStore = ref(useCurrentUserStore());
+console.log(userStore.value.roomId);
+console.log(userStore.value.playerNo);
 export default class ChooseScene extends Scene {
 	private lefthand!: Phaser.GameObjects.Image;
 	private righthand!: Phaser.GameObjects.Image;
@@ -21,7 +27,8 @@ export default class ChooseScene extends Scene {
 		this.lefthand.on('pointerdown', () => {
 			console.log('lefthand clicked!');
 			this.chooseSound.stop();
-			this.scene.start('PlayScene');
+            socketGame.emit('choice', "standard")
+			// this.scene.start('PlayScene');
 		});
 
 		this.righthand = this.add.image(600, 350, 'righthand').setScale(0.5);
@@ -29,7 +36,8 @@ export default class ChooseScene extends Scene {
 		this.righthand.on('pointerdown', () => {
 			console.log('righthand clicked!')
 			this.chooseSound.stop();
-			this.scene.start('PowerupScene');
+            socketGame.emit('choice', "powerup")
+			// this.scene.start('PowerupScene');
 		});
 		this.righthand.on('pointerover', () => {
             this.game.canvas.style.cursor = 'pointer';
@@ -46,6 +54,13 @@ export default class ChooseScene extends Scene {
         this.lefthand.on('pointerout', () => {
             this.game.canvas.style.cursor = 'default';
         });
+        socketGame.on('choose', (data: string) => {
+            this.chooseSound.stop();
+            if (data === 'standard')
+                this.scene.start('PlayScene')
+            else if (data === 'powerup')
+                this.scene.start('PowerupScene');
+          });
         // let button: Phaser.GameObjects.Image = this.add.image(400, 300, 'button').setScale(1);
         // button.setInteractive();
 		// button.on('pointerup', (pointer: Phaser.Input.Pointer) => {

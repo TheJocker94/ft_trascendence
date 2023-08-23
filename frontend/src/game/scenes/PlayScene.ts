@@ -1,4 +1,11 @@
 import { Scene } from 'phaser';
+import { socketGame } from '@/plugins/Socket.io';
+import { useCurrentUserStore } from '@/stores/currentUser';
+import { ref } from 'vue';
+
+const userStore = ref(useCurrentUserStore());
+
+
 const SPEED = 300;
 // dopo una certa velocità la palla non rimbalza più e passa attraverso il muro //*FIXED*
 // idea: creare una animazione che rompe il muro quando la palla lo colpisce
@@ -28,6 +35,8 @@ export default class PlayScene extends Scene {
   private player!: Phaser.Physics.Arcade.Sprite;
   private enemy!: Phaser.Physics.Arcade.Sprite;
   private ball!: Phaser.Physics.Arcade.Sprite;
+  private ballPos: { x: number; y: number };
+  private ballVel: { x: number; y: number };
   private dashedLine!: Phaser.GameObjects.Graphics;
   private cursor!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { up: Phaser.Input.Keyboard.Key; down: Phaser.Input.Keyboard.Key };
@@ -56,6 +65,8 @@ export default class PlayScene extends Scene {
   constructor() {
     super({ key: 'PlayScene' })
     this.shape1 = new Phaser.Geom.Circle(0, 0, 0);
+    this.ballPos = { x: 400, y: 300 };
+    this.ballVel = { x: -200, y: 0 };
     // this.shape1 = new Phaser.Geom.Circle(this.scale.width / 2, this.scale.height / 2, 160);
   }
 
@@ -112,8 +123,8 @@ export default class PlayScene extends Scene {
     this.enemy.setImmovable(true);
 
     // Load ball
-    this.ball = this.physics.add.sprite(this.scale.width / 2, this.scale.height / 2, 'ball');
-    this.ball.setVelocity(-200, 0);
+    this.ball = this.physics.add.sprite(this.ballPos.x, this.ballPos.y, 'ball');
+    this.ball.setVelocity(this.ballVel.x, this.ballVel.y);
     this.ball.setData('onPaddlePlayer', false);
     this.ball.setData('onPaddleEnemy', false);
     this.ball.setBounce(1);
@@ -167,6 +178,40 @@ export default class PlayScene extends Scene {
 
     // Render the dashed line on the screen
     this.dashedLine.strokePath();
+
+    // event listener movement
+    socketGame.on('move', (data: { direction: string, player: number, room: string}) => {
+      console.log(data);
+      console.log("i am in game")
+      if (data.room === userStore.value.roomId) {
+        if (data.player === 1){
+          if (data.direction === 'up')
+            this.enemy.setVelocityY(-SPEED);
+          else if (data.direction === 'down')
+            this.enemy.setVelocityY(SPEED);
+          else
+            this.enemy.setVelocityY(0);
+        }
+        else if (data.player === 2){
+          if (data.direction === 'up')
+            this.player.setVelocityY(-SPEED);
+          else if (data.direction === 'down')
+            this.player.setVelocityY(SPEED);
+          else
+            this.player.setVelocityY(0);
+        }
+      }
+    });
+
+    // Update ball position from backend
+    socketGame.on('ballUpdateServer', (data: { x: number, y: number, velX: number, velY: number, room: string }) => {
+      if (data.room === userStore.value.roomId) {
+        this.ball.setPosition(data.x, data.y);
+        this.ball.setVelocity(data.velX, data.velY);
+      }
+    });
+
+
   }
   update() {
 
@@ -179,18 +224,22 @@ export default class PlayScene extends Scene {
     //   this.dashedLine.moveTo(this.scale.width / 2, y);
     //   this.dashedLine.lineTo(this.scale.width / 2, y + 10);
     // }
-
+    // this.ballUpdate();
     console.log(this.ball.body!.velocity.x);
     if (this.ball.body!.velocity.x > 900 || this.ball.body!.velocity.x < -900) {
       console.log("am i here bitch");
-      if (this.ball.body!.velocity.x > 0)
-        this.ball.body!.velocity.x = 900;
-      else
-        this.ball.body!.velocity.x = -900;
+      if (this.ball.body!.velocity.x > 0){
+        this.ball.body!.velocity.x = this.ballVel.x = 900;
+        this.ballUpdate();
+      }
+      else{
+        this.ball.body!.velocity.x = this.ballVel.x =-900;
+        this.ballUpdate();
+      }
       // this.ball.setVelocityX(-1000);
     }
     this.movePlayer();
-    this.moveEnemy();
+    // this.moveEnemy();
     this.ballCollision();
     this.endGame();
     if (this.ball.y <= 5 || this.ball.y >= this.scale.height - 5) {
@@ -199,10 +248,15 @@ export default class PlayScene extends Scene {
     this.emitter.setPosition(this.ball.x, this.ball.y);
     this.emitter.addEmitZone({ type: 'edge', source: this.shape1, quantity: 64, total: 1 });
     if (this.ball.getData('onPaddlePlayer')) {
+      // this.ballVel.x = (Math.random() * 50) + this.player.body!.velocity.y;
+      // this.ballVel.y = this.ballVel.x + (0.1) * this.ballVel.x;
       this.ball.setVelocityY((Math.random() * 50) + this.player.body!.velocity.y);
       this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
       this.ball.setData('onPaddlePlayer', false);
+      this.ballUpdate()
     } else if (this.ball.getData('onPaddleEnemy')) {
+      // this.ballVel.x = (Math.random() * 50) + this.enemy.body!.velocity.y;
+      // this.ballVel.y = this.ballVel.x + (0.1) * this.ball.body!.velocity.x
       this.ball.setVelocityY((Math.random() * 50) + this.enemy.body!.velocity.y);
       this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
       this.ball.setData('onPaddleEnemy', false);
@@ -225,28 +279,25 @@ export default class PlayScene extends Scene {
   }
 
   movePlayer() {
-    if (this.wasd.up.isDown)
-      this.player.setVelocityY(-SPEED);
-    else if (this.wasd.down.isDown)
-      this.player.setVelocityY(SPEED);
-    else
-      this.player.setVelocityY(0);
-  }
+    if (this.cursor.up.isDown || this.wasd.up.isDown){
+      socketGame.emit('movePlayer', { direction: 'up', player: userStore.value.playerNo, room: userStore.value.roomId
+    });
 
-  moveEnemy() {
-    if (this.cursor.up.isDown)
-      this.enemy.setVelocityY(-SPEED);
-    else if (this.cursor.down.isDown)
-      this.enemy.setVelocityY(SPEED);
-    else
-      this.enemy.setVelocityY(0);
+    }
+    else if (this.cursor.down.isDown || this.wasd.down.isDown){
+      socketGame.emit('movePlayer', { direction: 'down', player: userStore.value.playerNo, room: userStore.value.roomId });
+
+    }
+    else{
+        socketGame.emit('movePlayer', { direction: 'none', player: userStore.value.playerNo, room: userStore.value.roomId });
+    }
   }
 
   ballCollision() {
     this.ball.setData('onPaddlePlayer', false);
     this.ball.setData('onPaddleEnemy', false);
-    this.physics.world.collide(this.player, this.ball, () => { this.ball.setData('onPaddlePlayer', true); this.randomPlayer()/*; this.emitter.explode(10)*/ });
-    this.physics.world.collide(this.enemy, this.ball, () => { this.ball.setData('onPaddleEnemy', true); this.randomEnemy()/*; this.emitter.explode(10)*/ });
+    this.physics.world.collide(this.player, this.ball, () => { this.ball.setData('onPaddlePlayer', true); this.randomPlayer()});
+    this.physics.world.collide(this.enemy, this.ball, () => { this.ball.setData('onPaddleEnemy', true); this.randomEnemy()});
 
   }
 
@@ -266,6 +317,11 @@ export default class PlayScene extends Scene {
       this.ball.setVelocity(-200, 0);
     else
       this.ball.setVelocity(200, 0);
+    this.ballUpdate()
+  }
+
+  ballUpdate() {
+    socketGame.emit('ballUpdate', { x: this.ball.x, y: this.ball.y, velX: this.ball.body!.velocity.x, velY: this.ball.body!.velocity.y, room: userStore.value.roomId });
   }
 
   stopSound() {
