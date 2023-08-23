@@ -32,11 +32,11 @@ const SPEED = 300;
 
 
 export default class PlayScene extends Scene {
-  private player!: Phaser.Physics.Arcade.Sprite;
-  private enemy!: Phaser.Physics.Arcade.Sprite;
+  private player1!: Phaser.Physics.Arcade.Sprite;
+  private player2!: Phaser.Physics.Arcade.Sprite;
   private ball!: Phaser.Physics.Arcade.Sprite;
-  private ballPos: { x: number; y: number };
-  private ballVel: { x: number; y: number };
+  // private ballPos: { x: number; y: number };
+  // private ballVel: { x: number; y: number };
   private dashedLine!: Phaser.GameObjects.Graphics;
   private cursor!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { up: Phaser.Input.Keyboard.Key; down: Phaser.Input.Keyboard.Key };
@@ -65,8 +65,8 @@ export default class PlayScene extends Scene {
   constructor() {
     super({ key: 'PlayScene' })
     this.shape1 = new Phaser.Geom.Circle(0, 0, 0);
-    this.ballPos = { x: 400, y: 300 };
-    this.ballVel = { x: -200, y: 0 };
+    // this.ballPos = { x: 400, y: 300 };
+    // this.ballVel = { x: -200, y: 0 };
     // this.shape1 = new Phaser.Geom.Circle(this.scale.width / 2, this.scale.height / 2, 160);
   }
 
@@ -87,8 +87,8 @@ export default class PlayScene extends Scene {
 
     //   // Ensure other necessary elements are resized or repositioned here.
     //   // Examples:
-    //   this.player.setPosition(30, gameSize.height / 2);
-    //   this.enemy.setPosition(gameSize.width - 30, gameSize.height / 2);
+    //   this.player1.setPosition(30, gameSize.height / 2);
+    //   this.player2.setPosition(gameSize.width - 30, gameSize.height / 2);
     //   this.ball.setPosition(gameSize.width / 2, gameSize.height / 2);
     //   this.scoreText2.setPosition(gameSize.width - 50, 16);
     // });
@@ -108,25 +108,25 @@ export default class PlayScene extends Scene {
       down: this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S),
     };
 
-    // Load player
-    this.player = this.physics.add.sprite(30, this.scale.height / 2, 'wall');
-    this.player.setOrigin(0.5, 0.5);
-    this.player.setScale(0.55, 0.25);
-    this.player.setCollideWorldBounds(true);
-    this.player.setImmovable(true);
+    // Load player1
+    this.player1 = this.physics.add.sprite(30, 300, 'wall');
+    this.player1.setOrigin(0.5, 0.5);
+    this.player1.setScale(0.55, 0.25);
+    this.player1.setCollideWorldBounds(true);
+    this.player1.setImmovable(true);
 
-    // Load enemy
-    this.enemy = this.physics.add.sprite(this.scale.width - 30, this.scale.height / 2, 'wall');
-    this.enemy.setOrigin(0.5, 0.5);
-    this.enemy.setScale(0.55, 0.25);
-    this.enemy.setCollideWorldBounds(true);
-    this.enemy.setImmovable(true);
+    // Load player2
+    this.player2 = this.physics.add.sprite(800 - 30, 300, 'wall');
+    this.player2.setOrigin(0.5, 0.5);
+    this.player2.setScale(0.55, 0.25);
+    this.player2.setCollideWorldBounds(true);
+    this.player2.setImmovable(true);
 
     // Load ball
-    this.ball = this.physics.add.sprite(this.ballPos.x, this.ballPos.y, 'ball');
-    this.ball.setVelocity(this.ballVel.x, this.ballVel.y);
-    this.ball.setData('onPaddlePlayer', false);
-    this.ball.setData('onPaddleEnemy', false);
+    this.ball = this.physics.add.sprite(400, 300, 'ball');
+    this.ball.setVelocity(-200, 0);
+    this.ball.setData('onPaddlePlayer1', false);
+    this.ball.setData('onPaddlePlayer2', false);
     this.ball.setBounce(1);
     this.ball.setCollideWorldBounds(true);
 
@@ -186,19 +186,19 @@ export default class PlayScene extends Scene {
       if (data.room === userStore.value.roomId) {
         if (data.player === 1){
           if (data.direction === 'up')
-            this.enemy.setVelocityY(-SPEED);
+            this.player2.setVelocityY(-SPEED);
           else if (data.direction === 'down')
-            this.enemy.setVelocityY(SPEED);
+            this.player2.setVelocityY(SPEED);
           else
-            this.enemy.setVelocityY(0);
+            this.player2.setVelocityY(0);
         }
         else if (data.player === 2){
           if (data.direction === 'up')
-            this.player.setVelocityY(-SPEED);
+            this.player1.setVelocityY(-SPEED);
           else if (data.direction === 'down')
-            this.player.setVelocityY(SPEED);
+            this.player1.setVelocityY(SPEED);
           else
-            this.player.setVelocityY(0);
+            this.player1.setVelocityY(0);
         }
       }
     });
@@ -211,7 +211,16 @@ export default class PlayScene extends Scene {
       }
     });
 
-
+    // Update score from backend
+  //   socketGame.on('updateScoreServer', (data: { score1: number, score2: number, room: string }) => {
+  //     if (data.room === userStore.value.roomId) {
+  //       this.score1 = data.score1;
+  //       this.score2 = data.score2;
+  //       this.scoreText1.setText(this.score1.toString());
+  //       this.scoreText2.setText(this.score2.toString());
+  //     }
+  //   }
+  //   );
   }
   update() {
 
@@ -229,17 +238,17 @@ export default class PlayScene extends Scene {
     if (this.ball.body!.velocity.x > 900 || this.ball.body!.velocity.x < -900) {
       console.log("am i here bitch");
       if (this.ball.body!.velocity.x > 0){
-        this.ball.body!.velocity.x = this.ballVel.x = 900;
+        this.ball.body!.velocity.x = 900;
         this.ballUpdate();
       }
       else{
-        this.ball.body!.velocity.x = this.ballVel.x =-900;
+        this.ball.body!.velocity.x = -900;
         this.ballUpdate();
       }
       // this.ball.setVelocityX(-1000);
     }
-    this.movePlayer();
-    // this.moveEnemy();
+    this.movePlayer1();
+    // this.moveplayer2();
     this.ballCollision();
     this.endGame();
     if (this.ball.y <= 5 || this.ball.y >= this.scale.height - 5) {
@@ -247,38 +256,54 @@ export default class PlayScene extends Scene {
     }
     this.emitter.setPosition(this.ball.x, this.ball.y);
     this.emitter.addEmitZone({ type: 'edge', source: this.shape1, quantity: 64, total: 1 });
-    if (this.ball.getData('onPaddlePlayer')) {
-      // this.ballVel.x = (Math.random() * 50) + this.player.body!.velocity.y;
+    if (this.ball.getData('onPaddlePlayer1')) {
+      // this.ballVel.x = (Math.random() * 50) + this.player1.body!.velocity.y;
       // this.ballVel.y = this.ballVel.x + (0.1) * this.ballVel.x;
-      this.ball.setVelocityY((Math.random() * 50) + this.player.body!.velocity.y);
+      this.ball.setVelocityY((Math.random() * 50) + this.player1.body!.velocity.y);
       this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
-      this.ball.setData('onPaddlePlayer', false);
+      this.ball.setData('onPaddlePlayer1', false);
       this.ballUpdate()
-    } else if (this.ball.getData('onPaddleEnemy')) {
-      // this.ballVel.x = (Math.random() * 50) + this.enemy.body!.velocity.y;
+    } else if (this.ball.getData('onPaddlePlayer2')) {
+      // this.ballVel.x = (Math.random() * 50) + this.player2.body!.velocity.y;
       // this.ballVel.y = this.ballVel.x + (0.1) * this.ball.body!.velocity.x
-      this.ball.setVelocityY((Math.random() * 50) + this.enemy.body!.velocity.y);
+      this.ball.setVelocityY((Math.random() * 50) + this.player2.body!.velocity.y);
       this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
-      this.ball.setData('onPaddleEnemy', false);
+      this.ball.setData('onPaddlePlayer2', false);
+      this.ballUpdate()
     }
+
+    socketGame.on('updateScoreServer', (data: { score1: number, score2: number, room: string}) => {
+      if (data.room === userStore.value.roomId) {
+        if ( this.score1 !== data.score1)
+        {
+          this.score1 = data.score1;
+          this.gol = true;
+          this.scoreText1.setText(this.score1.toString());
+          this.animateScoreText(this.scoreText1);
+        }
+        else if (this.score2 !== data.score2)
+        {
+          this.score2 = data.score2;
+          this.gol = false;
+          this.scoreText2.setText(this.score2.toString());
+          this.animateScoreText(this.scoreText2);
+        }
+      }
+    })
 
     if (this.ball.x >= this.scale.width || this.ball.x <= 0) {
       if (this.ball.x >= this.scale.width) {
-        this.score1++;
-        this.gol = true;
-        this.scoreText1.setText(this.score1.toString());
-        this.animateScoreText(this.scoreText1);
+          this.updateScore(this.score1 + 1, this.score2);
+          this.gol = true;
       } else {
-        this.score2++;
+        this.updateScore(this.score1, this.score2 + 1);
         this.gol = false;
-        this.scoreText2.setText(this.score2.toString());
-        this.animateScoreText(this.scoreText2);
       }
       this.ballLost();
     }
   }
 
-  movePlayer() {
+  movePlayer1() {
     if (this.cursor.up.isDown || this.wasd.up.isDown){
       socketGame.emit('movePlayer', { direction: 'up', player: userStore.value.playerNo, room: userStore.value.roomId
     });
@@ -294,10 +319,10 @@ export default class PlayScene extends Scene {
   }
 
   ballCollision() {
-    this.ball.setData('onPaddlePlayer', false);
-    this.ball.setData('onPaddleEnemy', false);
-    this.physics.world.collide(this.player, this.ball, () => { this.ball.setData('onPaddlePlayer', true); this.randomPlayer()});
-    this.physics.world.collide(this.enemy, this.ball, () => { this.ball.setData('onPaddleEnemy', true); this.randomEnemy()});
+    this.ball.setData('onPaddlePlayer1', false);
+    this.ball.setData('onPaddlePlayer2', false);
+    this.physics.world.collide(this.player1, this.ball, () => { this.ball.setData('onPaddlePlayer1', true); this.ballUpdate(); this.randomPlayer()});
+    this.physics.world.collide(this.player2, this.ball, () => { this.ball.setData('onPaddlePlayer2', true); this.ballUpdate(); this.randomEnemy()});
 
   }
 
@@ -323,7 +348,9 @@ export default class PlayScene extends Scene {
   ballUpdate() {
     socketGame.emit('ballUpdate', { x: this.ball.x, y: this.ball.y, velX: this.ball.body!.velocity.x, velY: this.ball.body!.velocity.y, room: userStore.value.roomId });
   }
-
+  updateScore(score1: number, score2: number) {
+    socketGame.emit('updateScore', { score1: score1, score2: score2, room: userStore.value.roomId});
+  }
   stopSound() {
     this.lee1.stop();
     this.lee2.stop();
@@ -331,7 +358,7 @@ export default class PlayScene extends Scene {
     this.lee4.stop();
     this.lee5.stop();
     this.lee6.stop();
-	this.nizz1.stop();
+    this.nizz1.stop();
     this.nizz2.stop();
     this.nizz3.stop();
     this.nizz4.stop();
