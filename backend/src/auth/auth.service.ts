@@ -5,10 +5,11 @@ import { AuthDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
+import { SendEmailService } from './2fa/2fa.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwtService: JwtService) {}
+  constructor(private prisma: PrismaService, private jwtService: JwtService, private sendEmailService: SendEmailService) { }
 
   async signupLocal(dto: AuthDto): Promise<Tokens> {
     const existingUser = await this.prisma.user.findUnique({
@@ -40,28 +41,35 @@ export class AuthService {
     return tokens;
   }
 
-  async signinLocal(dto: AuthDto): Promise<Tokens> {
+  async signinLocal(dto: AuthDto): Promise<any> {
     let user;
 
-    // Check if the input is an email
     if (dto.email) {
-        user = await this.prisma.user.findFirst({
-            where: { email: dto.email }
-        });
-    } 
-    // If not, check if it's a username
-    else if (dto.username) {
-        user = await this.prisma.user.findFirst({
-            where: { username: dto.username }
-        });
+      user = await this.prisma.user.findFirst({
+        where: { email: dto.email }
+      });
     }
-	// const user = await this.prisma.user.findFirst({
-    //   where: {
-    //     OR: [{ email: dto.email }, { username: dto.username }],
-    //   },
-    // });
+    else if (dto.username) {
+      user = await this.prisma.user.findFirst({
+        where: { username: dto.username }
+      });
+    }
     if (!user || !(await bcrypt.compare(dto.password, user.hash))) {
       throw new Error('Invalid credentials');
+    }
+    if (user.is2FAEnabled) {
+      const verificationCode = this.generateVerificationCode();
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerificationCode: verificationCode },
+      });
+
+      await this.sendEmailService.sendVerificationCode(user.email, verificationCode);
+
+      return {
+        is2faEnabled: true
+      };
     }
     await this.prisma.user.update({
       where: { id: user.id },
@@ -69,15 +77,35 @@ export class AuthService {
     });
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refreshToken);
-    return tokens;
+    return { tokens, is2faEnabled: false };
+  }
+
+  async verify2fa(userId: string, verificationCode: string): Promise<Tokens> {
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (user && user.emailVerificationCode === verificationCode) {
+      // Code is correct
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerificationCode: null },
+      });
+
+      const tokens = await this.getTokens(user.id, user.email);
+      await this.updateRtHash(user.id, tokens.refreshToken);
+      return tokens;
+    }
+
+    throw new Error('Invalid verification code');
   }
 
   async getEmailFromUsername(username: string): Promise<string | null> {
     const user = await this.prisma.user.findFirst({
-        where: { username: username }
+      where: { username: username }
     });
     return user ? user.email : null;
-}
+  }
 
   async signin42(profile: any): Promise<Tokens> {
     let user = await this.prisma.user.findUnique({
@@ -129,6 +157,21 @@ export class AuthService {
     return tokens;
   }
 
+  async sendVerificationCodeByEmail(userId: string): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const verificationCode = this.generateVerificationCode();
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { emailVerificationCode: verificationCode },
+    });
+
+    await this.sendEmailService.sendVerificationCode(user.email, verificationCode);
+  }
   hashData(data: string) {
     return bcrypt.hash(data, 10);
   }
@@ -157,4 +200,39 @@ export class AuthService {
   generateRandomPassword(length = 16): string {
     return randomBytes(length).toString('hex');
   }
+
+  generateVerificationCode(length: number = 6): string {
+    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const code = Array.from({ length }, () =>
+      characters.charAt(Math.floor(Math.random() * characters.length))
+    ).join('');
+
+    return code;
+  }
+
+  async verifyEmailCode(userId: string, verificationCode: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || !user.emailVerificationCode) {
+      throw new Error('User not found or verification code not set');
+    }
+
+    // Compare the entered verification code with the stored code
+    const isCodeValid = await bcrypt.compare(verificationCode, user.emailVerificationCode);
+
+    if (!isCodeValid) {
+      throw new Error('Invalid verification code');
+    }
+
+    // Clear the verification code after successful verification
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { emailVerificationCode: null },
+    });
+
+    return true;
+  }
+
 }

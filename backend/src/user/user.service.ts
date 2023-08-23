@@ -324,7 +324,7 @@ export class UserService {
             id: true,
             username: true,
             profilePicture: true,
-			isOnline: true
+            isOnline: true
           }
         }
       }

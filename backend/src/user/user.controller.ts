@@ -85,6 +85,12 @@ export class UserController {
     return this.userService.getFriends(userId);
   }
 
+  @Get('friendships')
+  @HttpCode(HttpStatus.OK)
+  async getFriendships(@Body() dto: AddFriendDto): Promise<FriendsDto[]> {
+    return this.userService.getFriends(dto.friendId);
+  }
+
   @Get('received_friend_requests')
   @HttpCode(HttpStatus.OK)
   async getReceivedFriendsRequests(@GetCurrUserId() userId: string): Promise<FriendsDto[]> {
