@@ -7,7 +7,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { User } from '.prisma/client';
 import {
   ClassTransformOptions,
-  TransformOptions,
   plainToClass,
 } from 'class-transformer';
 import { UserDto } from './dto/user.dto';
@@ -19,7 +18,6 @@ import {
   userUpdateMailDto,
   userUpdateNameDto,
 } from './dto';
-import { Friendship } from '.prisma/client';
 
 @Injectable()
 export class UserService {
@@ -81,7 +79,6 @@ export class UserService {
         console.log('No user was updated for ID:', userData.id);
       }
       const updatedtoUser = plainToClass(UserDto, updatedUser, transformationOptions);
-      console.log('Updated user:', updatedtoUser);
       return updatedtoUser;
     } catch (error) {
       console.error('Error updating username:', error);
@@ -111,7 +108,6 @@ export class UserService {
         console.log('No mail was updated for ID:', userData.id);
       }
       const updatedtoUser = plainToClass(UserDto, updatedUser, transformationOptions);
-      console.log('Updated user:', updatedtoUser);
       return updatedtoUser;
     } catch (error) {
       console.error('Error updating email:', error);
@@ -347,9 +343,6 @@ export class UserService {
         ]
       }
     });
-    console.log('userId1' + userId1);
-    console.log('userId2' + userId2);
-    console.log(!!existingFriendship);
     return !!existingFriendship;
   }
 
