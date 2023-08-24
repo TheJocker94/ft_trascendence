@@ -24,11 +24,13 @@ export class AuthController {
   constructor(
     private prisma: PrismaService,
     private authService: AuthService,
-  ) { }
+  ) {}
 
   @Public()
   @Get('getEmailFromUsername')
-  async getEmailFromUsername(@Query('username') username: string): Promise<string | null> {
+  async getEmailFromUsername(
+    @Query('username') username: string,
+  ): Promise<string | null> {
     return this.authService.getEmailFromUsername(username);
   }
 
@@ -50,7 +52,10 @@ export class AuthController {
   @Public()
   @Post('local/signin/2fa')
   @HttpCode(HttpStatus.OK)
-  async signin2FA(@GetCurrUserId() userId, @Body() dto: TwoFaDto): Promise<Tokens> {
+  async signin2FA(
+    @GetCurrUserId() userId,
+    @Body() dto: TwoFaDto,
+  ): Promise<Tokens> {
     return this.authService.verify2fa(userId, dto.verificationCode);
   }
 
