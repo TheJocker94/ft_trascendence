@@ -9,7 +9,11 @@ import { SendEmailService } from './2fa/2fa.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwtService: JwtService, private sendEmailService: SendEmailService) { }
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+    private sendEmailService: SendEmailService,
+  ) {}
 
   async signupLocal(dto: AuthDto): Promise<Tokens> {
     const existingUser = await this.prisma.user.findUnique({
@@ -46,12 +50,11 @@ export class AuthService {
 
     if (dto.email) {
       user = await this.prisma.user.findFirst({
-        where: { email: dto.email }
+        where: { email: dto.email },
       });
-    }
-    else if (dto.username) {
+    } else if (dto.username) {
       user = await this.prisma.user.findFirst({
-        where: { username: dto.username }
+        where: { username: dto.username },
       });
     }
     if (!user || !(await bcrypt.compare(dto.password, user.hash))) {
@@ -65,10 +68,13 @@ export class AuthService {
         data: { emailVerificationCode: verificationCode },
       });
 
-      await this.sendEmailService.sendVerificationCode(user.email, verificationCode);
+      await this.sendEmailService.sendVerificationCode(
+        user.email,
+        verificationCode,
+      );
 
       return {
-        is2faEnabled: true
+        is2faEnabled: true,
       };
     }
     await this.prisma.user.update({
@@ -81,7 +87,6 @@ export class AuthService {
   }
 
   async verify2fa(userId: string, verificationCode: string): Promise<Tokens> {
-
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -98,13 +103,6 @@ export class AuthService {
     }
 
     throw new Error('Invalid verification code');
-  }
-
-  async getEmailFromUsername(username: string): Promise<string | null> {
-    const user = await this.prisma.user.findFirst({
-      where: { username: username }
-    });
-    return user ? user.email : null;
   }
 
   async signin42(profile: any): Promise<Tokens> {
@@ -170,7 +168,10 @@ export class AuthService {
       data: { emailVerificationCode: verificationCode },
     });
 
-    await this.sendEmailService.sendVerificationCode(user.email, verificationCode);
+    await this.sendEmailService.sendVerificationCode(
+      user.email,
+      verificationCode,
+    );
   }
   hashData(data: string) {
     return bcrypt.hash(data, 10);
@@ -201,16 +202,19 @@ export class AuthService {
     return randomBytes(length).toString('hex');
   }
 
-  generateVerificationCode(length: number = 6): string {
+  generateVerificationCode(length = 6): string {
     const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const code = Array.from({ length }, () =>
-      characters.charAt(Math.floor(Math.random() * characters.length))
+      characters.charAt(Math.floor(Math.random() * characters.length)),
     ).join('');
 
     return code;
   }
 
-  async verifyEmailCode(userId: string, verificationCode: string): Promise<boolean> {
+  async verifyEmailCode(
+    userId: string,
+    verificationCode: string,
+  ): Promise<boolean> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
@@ -220,7 +224,10 @@ export class AuthService {
     }
 
     // Compare the entered verification code with the stored code
-    const isCodeValid = await bcrypt.compare(verificationCode, user.emailVerificationCode);
+    const isCodeValid = await bcrypt.compare(
+      verificationCode,
+      user.emailVerificationCode,
+    );
 
     if (!isCodeValid) {
       throw new Error('Invalid verification code');
@@ -234,5 +241,4 @@ export class AuthService {
 
     return true;
   }
-
 }

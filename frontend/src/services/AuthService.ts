@@ -4,8 +4,12 @@ import { type ISignedIn } from '@/models/ISignedIn';
 
 class AuthService {
   // local
-  signInLocal(email: string, password: string) {
-    return http.post<ISignedIn>('/auth/local/signin', { email, password });
+  signInLocal(email: string, password: string, isEmail: boolean) {
+    if (isEmail)
+      return http.post('/auth/local/signin', { email: email, password });
+    else
+      return http.post('/auth/local/signin', { username: email, password });
+    // return http.post('/auth/local/signin', { email, password });
   }
   signUpLocal(email: string, username:string, password: string) {
     return http.post<ISignedIn>('/auth/local/signup', { email, username, password });
@@ -34,9 +38,6 @@ class AuthService {
   //   });
   // }
 
-  getEmailFromUsername(username: string) {
-    return http.get<string | null>(`/auth/getEmailFromUsername?username=${username}`).then(response => response.data);
-}
   
   // 42
   signInFortyTwo(params: string) {

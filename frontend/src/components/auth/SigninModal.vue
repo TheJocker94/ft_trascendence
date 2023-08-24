@@ -61,39 +61,23 @@ const schema = yup.object().shape({
   acc_pazzword: yup.string().min(5).required().label('Your Password'),
 });
 
-// async function getEmailFromUsername(username: string): Promise<string | null>
-// {
-// 	try {
-// 		const response = await axios.get(`/auth/getEmailFromUsername?username=${username}`);
-// 		console.log("here is what am holding ", response.data);
-// 		return response.data;
-// 	} catch (error) {
-// 		console.error("Error fetching email for username:", error);
-// 		return null;
-// 	}
-// }
 
 async function onSubmit()
 {
 	console.log("Sommettiti");
 	let email: string | null = credentials.email;
-
+  let isEmail = false;
 	// Check if the provided input is a username and not an email
 	if (!email.includes('@')) {
-		// Call the backend to get the email associated with the username
-		email = await AuthService.getEmailFromUsername(email);
-    console.log("Sono in username", email);
-		if (!email) {
-			console.log("danger", "failure", "Username not found");
-			return;
-		}
+    isEmail = false;
 	}
-
-	// console.log("email", email);
+  else {
+    isEmail = true;
+  }
 	console.log("pass", credentials.password);
 
-	const e = await auth.value.signInLocal(email, credentials.password);
-  console.log("sono in email", email);
+	const e = await auth.value.signInLocal(email, credentials.password, isEmail);
+  // console.log("sono in email", email);
 	if (e) {
 		alert(e.message);
 		console.log("danger", "failure", e.message);

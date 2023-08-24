@@ -27,14 +27,6 @@ export class AuthController {
   ) {}
 
   @Public()
-  @Get('getEmailFromUsername')
-  async getEmailFromUsername(
-    @Query('username') username: string,
-  ): Promise<string | null> {
-    return this.authService.getEmailFromUsername(username);
-  }
-
-  @Public()
   @Post('local/signup')
   @HttpCode(HttpStatus.CREATED)
   signupLocal(@Body() dto: AuthDto): Promise<Tokens> {
