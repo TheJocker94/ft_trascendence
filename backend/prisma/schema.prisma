@@ -22,10 +22,14 @@ model User {
   Played                Int     @default(0)
   is2faEnabled          Boolean @default(false)
   emailVerificationCode String?
+  
   OwnedGroups           Group[] @relation("OwnerId")
   groupChat             Group[] @relation("GroupId")
   PrvChat               PrivMsg[] @relation("PrvUser")
   SendeUserData         Message[] @relation("SenderUserData")
+  BlockedChat           Group[] @relation("BlockedId")
+  MutedChat             Group[] @relation("MutedId")
+  AdminChat             Group[] @relation("AdminId")
 
   sentFriendRequests     Friendship[] @relation("Friendship_Sender")
   receivedFriendRequests Friendship[] @relation("Friendship_Receiver")
@@ -62,6 +66,12 @@ model Group{
   groupName String
   ownerId    String
   groupOwner User @relation("OwnerId", fields: [ownerId], references: [id])
+  adminId    String
+  groupAdmin User @relation("AdminId", fields: [adminId], references: [id])
+  blockedId  String
+  blocked    User @relation("BlockedId", fields: [blockedId], references: [id])
+  mutedId    String
+  muted      User @relation("MutedId", fields: [mutedId], references: [id])
   isPassSet Boolean
   pass String
   groupType GroupType
