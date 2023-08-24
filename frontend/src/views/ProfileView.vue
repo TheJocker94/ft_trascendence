@@ -11,7 +11,9 @@
       <AvatarUserName :idProfile="userId"/>
       <!-- Search friend bar -->
       <SearchBar :idProfile="userId"/>
-<!-- Friend list with avatar TODO -->
+<!-- Blocked list with avatar -->
+    <BlockedPic v-if="currentUser.userId === userId" :idProfile="userId"/>
+<!-- Friend list with avatar -->
       <FriendsPic v-if="currentUser.userId === userId" :idProfile="userId"/>
 <!--Stats user TODO -->
       <StatsComponent :idProfile="userId"/>
@@ -26,6 +28,7 @@ import AvatarUserName from '@/components/profile/AvatarUserName.vue';
 import StatsComponent from '@/components/profile/StatsComponent.vue';
 import SearchBar from '@/components/profile/SearchBar.vue';
 import FriendsPic from '@/components/profile/FriendsPic.vue';
+import BlockedPic from '@/components/profile/BlockedPic.vue';
 import { ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 // import { useFriendStore } from '@/stores/friend';

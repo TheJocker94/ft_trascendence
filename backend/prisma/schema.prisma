@@ -9,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id                    String  @id @default(uuid())
+  id                    String  @id @default(uuid()) 
   username              String  @unique
   email                 String  @unique
   profilePicture        String? @default("/src/assets/morpheus.png")
@@ -22,6 +22,10 @@ model User {
   Played                Int     @default(0)
   is2faEnabled          Boolean @default(false)
   emailVerificationCode String?
+  OwnedGroups           Group[] @relation("OwnerId")
+  groupChat             Group[] @relation("GroupId")
+  PrvChat               PrivMsg[] @relation("PrvUser")
+  SendeUserData         Message[] @relation("SenderUserData")
 
   sentFriendRequests     Friendship[] @relation("Friendship_Sender")
   receivedFriendRequests Friendship[] @relation("Friendship_Receiver")
@@ -30,6 +34,40 @@ model User {
   usersBlockedBy BlockedUser[] @relation("Blocked_Relation")
 
   @@map("users")
+}
+
+model Message{
+  id  Int @id @default(autoincrement())
+  senderId String
+  SenderUserData  User @relation("SenderUserData", fields: [senderId], references: [id])
+  time DateTime @default(now())
+  message String
+  Read Boolean @default(false)
+  idPrv Int?
+  privmsg PrivMsg? @relation(fields: [idPrv], references: [id], onDelete: Cascade)
+  idgroup Int?
+  groupmsg Group? @relation(fields: [idgroup], references: [id], onDelete: Cascade) 
+}
+
+model PrivMsg{
+  id  Int @id @default(autoincrement())
+  userId String
+  user User @relation("PrvUser", fields: [userId], references: [id])
+  onLine Boolean
+  messages Message[]
+}
+
+model Group{
+  id  Int @id @default(autoincrement())
+  groupName String
+  ownerId    String
+  groupOwner User @relation("OwnerId", fields: [ownerId], references: [id])
+  isPassSet Boolean
+  pass String
+  groupType GroupType
+  messages Message[]
+  userId String
+  userList User @relation("GroupId", fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Friendship {
@@ -46,6 +84,11 @@ model Friendship {
 enum FriendshipStatus {
   PENDING
   ACCEPTED
+}
+
+enum GroupType {
+  PUBLIC
+  PRIVATE
 }
 
 model BlockedUser {
