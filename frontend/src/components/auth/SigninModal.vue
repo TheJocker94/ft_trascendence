@@ -82,16 +82,18 @@ async function onSubmit()
 	if (!email.includes('@')) {
 		// Call the backend to get the email associated with the username
 		email = await AuthService.getEmailFromUsername(email);
+    console.log("Sono in username", email);
 		if (!email) {
 			console.log("danger", "failure", "Username not found");
 			return;
 		}
 	}
 
-	console.log("email", email);
+	// console.log("email", email);
 	console.log("pass", credentials.password);
 
 	const e = await auth.value.signInLocal(email, credentials.password);
+  console.log("sono in email", email);
 	if (e) {
 		alert(e.message);
 		console.log("danger", "failure", e.message);

@@ -75,7 +75,6 @@ class AuthService {
   /** Get a new access_token. Must provide the refresh token */
   async refresh() {
     const response = await http.post('/auth/refresh');
-	console.log("sono proprio io", response.data)
 	return response.data;
   }
   /** Will delete refresh token from db */

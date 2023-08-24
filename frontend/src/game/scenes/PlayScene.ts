@@ -141,7 +141,7 @@ export default class PlayScene extends Scene {
     this.lee4 = this.sound.add('lee4');
     this.lee5 = this.sound.add('lee5');
     this.lee6 = this.sound.add('lee6');
-	this.nizz1 = this.sound.add('nizz1');
+    this.nizz1 = this.sound.add('nizz1');
     this.nizz2 = this.sound.add('nizz2');
     this.nizz3 = this.sound.add('nizz3');
     this.nizz4 = this.sound.add('nizz4');
@@ -224,19 +224,9 @@ export default class PlayScene extends Scene {
   }
   update() {
 
-    // this.dashedLine.clear();
-
-    // this.dashedLine.lineStyle(2, 0xffffff, 1);
-    // this.dashedLine.setOrigin(0, 0);
-
-    // for (let y = 0; y < this.scale.height; y += 20) {
-    //   this.dashedLine.moveTo(this.scale.width / 2, y);
-    //   this.dashedLine.lineTo(this.scale.width / 2, y + 10);
-    // }
-    // this.ballUpdate();
-    console.log(this.ball.body!.velocity.x);
+    // console.log(this.ball.body!.velocity.x);
     if (this.ball.body!.velocity.x > 900 || this.ball.body!.velocity.x < -900) {
-      console.log("am i here bitch");
+      // console.log("am i here bitch");
       if (this.ball.body!.velocity.x > 0){
         this.ball.body!.velocity.x = 900;
         this.ballUpdate();
@@ -247,7 +237,7 @@ export default class PlayScene extends Scene {
       }
       // this.ball.setVelocityX(-1000);
     }
-    this.movePlayer1();
+    this.movePlayer();
     // this.moveplayer2();
     this.ballCollision();
     this.endGame();
@@ -303,7 +293,7 @@ export default class PlayScene extends Scene {
     }
   }
 
-  movePlayer1() {
+  movePlayer() {
     if (this.cursor.up.isDown || this.wasd.up.isDown){
       socketGame.emit('movePlayer', { direction: 'up', player: userStore.value.playerNo, room: userStore.value.roomId
     });
