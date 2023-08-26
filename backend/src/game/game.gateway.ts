@@ -51,20 +51,6 @@ export class GameGateway {
     console.log('User connected:', username);
     console.log('Users in server are ', this.usersConnected);
   }
-  // Create a method to get a list of connected users
-  getConnectedUsers(): { userID: string; username: string }[] {
-    const users = [];
-    for (const [id, socket] of this.server.sockets.sockets) {
-      if (socket['username']) {
-        users.push({
-          userID: id,
-          username: socket['username'],
-        });
-      }
-    }
-    console.log('Users are :', users);
-    return users;
-  }
 
   @SubscribeMessage('createGame')
   handleCreateGame(@ConnectedSocket() client: Socket): void {
@@ -85,8 +71,6 @@ export class GameGateway {
         username: client['username'],
         playerNo: 2,
         score: 0,
-        //   x: 770,
-        //   y: 300,
       });
       this.server.to(room.roomId.toString()).emit('startingGame', room);
       // io.to(room.id).emit('startingGame');
@@ -105,14 +89,8 @@ export class GameGateway {
             username: client['username'],
             playerNo: 1,
             score: 0,
-            //   x: 30,
-            //   y: 300,
           },
         ],
-        ball: {
-          x: 395,
-          y: 245,
-        },
         winner: '',
       };
       this.Rooms.push(room);
@@ -145,7 +123,9 @@ export class GameGateway {
     const random = Math.floor(Math.random() * 3) + 1;
     console.log('Random number is ', random);
     // if (data.roomId) {
-    this.server.emit('powerupServer', { power: random, room: data.room });
+    this.server
+      .to(data.room)
+      .emit('powerupServer', { power: random, room: data.room });
     // }
   }
 
@@ -188,7 +168,7 @@ export class GameGateway {
   ): void {
     console.log('Powerdoit received is ', data);
     // if (data.roomId) {
-    this.server.emit('powerdoitServer', data);
+    this.server.to(data.room).emit('powerdoitServer', data);
     // }
   }
 
@@ -199,7 +179,7 @@ export class GameGateway {
   ): void {
     // console.log('Move received is ', data);
     // if (data.roomId) {
-    this.server.emit('move', data);
+    this.server.to(data.room).emit('move', data);
     // }
   }
   // ballUpdate
@@ -210,7 +190,7 @@ export class GameGateway {
   ): void {
     // console.log('Ball update received is ', data);
     // if (data.roomId) {
-    this.server.emit('ballUpdateServer', data);
+    this.server.to(data.room).emit('ballUpdateServer', data);
     // }
   }
 
@@ -219,9 +199,9 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
-    console.log('Ball update received is ', data);
+    // console.log('Ball update received is ', data);
     // if (data.roomId) {
-    this.server.emit('powerballUpdateServer', data);
+    this.server.to(data.room).emit('powerballUpdateServer', data);
     // }
   }
 
@@ -246,10 +226,17 @@ export class GameGateway {
     @MessageBody() data: any,
   ): void {
     console.log('Update score received is ', data);
-    // if (data.roomId) {
-    // client.broadcast.emit('updateScoreServer', data);
-    this.server.emit('updateScoreServer', data);
-    // }
+    if (data.score1 === 5)
+      this.Rooms[parseInt(data.room) - 1].winner =
+        this.Rooms[parseInt(data.room) - 1].players[0].username;
+    else if (data.score2 === 5)
+      this.Rooms[parseInt(data.room) - 1].winner =
+        this.Rooms[parseInt(data.room) - 1].players[1].username;
+    if (data.score1 === 5 || data.score2 === 5) {
+      console.log('Room is ', this.Rooms[parseInt(data.room) - 1]);
+      console.log('Winner is ', this.Rooms[parseInt(data.room) - 1].winner);
+    }
+    this.server.to(data.room).emit('updateScoreServer', data);
   }
 
   handleDisconnect(client: Socket) {
