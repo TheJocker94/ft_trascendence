@@ -1,12 +1,8 @@
 import { defineStore } from 'pinia';
-
-import UserService from '@/services/UserService';
 import FriendService from '@/services/FriendService';
-import type { IUser } from '@/models/IUser';
 import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
-import type { IFriendLists, IFriend } from '@/models/IFriendsLists';
-import { useLocalStorage, } from '@vueuse/core';
+import type { IFriend } from '@/models/IFriendsLists';
 
 export const useFriendStore = defineStore('friend', {
 	state: (): {
@@ -15,13 +11,13 @@ export const useFriendStore = defineStore('friend', {
 		sent: IFriend[];
 		blocked: IFriend[];
 		// ... any other state properties ...
-	  } => ({
+    } => ({
 		friends: [],
 		pending: [],
 		sent: [],
 		blocked: [],
 		// ... any other state initializations ...
-	  }),
+    }),
   // getters: {
     // isFriend : (state) => {
 	// 		return (id : number) => state.friendLists.friends.some(friend => friend.id === id);
@@ -39,7 +35,7 @@ export const useFriendStore = defineStore('friend', {
         /*
         Da implementare chiamate User
         */
-        const friend = await FriendService.getFriendList(userId!);
+        const friend = await FriendService.getFriendList();
 		const pending = await FriendService.getFriendRequest(userId!);
 		const sent = await FriendService.getFriendSent(userId!);
 		const blocked = await FriendService.getBlockedRequest();
@@ -61,8 +57,8 @@ export const useFriendStore = defineStore('friend', {
     setStore(friend: IFriend[], pending: IFriend[], sent: IFriend[], blocked: IFriend[]) {
       this.friends = friend;
       this.pending = pending;
-	  this.sent = sent;
-	  this.blocked = blocked;
+    this.sent = sent;
+    this.blocked = blocked;
     },
     // updateAvatar(avatar: string) {
     //   this.avatar = avatar;
@@ -75,8 +71,8 @@ export const useFriendStore = defineStore('friend', {
     //   const updatedPicture = await UserService.updateProfilePicture(picture);
     //   this.setStore(updatedPicture, updatedPicture.profilePicture/*, { friends, pendings, sent }*/);
     // },
-    async updateFriends(userId: string) {
-      this.friends = await FriendService.getFriendList(userId!);
+    async updateFriends() {
+      this.friends = await FriendService.getFriendList();
     },
     async updatePendings(userId: string) {
       this.pending = await FriendService.getFriendRequest(userId!);

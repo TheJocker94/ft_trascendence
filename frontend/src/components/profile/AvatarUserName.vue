@@ -27,7 +27,7 @@
 			<div v-if="!isIdExistsInOtherBlocked && !isIdExistsInOtherPending && !isIdExistsInOtherFriends && !isIdExistsInOtherSent" @click="friendRequest(props.idProfile!)" class="my-auto text-white-800 bg-gray-500 hover:bg-gray-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">Add Friend</div>
 			<div v-if="!isIdExistsInOtherBlocked" @click="friendBlock()" class="my-auto text-white-800 bg-red-500 hover:bg-red-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">Block</div>
 			<div v-else-if="isIdExistsInOtherBlocked" @click="unblockFunction()" class="my-auto text-white-800 bg-green-500 hover:bg-green-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">UnBlock</div>
-			<div @click="" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Invite</div>
+			<div  class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Invite</div>
 		</div>
 	</div>
 	</div>
@@ -144,7 +144,7 @@ async function friendRequest(userId: string) {
     await FriendService.sendFriendRequest(userId);
     // Update the state after the API call
     friendStore.value.updatePendings(currentUser.value.userId);
-    friendStore.value.updateFriends(currentUser.value.userId);
+    friendStore.value.updateFriends();
     friendStore.value.updateSent(currentUser.value.userId);
     friendStore.value.updateBlocked();
 	updateReactiveChecks();
@@ -161,7 +161,7 @@ async function friendBlock() {
     await FriendService.blockUser(props.idProfile!);
     // Update the state after the API call
     friendStore.value.updatePendings(currentUser.value.userId);
-    friendStore.value.updateFriends(currentUser.value.userId);
+    friendStore.value.updateFriends();
     friendStore.value.updateSent(currentUser.value.userId);
     friendStore.value.updateBlocked();
 	updateReactiveChecks();

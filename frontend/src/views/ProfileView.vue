@@ -45,7 +45,7 @@ watchEffect(async () => {
   console.log("userId is ", userId.value);
 
   if (currentUser.value.userId)
-    await currentUser.value.initStore(null, null);
+    await currentUser.value.initStore(null, null, null);
 
 });
 

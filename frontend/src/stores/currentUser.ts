@@ -39,16 +39,17 @@ export const useCurrentUserStore = defineStore('currentUser', {
 	// 	},
   // },
   actions: {
-    async initStore(userId: string | null, email: string | null, twoFaEnabled: boolean) {
+    async initStore(userId: string | null, email: string | null, twoFaEnabled: boolean | null) {
       if (userId)
         this.userId = userId;
       if (email)
         this.email = email;
+      if (twoFaEnabled)
+        this.twoFaEnabled = twoFaEnabled;
       try {
         /*
         Da implementare chiamate User
         */
-        this.twoFaEnabled = twoFaEnabled;
         const user = await UserService.getUserById(this.userId);
         // const avatar = await UserService.getAvatarOfUser(this.userId); 
         /*

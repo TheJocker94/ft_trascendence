@@ -106,22 +106,30 @@ export default class PowerupScene extends Scene {
     this.ball.setCollideWorldBounds(true);
 
     // Load ballpower
-    power = Phaser.Math.Between(1, 3);
+    if (userStore.value.playerNo === 1)
+      socketGame.emit('powerup', { room: userStore.value.roomId });
 
     this.ballpower = this.physics.add.sprite(this.scale.width / 2, 10, 'big');
     this.ballpower.setDepth(1);
-    switch (power) {
-      case 1:
-        break;
-      case 2:
-        this.ballpower.setTexture('small');
-        break;
-      case 3:
-        this.ballpower.setTexture('speed');
-        break;
-    }
     this.ballpower.setScale(2, 2);
     this.ballpower.setVelocity(0, 50);
+    socketGame.on('powerupServer', (data: { power: number, room: string }) => {
+      if (data.room === userStore.value.roomId) {
+        power = data.power;
+        switch (power) {
+          case 1:
+            this.ballpower.setTexture('big');
+            break;
+          case 2:
+            this.ballpower.setTexture('small');
+            break;
+          case 3:
+            this.ballpower.setTexture('speed');
+            break;
+        }
+      }
+    });
+
     // this.ballpower.setBounce(0);
 
     // Score text
@@ -129,14 +137,14 @@ export default class PowerupScene extends Scene {
     this.scoreText2 = this.add.text(this.scale.width / 2 + 50, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
     // audio
     this.ballSound = this.sound.add('pong');
-	this.thud = this.sound.add('thud');
+    this.thud = this.sound.add('thud');
     this.lee1 = this.sound.add('lee1');
     this.lee2 = this.sound.add('lee2');
     this.lee3 = this.sound.add('lee3');
     this.lee4 = this.sound.add('lee4');
     this.lee5 = this.sound.add('lee5');
     this.lee6 = this.sound.add('lee6');
-	this.nizz1 = this.sound.add('nizz1');
+    this.nizz1 = this.sound.add('nizz1');
     this.nizz2 = this.sound.add('nizz2');
     this.nizz3 = this.sound.add('nizz3');
     this.nizz4 = this.sound.add('nizz4');
@@ -184,8 +192,7 @@ export default class PowerupScene extends Scene {
     this.dashedLine.strokePath();
     //Server event listeners
     socketGame.on('move', (data: { direction: string, player: number, room: string}) => {
-      console.log(data);
-      console.log("i am in game")
+      // console.log(data);
       if (data.room === userStore.value.roomId) {
         if (data.player === 1){
           if (data.direction === 'up')
@@ -213,44 +220,28 @@ export default class PowerupScene extends Scene {
         this.ball.setVelocity(data.velX, data.velY);
       }
     });
-
-  }
-
-  update() {
-    // console.log(this.ball.body!.velocity.x);
-    if (this.ball.body!.velocity.x > 900 || this.ball.body!.velocity.x < -900) {
-      // console.log("am i here bitch");
-      if (this.ball.body!.velocity.x > 0){
-        this.ball.body!.velocity.x = 900;
-        this.ballUpdate();
+    socketGame.on('powerballUpdateServer', (data: { x: number, y: number, velX: number, velY: number, room: string }) => {
+      if (data.room === userStore.value.roomId) {
+        this.ballpower.setPosition(data.x, data.y);
+        this.ballpower.setVelocity(data.velX, data.velY);
       }
-      else{
-        this.ball.body!.velocity.x = -900;
-        this.ballUpdate();
-      // this.ball.setVelocityX(-1000);
+    });
+
+    socketGame.on('powerdoitServer', (data: {player: number, room: string}) => {
+      this.boombaby();
+      this.powerup = true;
+      console.log("power do it", data)
+      if (data.room === userStore.value.roomId) {
+        if (data.player === 1) {
+          this.powerUpPlayer();
+        }
+        else if (data.player === 2) {
+          this.powerUpEnemy();
+        }
       }
-    }
-    this.movePlayer();
-    // this.moveEnemy();
-    this.ballCollision();
-    this.endGame();
-    if (this.ball.y <= 5 || this.ball.y >= this.scale.height - 5) {
-      this.ballSound.play();
-    }
-    this.powerupreposition();
-    this.emitter.setPosition(this.ball.x, this.ball.y);
-    this.emitter.addEmitZone({ type: 'edge', source: this.shape1, quantity: 64, total: 1 });
-    if (this.ball.getData('onPaddlePlayer1')) {
-      this.ball.setVelocityY((Math.random() * 50) + this.player1.body!.velocity.y);
-      this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
-      this.ball.setData('onPaddlePlayer1', false);
-      this.ballUpdate();
-    } else if (this.ball.getData('onPaddlePlayer2')) {
-      this.ball.setVelocityY((Math.random() * 50) + this.player2.body!.velocity.y);
-      this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
-      this.ball.setData('onPaddlePlayer2', false);
-      this.ballUpdate();
-    }
+      this.ball.setData('onpowerplayer2', false);
+      this.ball.setData('onpowerplayer1', false);
+    });
 
     socketGame.on('updateScoreServer', (data: { score1: number, score2: number, room: string}) => {
       if (data.room === userStore.value.roomId) {
@@ -271,6 +262,37 @@ export default class PowerupScene extends Scene {
       }
     })
 
+  }
+
+  update() {
+
+    // console.log(this.ball.body!.velocity.x);
+    if (this.ball.body!.velocity.x > 900 || this.ball.body!.velocity.x < -900) {
+      // console.log("am i here bitch");
+      if (this.ball.body!.velocity.x > 0){
+        this.ball.body!.velocity.x = 900;
+        this.ballUpdate();
+      }
+      else{
+        this.ball.body!.velocity.x = -900;
+        this.ballUpdate();
+      // this.ball.setVelocityX(-1000);
+      }
+    }
+    this.movePlayer();
+    this.ballCollision();
+    this.endGame();
+    if (this.ball.y <= 5 || this.ball.y >= this.scale.height - 5) {
+      this.ballSound.play();
+    }
+    this.powerupreposition();
+    this.emitter.setPosition(this.ball.x, this.ball.y);
+    this.emitter.addEmitZone({ type: 'edge', source: this.shape1, quantity: 64, total: 1 });
+    this.paddleBallCollision();
+
+
+    
+
     if (this.ball.x >= this.scale.width || this.ball.x <= 0) {
       if (this.ball.x >= this.scale.width) {
           this.updateScore(this.score1 + 1, this.score2);
@@ -281,25 +303,8 @@ export default class PowerupScene extends Scene {
       }
       this.ballLost();
     }
+    
   }
-
-  // movePlayer() {
-  //   if (this.wasd.up.isDown)
-  //     this.player1.setVelocityY(-SPEEDP);
-  //   else if (this.wasd.down.isDown)
-  //     this.player1.setVelocityY(SPEEDP);
-  //   else
-  //     this.player1.setVelocityY(0);
-  // }
-
-  // moveEnemy() {
-  //   if (this.cursor.up.isDown)
-  //     this.player2.setVelocityY(-SPEEDE);
-  //   else if (this.cursor.down.isDown)
-  //     this.player2.setVelocityY(SPEEDE);
-  //   else
-  //     this.player2.setVelocityY(0);
-  // }
 
   movePlayer() {
     if (this.cursor.up.isDown || this.wasd.up.isDown){
@@ -317,36 +322,44 @@ export default class PowerupScene extends Scene {
   }
 
   ballCollision() {
-    this.ball.setData('onPaddlePlayer1', false);
-    this.ball.setData('onPaddlePlayer2', false);
-    this.physics.world.collide(this.player1, this.ball, () => { this.ball.setData('onPaddlePlayer1', true); this.ballUpdate(); this.randomPlayer(); this.ball.setData('onpowerplayer2', false); this.ball.setData('onpowerplayer1', true) });
-    this.physics.world.collide(this.player2, this.ball, () => { this.ball.setData('onPaddlePlayer2', true); this.ballUpdate(); this.randomEnemy(); this.ball.setData('onpowerplayer1', false); this.ball.setData('onpowerplayer2', true) });
+      this.ball.setData('onPaddlePlayer1', false);
+      this.ball.setData('onPaddlePlayer2', false);
+      this.physics.world.collide(this.player1, this.ball, () => { this.ball.setData('onPaddlePlayer1', true); this.ballUpdate(); this.randomPlayer(); this.ball.setData('onpowerplayer2', false); this.ball.setData('onpowerplayer1', true) });
+      this.physics.world.collide(this.player2, this.ball, () => { this.ball.setData('onPaddlePlayer2', true); this.ballUpdate(); this.randomEnemy(); this.ball.setData('onpowerplayer1', false); this.ball.setData('onpowerplayer2', true) });
+      if (userStore.value.playerNo === 1)
+        this.physics.world.overlap(this.ball, this.ballpower, () => { this.emitPowerup()});
+  }
 
-    this.physics.world.overlap(this.ball, this.ballpower, () => {
-      console.log("am inside man");
+  emitPowerup(){
       if (this.ball.getData('onpowerplayer2')) {
-        console.log("the player2 hit me bitch");
-        this.powerup = true;
-        this.thud.play();
-        this.explosion.setPosition(this.ballpower.x, this.ballpower.y).setVisible(true).play('explode');
-        this.ballpower.setPosition(-100, this.scale.height + 100);
-        this.ballUpdate();
-        this.powerUpEnemy();
+        socketGame.emit('powerdoit', {player: 2, room: userStore.value.roomId});
       }
       else if (this.ball.getData('onpowerplayer1')) {
-        console.log("the player1 hit me bitch");
-        this.powerup = true;
-        this.thud.play();
-        this.explosion.setPosition(this.ballpower.x, this.ballpower.y).setVisible(true).play('explode');
-        this.ballpower.setPosition(-100, this.scale.height + 100);
-        this.ballUpdate();
-        this.powerUpPlayer();
+        socketGame.emit('powerdoit', {player: 1, room: userStore.value.roomId});
       }
-    });
+    }
+
+  paddleBallCollision(){
+    if (this.ball.getData('onPaddlePlayer1')) {
+      this.ball.setVelocityY((Math.random() * 50) + this.player1.body!.velocity.y);
+      this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
+      this.ball.setData('onPaddlePlayer1', false);
+      this.ballUpdate();
+    } else if (this.ball.getData('onPaddlePlayer2')) {
+      this.ball.setVelocityY((Math.random() * 50) + this.player2.body!.velocity.y);
+      this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
+      this.ball.setData('onPaddlePlayer2', false);
+      this.ballUpdate();
+    }
+  }
+  boombaby() {
+    this.thud.play();
+    this.explosion.setPosition(this.ballpower.x, this.ballpower.y).setVisible(true).play('explode');
+    this.ballpower.setPosition(-100, this.scale.height + 100);
+    this.powerballUpdate();
   }
 
   powerUpEnemy() {
-
     switch (power) {
       case 1:
         this.player2.setScale(0.55, 0.50);
@@ -409,18 +422,22 @@ export default class PowerupScene extends Scene {
 		this.stopSound();
 		this.nizz5.play();
 	}
-    this.ball.setData('onpowerplayer2', false);
-    this.ball.setData('onpowerplayer1', false);
-    this.ball.setPosition(this.scale.width / 2, this.scale.height / 2);
-    if (!this.gol)
+  this.ball.setPosition(this.scale.width / 2, this.scale.height / 2);
+  if (!this.gol)
       this.ball.setVelocity(-200, 0);
     else
-      this.ball.setVelocity(200, 0);
+    this.ball.setVelocity(200, 0);
+  this.ball.setData('onpowerplayer2', false);
+  this.ball.setData('onpowerplayer1', false);
     this.ballUpdate();
   }
 
   ballUpdate() {
     socketGame.emit('ballUpdate', { x: this.ball.x, y: this.ball.y, velX: this.ball.body!.velocity.x, velY: this.ball.body!.velocity.y, room: userStore.value.roomId });
+  }
+
+  powerballUpdate() {
+    socketGame.emit('powerballUpdate', { x: this.ballpower.x, y: this.ballpower.y, velX: this.ballpower.body!.velocity.x, velY: this.ballpower.body!.velocity.y, room: userStore.value.roomId });
   }
 
   updateScore(score1: number, score2: number) {
@@ -497,20 +514,12 @@ export default class PowerupScene extends Scene {
 	}
 
   randomPowerUp() {
-    power = Phaser.Math.Between(1, 3);
-
-    switch (power) {
-      case 1:
-        this.ballpower.setTexture('big');
-        break;
-      case 2:
-        this.ballpower.setTexture('small');
-        break;
-      case 3:
-        this.ballpower.setTexture('speed');
-        break;
+    if (userStore.value.playerNo === 1)
+    {
+      socketGame.emit('powerup', { room: userStore.value.roomId });
     }
   }
+
   powerupreposition() {
     if ((this.ballpower.y > this.scale.height || this.ballpower.y < -101) && this.powerup == false) {
 
@@ -518,6 +527,7 @@ export default class PowerupScene extends Scene {
         this.ballpower.setPosition(this.scale.width / 2, -100);
         this.randomPowerUp();
         this.ballpower.setVelocity(0, 50);
+        this.powerballUpdate();
       });
     }
   }

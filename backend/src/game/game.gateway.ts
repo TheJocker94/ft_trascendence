@@ -135,12 +135,69 @@ export class GameGateway {
       this.powerup = true;
     }
   }
+
+  @SubscribeMessage('powerup')
+  handlePowerup(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    // random number between 1 and 3
+    const random = Math.floor(Math.random() * 3) + 1;
+    console.log('Random number is ', random);
+    // if (data.roomId) {
+    this.server.emit('powerupServer', { power: random, room: data.room });
+    // }
+  }
+
+  //Me l'ha scritta copilot
+  @SubscribeMessage('joinGame')
+  handleJoinGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Join game received is ', data);
+    const room = this.Rooms.find((room) => room.roomId === data.roomId);
+    if (room) {
+      client.join(room.roomId.toString());
+      client.emit('playerNo', { player: 2, room: room.roomId.toString() });
+
+      // add player to room
+      room.players.push({
+        username: client['username'],
+        playerNo: 2,
+        score: 0,
+        //   x: 770,
+        //   y: 300,
+      });
+      this.server.to(room.roomId.toString()).emit('startingGame', room);
+      // io.to(room.id).emit('startingGame');
+
+      // setTimeout(() => {
+      //     io.to(room.id).emit('startedGame', room);
+
+      //     // start game
+      //     startGame(room);
+      // }, 3000);
+    }
+  }
+
+  @SubscribeMessage('powerdoit')
+  handlePowerdoit(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Powerdoit received is ', data);
+    // if (data.roomId) {
+    this.server.emit('powerdoitServer', data);
+    // }
+  }
+
   @SubscribeMessage('movePlayer')
   handlemove(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
-    console.log('Move received is ', data);
+    // console.log('Move received is ', data);
     // if (data.roomId) {
     this.server.emit('move', data);
     // }
@@ -151,9 +208,20 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
-    console.log('Ball update received is ', data);
+    // console.log('Ball update received is ', data);
     // if (data.roomId) {
     this.server.emit('ballUpdateServer', data);
+    // }
+  }
+
+  @SubscribeMessage('powerballUpdate')
+  handlePowerBallUpdate(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Ball update received is ', data);
+    // if (data.roomId) {
+    this.server.emit('powerballUpdateServer', data);
     // }
   }
 

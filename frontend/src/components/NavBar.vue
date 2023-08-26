@@ -208,7 +208,7 @@ async function acceptRequest(userId: string) {
 	try {
 		await FriendService.acceptFriendship(userId);
 		friendStore.value.updatePendings(userStore.value.userId);
-		friendStore.value.updateFriends(userStore.value.userId);
+		friendStore.value.updateFriends();
 	} catch (err) {
 		const e = err as AxiosError<IError>;
 		if (axios.isAxiosError(e)) return e.response?.data;
@@ -219,7 +219,7 @@ async function declineRequest(userId: string) {
 	try {
 		await FriendService.endFriendship(userId);
 		friendStore.value.updatePendings(userStore.value.userId);
-		friendStore.value.updateFriends(userStore.value.userId);
+		friendStore.value.updateFriends();
 	} catch (err) {
 		const e = err as AxiosError<IError>;
 		if (axios.isAxiosError(e)) return e.response?.data;
