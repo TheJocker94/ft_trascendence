@@ -238,9 +238,9 @@ export default class PowerupScene extends Scene {
         else if (data.player === 2) {
           this.powerUpEnemy();
         }
+        this.ball.setData('onpowerplayer1', false);
+        this.ball.setData('onpowerplayer2', false);
       }
-      this.ball.setData('onpowerplayer2', false);
-      this.ball.setData('onpowerplayer1', false);
     });
 
     socketGame.on('updateScoreServer', (data: { score1: number, score2: number, room: string}) => {
@@ -324,8 +324,8 @@ export default class PowerupScene extends Scene {
   ballCollision() {
       this.ball.setData('onPaddlePlayer1', false);
       this.ball.setData('onPaddlePlayer2', false);
-      this.physics.world.collide(this.player1, this.ball, () => { this.ball.setData('onPaddlePlayer1', true); this.ballUpdate(); this.randomPlayer(); this.ball.setData('onpowerplayer2', false); this.ball.setData('onpowerplayer1', true) });
-      this.physics.world.collide(this.player2, this.ball, () => { this.ball.setData('onPaddlePlayer2', true); this.ballUpdate(); this.randomEnemy(); this.ball.setData('onpowerplayer1', false); this.ball.setData('onpowerplayer2', true) });
+      this.physics.world.collide(this.player1, this.ball, () => { this.ball.setData('onPaddlePlayer1', true); this.ball.setData('onpowerplayer2', false); this.ball.setData('onpowerplayer1', true); this.ballUpdate(); this.randomPlayer();});
+      this.physics.world.collide(this.player2, this.ball, () => { this.ball.setData('onPaddlePlayer2', true); this.ball.setData('onpowerplayer1', false); this.ball.setData('onpowerplayer2', true); this.ballUpdate(); this.randomEnemy();});
       if (userStore.value.playerNo === 1)
         this.physics.world.overlap(this.ball, this.ballpower, () => { this.emitPowerup()});
   }
@@ -425,7 +425,7 @@ export default class PowerupScene extends Scene {
   this.ball.setPosition(this.scale.width / 2, this.scale.height / 2);
   if (!this.gol)
       this.ball.setVelocity(-200, 0);
-    else
+  else
     this.ball.setVelocity(200, 0);
   this.ball.setData('onpowerplayer2', false);
   this.ball.setData('onpowerplayer1', false);

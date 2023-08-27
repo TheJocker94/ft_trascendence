@@ -3,14 +3,19 @@
 import PhaserContainer from '@/components/PhaserContainer.vue'
 import { socketGame } from '@/plugins/Socket.io';
 import { useCurrentUserStore } from '@/stores/currentUser';
+import { useAuthStore } from '@/stores/auth';
 import { onMounted, onUnmounted, ref } from 'vue'
+
+const authStore = ref(useAuthStore());
 const userStore = ref(useCurrentUserStore());
 const press = ref(false);
 const goGame = ref(false);
 // On Loading the page
 onMounted(async () => {
-  await userStore.value.initStore(null, null);
-  socketGame.auth = { username: userStore.value.username };
+  await userStore.value.initStore(null, null, null);
+  socketGame.auth = { token: authStore.value.token }
+  console.log("Token is ", socketGame.auth)
+  // socketGame.auth = { username: userStore.value.username };
   socketGame.connect();
   socketGame.on('welcome', (data: any) => {
     console.log(data);
@@ -22,9 +27,17 @@ onUnmounted(() => {
 })
 // Create a game
 const createGame = () => {
-  socketGame.emit('createGame');
+  socketGame.emit('joinQueue');
   
 }
+
+socketGame.on('playerDisconnected', data => {
+  console.log('playerDisconnected: ' + data);
+  press.value = false;
+  goGame.value = false;
+  socketGame.emit('leaveRoom', userStore.value.roomId);
+  //alert("Game Created! ID is: "+ JSON.stringify(data));
+});
 socketGame.on('gameCreated', function (data) {
     console.log("Game Created! ID is: " + data.IdRoom)
     console.log(' created Game: ' + data.IdRoom);
