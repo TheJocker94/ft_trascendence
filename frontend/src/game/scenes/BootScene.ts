@@ -39,8 +39,10 @@ import nizz4 from '@/game/assets/suonisp/nizz4.mp3'
 import nizz5 from '@/game/assets/suonisp/nizz5.mp3'
 
 const userStore = ref(useCurrentUserStore());
-const start1 = ref(false);
-const start2 = ref(false);
+// let start1 = false;
+// let start2 = false;
+let fullyLoaded = false;
+let players = 0;
 export default class BootScene extends Scene {
   constructor () {
     super({ key: 'BootScene' })
@@ -145,33 +147,30 @@ export default class BootScene extends Scene {
       loadingText.destroy();
       percentText.destroy();
       assetText.destroy();
+      fullyLoaded = true;
+      socketGame.emit('ready', { player: userStore.value.playerNo ,room:userStore.value.roomId})
       console.log('All assets loaded');
   });
     console.log('BootScene avviata dopo')
   }
   
   init () {
-  }
-  create () {
-    this.add.image(400, 300, 'matrix')
-    this.add.text(400, 150, 'Waiting for both players ...', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffffff', fontFamily: 'Arial' }).setOrigin(0.5)
-    if (userStore.value.playerNo == 1)
-        start1.value = true;
-    else
-        start2.value = true;
-    
+}
+create () {
     socketGame.on('start', (playerNo) => {
-        if(playerNo == 1)
-            start1.value = true;
-        else
-            start2.value = true;
-        if (start1.value && start2.value){
+        console.log('start', playerNo)
+        players++;
+        if (players === 2 && fullyLoaded){
             socketGame.off('start');
-            start1.value = false;
-            start2.value = false;
+            console.log('start game with both players')
+            players = 0;
+            fullyLoaded = false;
             this.scene.start('ChooseScene')
         }
     })
+    this.add.image(400, 300, 'matrix')
+    this.add.text(400, 150, 'Waiting for both players ...', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffffff', fontFamily: 'Arial' }).setOrigin(0.5)
+    
     this.anims.create({
         key: 'explode',
         frames: this.anims.generateFrameNumbers('boom', { start: 0, end: 23 }),
@@ -181,7 +180,6 @@ export default class BootScene extends Scene {
     });
     // this.add.image(400, 300, 'matrix')
     // this.add.text(400, 150, 'Waiting for both players ...', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffffff', fontFamily: 'Arial' }).setOrigin(0.5)
-    socketGame.emit('ready', { player: userStore.value.playerNo ,room:userStore.value.roomId})
     // this.scene.start('PlayScene')
 	this.scene.start('ChooseScene')
   }
