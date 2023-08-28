@@ -9,7 +9,7 @@ datasource db {
 }
 
 model User {
-  id                    String  @id @default(uuid()) 
+  id                    String  @id @default(uuid())
   username              String  @unique
   email                 String  @unique
   profilePicture        String? @default("/src/assets/morpheus.png")
@@ -22,14 +22,10 @@ model User {
   Played                Int     @default(0)
   is2faEnabled          Boolean @default(false)
   emailVerificationCode String?
-  
-  OwnedGroups           Group[] @relation("OwnerId")
-  groupChat             Group[] @relation("GroupId")
-  PrvChat               PrivMsg[] @relation("PrvUser")
-  SendeUserData         Message[] @relation("SenderUserData")
-  BlockedChat           Group[] @relation("BlockedId")
-  MutedChat             Group[] @relation("MutedId")
-  AdminChat             Group[] @relation("AdminId")
+
+  ownedChannels Channel[] // sono admin di questi canali
+  channels      ChannelMembership[] //sono membro di questi canali
+  sentMessages  Message[]           @relation("Message_Sender") // ho mandato questi messaggi
 
   sentFriendRequests     Friendship[] @relation("Friendship_Sender")
   receivedFriendRequests Friendship[] @relation("Friendship_Receiver")
@@ -40,44 +36,56 @@ model User {
   @@map("users")
 }
 
-model Message{
-  id  Int @id @default(autoincrement())
-  senderId String
-  SenderUserData  User @relation("SenderUserData", fields: [senderId], references: [id])
-  time DateTime @default(now())
-  message String
-  Read Boolean @default(false)
-  idPrv Int?
-  privmsg PrivMsg? @relation(fields: [idPrv], references: [id], onDelete: Cascade)
-  idgroup Int?
-  groupmsg Group? @relation(fields: [idgroup], references: [id], onDelete: Cascade) 
-}
-
-model PrivMsg{
-  id  Int @id @default(autoincrement())
-  userId String
-  user User @relation("PrvUser", fields: [userId], references: [id])
-  onLine Boolean
+// ho fatto solo un tipo CHANNEL diviso in PRIVATE: una chat privata tra 2, oppure GROUP: un canale vero e proprio con tanti membri
+model Channel {
+  id       Int                 @id @default(autoincrement())
+  ownerId  String
+  owner    User                @relation(fields: [ownerId], references: [id])
+  type     ChannelType // PRIVATE o GROUP
+  name     String? // se sono GROUP ho un nome del canale
+  password String?
+  members  ChannelMembership[] // membri del canale
   messages Message[]
 }
 
-model Group{
-  id  Int @id @default(autoincrement())
-  groupName String
-  ownerId    String
-  groupOwner User @relation("OwnerId", fields: [ownerId], references: [id])
-  adminId    String
-  groupAdmin User @relation("AdminId", fields: [adminId], references: [id])
-  blockedId  String
-  blocked    User @relation("BlockedId", fields: [blockedId], references: [id])
-  mutedId    String
-  muted      User @relation("MutedId", fields: [mutedId], references: [id])
-  isPassSet Boolean
-  pass String
-  groupType GroupType
-  messages Message[]
-  userId String
-  userList User @relation("GroupId", fields: [userId], references: [id], onDelete: Cascade)
+model ChannelMembership {
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  channelId   Int
+  channel     Channel     @relation(fields: [channelId], references: [id])
+  role        UserRole // ruolo utente: OWNER, ADMIN o MEMBER
+  status      UserStatus? // stato dell utente nel canale: (ACTIVE, BANNED, MUTED)
+  muteEndTime DateTime? // se mutato quanto tempo dura il mute
+
+  @@id([userId, channelId])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  channelId Int
+  channel   Channel  @relation(fields: [channelId], references: [id])
+  senderId  String
+  sender    User     @relation("Message_Sender", fields: [senderId], references: [id])
+  time      DateTime @default(now())
+  content   String
+  read      Boolean  @default(false)
+}
+
+enum ChannelType {
+  PRIVATE
+  GROUP
+}
+
+enum UserRole {
+  MEMBER
+  ADMIN
+  OWNER
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+  MUTED
 }
 
 model Friendship {
@@ -94,11 +102,6 @@ model Friendship {
 enum FriendshipStatus {
   PENDING
   ACCEPTED
-}
-
-enum GroupType {
-  PUBLIC
-  PRIVATE
 }
 
 model BlockedUser {

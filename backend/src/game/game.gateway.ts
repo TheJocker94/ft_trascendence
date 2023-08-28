@@ -33,14 +33,14 @@ export class GameGateway {
     const parseId = this.queue.parseJwt(client.handshake.auth.token);
     const userId = parseId.id;
     client.data.userId = userId;
-    const message = `Welcome to the game, ${userId}`;
-    client.emit('welcome', message);
     if (!userId) {
       // Close the connection if no userId is provided
       client.disconnect();
       console.log('Client game disconnectedddd');
       return;
     }
+    const message = `Welcome to the game, ${userId}`;
+    client.emit('welcome', message);
     // Attach the userId to the socket for future use
     this.usersConnected.push(userId);
     console.log('User connected:', userId);
@@ -167,6 +167,15 @@ export class GameGateway {
     // }
   }
 
+  @SubscribeMessage('restart')
+  handleRestart(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Restart received is ', data);
+    this.server.to(data.room).emit('restartServer', data.player);
+  }
+
   @SubscribeMessage('powerballUpdate')
   handlePowerBallUpdate(
     @ConnectedSocket() client: Socket,
@@ -200,14 +209,14 @@ export class GameGateway {
   ): void {
     console.log('Update score received is ', data);
     if (data.score1 === 5)
-      this.Rooms[parseInt(data.room) - 1].winner =
-        this.Rooms[parseInt(data.room) - 1].players[0].username;
+      this.Rooms[parseInt(data.room)].winner =
+        this.Rooms[parseInt(data.room)].players[0].username;
     else if (data.score2 === 5)
-      this.Rooms[parseInt(data.room) - 1].winner =
-        this.Rooms[parseInt(data.room) - 1].players[1].username;
+      this.Rooms[parseInt(data.room)].winner =
+        this.Rooms[parseInt(data.room)].players[1].username;
     if (data.score1 === 5 || data.score2 === 5) {
-      console.log('Room is ', this.Rooms[parseInt(data.room) - 1]);
-      console.log('Winner is ', this.Rooms[parseInt(data.room) - 1].winner);
+      console.log('Room is ', this.Rooms[parseInt(data.room)]);
+      console.log('Winner is ', this.Rooms[parseInt(data.room)].winner);
     }
     this.server.to(data.room).emit('updateScoreServer', data);
   }
@@ -224,6 +233,14 @@ export class GameGateway {
     // this.server.to(data.room).emit('playerLeft', data);
     // this.Rooms = this.Rooms.filter((room) => room.roomId !== data.room);
   }
+  @SubscribeMessage('exitGame')
+  handleExitGame(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: string,
+  ): void {
+    console.log('Exit game received');
+    this.server.to(data).emit('playerDisconnected', data);
+  }
 
   handleDisconnect(client: Socket) {
     console.log('Client disconnected:', client.id);
@@ -236,8 +253,10 @@ export class GameGateway {
     if (this.inGame.includes(username)) {
       // quando un utente si disconnette, se è in una stanza, la stanza viene eliminata e si invia un messaggio a tutti i giocatori dentro la stanza
       // gli utenti nella stanza vengono rimossi dalla lista degli utenti queue e inGame
+      // parti dall'ulyima stanza creata nel cercare gli utenti
       this.inGame = this.inGame.filter((user) => user !== username);
-      const room = this.Rooms.find((room) =>
+
+      const room = this.Rooms.reverse().find((room) =>
         room.players.find((player) => player.username === username),
       );
       if (room) {
@@ -274,13 +293,11 @@ export class GameGateway {
         playersSockets[0].data.userId,
         playersSockets[1].data.userId,
       ]);
-      playersSockets[0].join(gameId);
-      playersSockets[1].join(gameId);
       playersSockets[0].emit('playerNo', { player: 1, room: gameId });
       playersSockets[1].emit('playerNo', { player: 2, room: gameId });
-      this.server
-        .to(gameId)
-        .emit('startingGame', this.Rooms[parseInt(gameId) - 1]);
+      playersSockets[0].join(gameId);
+      playersSockets[1].join(gameId);
+      this.server.to(gameId).emit('startingGame', this.Rooms[parseInt(gameId)]);
       // playersSockets[0].emit('matchFound', gameId);
       // playersSockets[1].emit('matchFound', gameId);
     }
@@ -288,7 +305,7 @@ export class GameGateway {
 
   private async createGame(userIds: string[]) {
     const room: IRoom = {
-      roomId: this.Rooms.length + 1,
+      roomId: this.Rooms.length,
       players: [
         {
           username: userIds[0],

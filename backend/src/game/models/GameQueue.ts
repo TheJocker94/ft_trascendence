@@ -8,6 +8,7 @@ export class GameQueue {
   }
 
   public add(socket: Socket): void {
+    if (this.queue.includes(socket)) return;
     if (this.queue.includes(socket.data.id)) return;
     this.queue.push(socket);
   }
