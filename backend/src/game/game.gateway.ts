@@ -62,7 +62,15 @@ export class GameGateway {
     console.log('Leave queue received');
     this.queue.remove(client);
   }
-
+  // player ready to play
+  @SubscribeMessage('ready')
+  handleReady(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Ready received');
+    this.server.to(data.room).emit('start', data.player);
+  }
   // Chose standard or powerup mode
   @SubscribeMessage('choice')
   handleChoice(

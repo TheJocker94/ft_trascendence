@@ -48,6 +48,7 @@ onUnmounted(() => {
   socketGame.off('powerballUpdateServer');
   socketGame.off('powerdoitServer');
   socketGame.off('hitPaddleServer');
+  socketGame.off('start');
   socketGame.disconnect();
 })
 // Create a game
@@ -99,6 +100,7 @@ socketGame.on('gameCreated', function (data) {
       <!-- <button @click="joinGame()" class="btn  btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">Join Game</button> -->
     </div>
     <div v-if="leaveQ" class="flex flex-col items-center">
+      <span class="loading loading-spinner loading-lg"></span>
       <button @click="exitQueue(), leaveQ = false, press = false" class="btn  btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-4">Leave Matchmaking</button>
       <!-- <button @click="joinGame()" class="btn  btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">Join Game</button> -->
     </div>

@@ -1,4 +1,7 @@
 import { Scene } from 'phaser'
+import { socketGame } from '@/plugins/Socket.io';
+import { ref } from 'vue';
+import { useCurrentUserStore } from '@/stores/currentUser';
 import sky from '@/game/assets/sky.png'
 import matrix from '@/game/assets/matrix.webp'
 import pong from '@/game/assets/pong.mp3'
@@ -35,28 +38,73 @@ import nizz3 from '@/game/assets/suonisp/nizz3.mp3'
 import nizz4 from '@/game/assets/suonisp/nizz4.mp3'
 import nizz5 from '@/game/assets/suonisp/nizz5.mp3'
 
+const userStore = ref(useCurrentUserStore());
+const start1 = ref(false);
+const start2 = ref(false);
 export default class BootScene extends Scene {
   constructor () {
     super({ key: 'BootScene' })
   }
 
   preload () {
-	this.load.audio('lee1', lee1);
-	this.load.audio('lee2', lee2);
-	this.load.audio('lee3', lee3);
-	this.load.audio('lee4', lee4);
-	this.load.audio('lee5', lee5);
-	this.load.audio('lee6', lee6);
-	this.load.audio('nizz1', nizz1);
-	this.load.audio('nizz2', nizz2);
-	this.load.audio('nizz3', nizz3);
-	this.load.audio('nizz4', nizz4);
-	this.load.audio('nizz5', nizz5);
+    const progressBar = this.add.graphics();
+    const progressBox = this.add.graphics();
+    progressBox.fillStyle(0x222222, 0.8);
+    progressBox.fillRect(240, 270, 320, 50);
+    
+    const width = this.cameras.main.width;
+    const height = this.cameras.main.height;
+    const loadingText = this.make.text({
+        x: width / 2,
+        y: height / 2 - 50,
+        text: 'Loading...',
+        style: {
+            font: '20px monospace',
+            color: '#ffffff'
+        }
+    });
+    loadingText.setOrigin(0.5, 0.5);
+    
+    const percentText = this.make.text({
+        x: width / 2,
+        y: height / 2 - 5,
+        text: '0%',
+        style: {
+            font: '18px monospace',
+            color: '#ffffff'
+        }
+    });
+    percentText.setOrigin(0.5, 0.5);
+            
+    const assetText = this.make.text({
+        x: width / 2,
+        y: height / 2 + 50,
+        text: '',
+        style: {
+            font: '18px monospace',
+            color: '#ffffff'
+        }
+    });
+    assetText.setOrigin(0.5, 0.5);
+    
+    
+    console.log('BootScene avviata')
+    this.load.audio('lee1', lee1);
+    this.load.audio('lee2', lee2);
+    this.load.audio('lee3', lee3);
+    this.load.audio('lee4', lee4);
+    this.load.audio('lee5', lee5);
+    this.load.audio('lee6', lee6);
+    this.load.audio('nizz1', nizz1);
+    this.load.audio('nizz2', nizz2);
+    this.load.audio('nizz3', nizz3);
+    this.load.audio('nizz4', nizz4);
+    this.load.audio('nizz5', nizz5);
 
-	this.load.audio('endgamesoundwin', endgamesoundwin);
-	this.load.audio('endgamesoundlose', endgamesoundlose);
-	this.load.audio('cheer', cheer1);
-	this.load.audio('chooseSound', chooseSound);
+    this.load.audio('endgamesoundwin', endgamesoundwin);
+    this.load.audio('endgamesoundlose', endgamesoundlose);
+    this.load.audio('cheer', cheer1);
+    this.load.audio('chooseSound', chooseSound);
     this.load.image('sky', sky)
     this.load.image('matrix', matrix)
     // this.load.image('bomb', bomb)
@@ -74,24 +122,66 @@ export default class BootScene extends Scene {
     this.load.audio('boo1', boo1);
     this.load.audio('boo2', boo2);
     this.load.audio('soundtrack', soundtrack);
-	this.load.image('lefthand', lefthand);
-	this.load.image('righthand', righthand);
-  this.load.image('speed', speed);
-  this.load.image('big', big);
-  this.load.image('small', small);
-  this.load.spritesheet('boom', boom, { frameWidth: 64, frameHeight: 64, endFrame: 23 });
+    this.load.image('lefthand', lefthand);
+    this.load.image('righthand', righthand);
+    this.load.image('speed', speed);
+    this.load.image('big', big);
+    this.load.image('small', small);
+    this.load.spritesheet('boom', boom, { frameWidth: 64, frameHeight: 64, endFrame: 23 });
+    this.load.on('progress', function (value: string) {
+      percentText.setText((parseInt(value) * 100) + '%');
+      progressBar.clear();
+      // color dark green is 0x2ecc71
+      progressBar.fillStyle(0x2ecc71, 1);
+      progressBar.fillRect(250, 280, 300 * parseInt(value), 30);
+  });
+  
+  this.load.on('fileprogress', function (file: any) {
+      assetText.setText('Loading asset: ' + file.key);
+  });
+  this.load.on('complete', function () {
+      progressBar.destroy();
+      progressBox.destroy();
+      loadingText.destroy();
+      percentText.destroy();
+      assetText.destroy();
+      console.log('All assets loaded');
+  });
+    console.log('BootScene avviata dopo')
   }
-
+  
   init () {
   }
   create () {
-  this.anims.create({
-      key: 'explode',
-      frames: this.anims.generateFrameNumbers('boom', { start: 0, end: 23 }),
-      frameRate: 20,
-      repeat: 0,
-      hideOnComplete: true
-  });
+    this.add.image(400, 300, 'matrix')
+    this.add.text(400, 150, 'Waiting for both players ...', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffffff', fontFamily: 'Arial' }).setOrigin(0.5)
+    if (userStore.value.playerNo == 1)
+        start1.value = true;
+    else
+        start2.value = true;
+    
+    socketGame.on('start', (playerNo) => {
+        if(playerNo == 1)
+            start1.value = true;
+        else
+            start2.value = true;
+        if (start1.value && start2.value){
+            socketGame.off('start');
+            start1.value = false;
+            start2.value = false;
+            this.scene.start('ChooseScene')
+        }
+    })
+    this.anims.create({
+        key: 'explode',
+        frames: this.anims.generateFrameNumbers('boom', { start: 0, end: 23 }),
+        frameRate: 20,
+        repeat: 0,
+        hideOnComplete: true
+    });
+    // this.add.image(400, 300, 'matrix')
+    // this.add.text(400, 150, 'Waiting for both players ...', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffffff', fontFamily: 'Arial' }).setOrigin(0.5)
+    socketGame.emit('ready', { player: userStore.value.playerNo ,room:userStore.value.roomId})
     // this.scene.start('PlayScene')
 	this.scene.start('ChooseScene')
   }

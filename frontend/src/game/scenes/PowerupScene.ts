@@ -105,14 +105,6 @@ export default class PowerupScene extends Scene {
     this.ball.setBounce(1);
     this.ball.setCollideWorldBounds(true);
 
-    // Load ballpower
-    if (userStore.value.playerNo === 1)
-      socketGame.emit('powerup', { room: userStore.value.roomId });
-
-    this.ballpower = this.physics.add.sprite(this.scale.width / 2, 10, 'big');
-    this.ballpower.setDepth(1);
-    this.ballpower.setScale(2, 2);
-    this.ballpower.setVelocity(0, 50);
     socketGame.on('powerupServer', (data: { power: number, room: string }) => {
       if (data.room === userStore.value.roomId) {
         power = data.power;
@@ -129,6 +121,14 @@ export default class PowerupScene extends Scene {
         }
       }
     });
+    // Load ballpower
+    // if (userStore.value.playerNo === 1)
+    //   socketGame.emit('powerup', { room: userStore.value.roomId });
+
+    this.ballpower = this.physics.add.sprite(this.scale.width / 2, 10, 'big');
+    this.ballpower.setDepth(1);
+    this.ballpower.setScale(2, 2);
+    this.ballpower.setVelocity(0, 50);
 
     // this.ballpower.setBounce(0);
 
