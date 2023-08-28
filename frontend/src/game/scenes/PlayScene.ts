@@ -210,17 +210,6 @@ export default class PlayScene extends Scene {
         this.ball.setVelocity(data.velX, data.velY);
       }
     });
-
-    // Update score from backend
-  //   socketGame.on('updateScoreServer', (data: { score1: number, score2: number, room: string }) => {
-  //     if (data.room === userStore.value.roomId) {
-  //       this.score1 = data.score1;
-  //       this.score2 = data.score2;
-  //       this.scoreText1.setText(this.score1.toString());
-  //       this.scoreText2.setText(this.score2.toString());
-  //     }
-  //   }
-  //   );
   }
   update() {
 
@@ -360,6 +349,9 @@ export default class PlayScene extends Scene {
       this.stopSound();
       const winner = this.score1 === 5 ? 'Player 1' : 'Player 2';
       this.soundtrack.stop();
+      socketGame.off('ballUpdateServer');
+      socketGame.off('updateScoreServer');
+      socketGame.off('move');
       this.scene.start('EndScene', { score1: this.score1, score2: this.score2, winner: winner });
     }
   }

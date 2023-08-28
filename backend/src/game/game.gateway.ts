@@ -63,53 +63,6 @@ export class GameGateway {
     this.queue.remove(client);
   }
 
-  @SubscribeMessage('createGame')
-  handleCreateGame(@ConnectedSocket() client: Socket): void {
-    console.log('Create game received');
-    let room: IRoom;
-    if (
-      this.Rooms.length > 0 &&
-      this.Rooms[this.Rooms.length - 1].players.length === 1
-    ) {
-      room = this.Rooms[this.Rooms.length - 1];
-    }
-    if (room) {
-      client.join(room.roomId.toString());
-      client.emit('playerNo', { player: 2, room: room.roomId.toString() });
-
-      // add player to room
-      room.players.push({
-        username: client.data.userId,
-        playerNo: 2,
-        score: 0,
-      });
-      this.server.to(room.roomId.toString()).emit('startingGame', room);
-      // io.to(room.id).emit('startingGame');
-
-      // setTimeout(() => {
-      //     io.to(room.id).emit('startedGame', room);
-
-      //     // start game
-      //     startGame(room);
-      // }, 3000);
-    } else {
-      room = {
-        roomId: this.Rooms.length + 1,
-        players: [
-          {
-            username: client.data.userId,
-            playerNo: 1,
-            score: 0,
-          },
-        ],
-        winner: '',
-      };
-      this.Rooms.push(room);
-      client.join(room.roomId.toString());
-      client.emit('playerNo', { player: 1, room: room.roomId.toString() });
-    }
-    console.log('Room created is ', room);
-  }
   // Chose standard or powerup mode
   @SubscribeMessage('choice')
   handleChoice(
@@ -123,6 +76,14 @@ export class GameGateway {
     }
   }
 
+  @SubscribeMessage('hitPaddle')
+  handleHitPaddle(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Hit paddle received is ', data);
+    this.server.to(data.room).emit('hitPaddleServer', data);
+  }
   // Chose random powerup
   @SubscribeMessage('powerup')
   handlePowerup(

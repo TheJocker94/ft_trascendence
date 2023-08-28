@@ -38,6 +38,7 @@ export default class EndScene extends Scene {
 			else
 				restart2.value = true;
 			if (restart1.value && restart2.value){
+				socketGame.off('restartServer');
 				restart1.value = false;
 				restart2.value = false;
 				this.win.stop();
@@ -59,6 +60,7 @@ export default class EndScene extends Scene {
 				this.win.stop();
 				this.lose.stop();
 				console.log('exit room', userStore.value.roomId);
+				socketGame.off('restartServer');
 				socketGame.emit('exitGame', userStore.value.roomId);
 			})
 

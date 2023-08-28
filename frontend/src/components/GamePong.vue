@@ -47,6 +47,7 @@ onUnmounted(() => {
   socketGame.off('powerupServer');
   socketGame.off('powerballUpdateServer');
   socketGame.off('powerdoitServer');
+  socketGame.off('hitPaddleServer');
   socketGame.disconnect();
 })
 // Create a game

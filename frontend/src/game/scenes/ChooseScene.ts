@@ -56,6 +56,7 @@ export default class ChooseScene extends Scene {
         });
         socketGame.on('choose', (data: string) => {
             this.chooseSound.stop();
+            socketGame.off('choose');
             if (data === 'standard')
                 this.scene.start('PlayScene')
             else if (data === 'powerup')
