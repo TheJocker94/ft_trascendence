@@ -181,13 +181,21 @@ export class GameGateway {
     @MessageBody() data: any,
   ): void {
     console.log('Update score received is ', data);
+    console.log(
+      'Suca sempre Lore',
+      this.Rooms[parseInt(data.room)].players[0].username,
+    );
+    console.log(
+      'Suca sempre Lore',
+      this.Rooms[parseInt(data.room)].players[1].username,
+    );
     if (data.score1 === 5) {
       // this.Rooms[parseInt(data.room)].winner =
       //   this.Rooms[parseInt(data.room)].players[0].username;
       console.log('suca il primo');
       this.prisma.user.update({
         where: { id: this.Rooms[parseInt(data.room)].players[0].username },
-        data: { Wins: { increment: 1 }, Played: { increment: 1 } },
+        data: { Wins: 3, Played: { increment: 1 } },
       });
       this.prisma.user.update({
         where: { id: this.Rooms[parseInt(data.room)].players[1].username },
@@ -200,7 +208,7 @@ export class GameGateway {
       //   this.Rooms[parseInt(data.room)].players[1].username;
       this.prisma.user.update({
         where: { id: this.Rooms[parseInt(data.room)].players[0].username },
-        data: { Wins: { increment: 1 }, Played: { increment: 1 } },
+        data: { Wins: 3, Played: { increment: 1 } },
       });
       this.prisma.user.update({
         where: { id: this.Rooms[parseInt(data.room)].players[1].username },
