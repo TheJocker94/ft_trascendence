@@ -33,7 +33,7 @@ function launch(containerId: string) {
       default: 'arcade',
       arcade: {
       gravity: { y: 0 },
-      debug: false,
+      debug: true,
       }
     },
     scene: [BootScene, ChooseScene, PowerupScene, PlayScene, EndScene]

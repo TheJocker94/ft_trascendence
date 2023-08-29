@@ -7,17 +7,8 @@ const userStore = ref(useCurrentUserStore());
 let SPEEDP = 300;
 let SPEEDE = 300;
 let power = 1;
-
-//TODO: make the hitter paddel longer
-//TODO: make the enemy paddel shorter
-//TODO: make the ball velocity to the maximum (900)
-//TODO: generate other n balls
-
-//* -------------------------------------------------------------------------- */
-
-//* when the ballpower gets out of bound => 2 sec
-//* a ballpower effect
-//? when the ball hit the ballpower => random powerup
+let boomX = 0;
+let boomY = 0;
 
 export default class PowerupScene extends Scene {
   private player1!: Phaser.Physics.Arcade.Sprite;
@@ -60,6 +51,7 @@ export default class PowerupScene extends Scene {
     this.score1 = 0;
     this.score2 = 0;
     this.powerup = false;
+
   }
 
   create() {
@@ -227,8 +219,10 @@ export default class PowerupScene extends Scene {
       }
     });
 
-    socketGame.on('powerdoitServer', (data: {player: number, room: string}) => {
+    socketGame.on('powerdoitServer', (data: { player: number, room: string, x: number, y: number }) => {
       // this.boombaby();
+	  boomX = data.x;
+	  boomY = data.y;
       this.powerup = true;
       console.log("power do it", data)
       if (data.room === userStore.value.roomId) {
@@ -353,27 +347,27 @@ export default class PowerupScene extends Scene {
     console.log("emit powerup 1 is", this.ball.getData('onpowerplayer1'));
       if (this.ball.getData('onpowerplayer2')=== true) {
         if (this.ball.body!.velocity.x > 0)
-          socketGame.emit('powerdoit', {player: 1, room: userStore.value.roomId});
+          socketGame.emit('powerdoit', {player: 1, room: userStore.value.roomId, x: this.ballpower.x, y: this.ballpower.y});
         else if (this.ball.body!.velocity.x < 0)
-          socketGame.emit('powerdoit', {player: 2, room: userStore.value.roomId});
+          socketGame.emit('powerdoit', {player: 2, room: userStore.value.roomId, x: this.ballpower.x, y: this.ballpower.y});
       }
       else if (this.ball.getData('onpowerplayer1')=== true) {
         if (this.ball.body!.velocity.x > 0)
-          socketGame.emit('powerdoit', {player: 1, room: userStore.value.roomId});
+          socketGame.emit('powerdoit', {player: 1, room: userStore.value.roomId, x: this.ballpower.x, y: this.ballpower.y});
         else if (this.ball.body!.velocity.x < 0)
-          socketGame.emit('powerdoit', {player: 2, room: userStore.value.roomId});
+          socketGame.emit('powerdoit', {player: 2, room: userStore.value.roomId, x: this.ballpower.x, y: this.ballpower.y});
     }
   }
     checkVelocity() {
       
-      if (this.ball.body!.velocity.x > 900 || this.ball.body!.velocity.x < -900) {
+      if (this.ball.body!.velocity.x > 700 || this.ball.body!.velocity.x < -700) {
           // console.log("am i here bitch");
         if (this.ball.body!.velocity.x > 0){
-          this.ball.body!.velocity.x = 900;
+          this.ball.body!.velocity.x = 700;
           this.ballUpdate();
         }
         else{
-          this.ball.body!.velocity.x = -900;
+          this.ball.body!.velocity.x = -700;
           this.ballUpdate();
         // this.ball.setVelocityX(-1000);
         }
@@ -396,11 +390,13 @@ export default class PowerupScene extends Scene {
       }
     }
   }
+
   boombaby() {
+		console.log("me boomx is", boomX);
+		console.log("me boomy is", boomY);
     this.thud.play();
-    this.explosion.setPosition(this.ballpower.x, this.ballpower.y).setVisible(true).play('explode');
+    this.explosion.setPosition(boomX, boomY).setVisible(true).play('explode');
     this.ballpower.setPosition(-100, this.scale.height + 100);
-    // this.powerballUpdate();
   }
 
   powerUpEnemy() {
