@@ -20,6 +20,7 @@ onUnmounted(() => {
   <!-- <div :id="containerId" /> -->
   <div class="container is-fullheight">
     <div class="columns is-centered is-vcentered is-fullheight">
+      <!-- <Canvas :id="containerId" class="column is-narrow"></Canvas> -->
       <div class="column is-narrow" :id="containerId"></div>
     </div>
   </div>

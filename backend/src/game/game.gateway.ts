@@ -5,6 +5,8 @@ import {
   ConnectedSocket,
   MessageBody,
 } from '@nestjs/websockets';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import type { IRoom } from './models/IGame';
 import { GameQueue } from './models/GameQueue';
 import { Server, Socket } from 'socket.io';
@@ -18,7 +20,9 @@ import { Server, Socket } from 'socket.io';
   },
   allowEIO3: true,
 })
+@Injectable()
 export class GameGateway {
+  constructor(private prisma: PrismaService) {}
   @WebSocketServer()
   server: Server;
   users = 0;
@@ -177,12 +181,32 @@ export class GameGateway {
     @MessageBody() data: any,
   ): void {
     console.log('Update score received is ', data);
-    if (data.score1 === 5)
-      this.Rooms[parseInt(data.room)].winner =
-        this.Rooms[parseInt(data.room)].players[0].username;
-    else if (data.score2 === 5)
-      this.Rooms[parseInt(data.room)].winner =
-        this.Rooms[parseInt(data.room)].players[1].username;
+    if (data.score1 === 5) {
+      // this.Rooms[parseInt(data.room)].winner =
+      //   this.Rooms[parseInt(data.room)].players[0].username;
+      console.log('suca il primo');
+      this.prisma.user.update({
+        where: { id: this.Rooms[parseInt(data.room)].players[0].username },
+        data: { Wins: { increment: 1 }, Played: { increment: 1 } },
+      });
+      this.prisma.user.update({
+        where: { id: this.Rooms[parseInt(data.room)].players[1].username },
+        data: { Losses: { increment: 1 }, Played: { increment: 1 } },
+      });
+    } else if (data.score2 === 5) {
+      console.log('suca il secondo');
+
+      // this.Rooms[parseInt(data.room)].winner =
+      //   this.Rooms[parseInt(data.room)].players[1].username;
+      this.prisma.user.update({
+        where: { id: this.Rooms[parseInt(data.room)].players[0].username },
+        data: { Wins: { increment: 1 }, Played: { increment: 1 } },
+      });
+      this.prisma.user.update({
+        where: { id: this.Rooms[parseInt(data.room)].players[1].username },
+        data: { Losses: { increment: 1 }, Played: { increment: 1 } },
+      });
+    }
     if (data.score1 === 5 || data.score2 === 5) {
       console.log('Room is ', this.Rooms[parseInt(data.room)]);
       console.log('Winner is ', this.Rooms[parseInt(data.room)].winner);

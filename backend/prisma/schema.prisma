@@ -16,7 +16,6 @@ model User {
   hash                  String
   hashedRt              String?
   isOnline              Boolean @default(false)
-  winrate               Float?  @default(0)
   Wins                  Int     @default(0)
   Losses                Int     @default(0)
   Played                Int     @default(0)
@@ -32,7 +31,7 @@ model User {
 
   blockedUsers   BlockedUser[] @relation("Blocker_Relation")
   usersBlockedBy BlockedUser[] @relation("Blocked_Relation")
-
+  winrate               Float   @default(0)@map("Wins / Played * 100")
   @@map("users")
 }
 
