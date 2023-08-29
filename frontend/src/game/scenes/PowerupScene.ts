@@ -221,8 +221,8 @@ export default class PowerupScene extends Scene {
 
     socketGame.on('powerdoitServer', (data: { player: number, room: string, x: number, y: number }) => {
       // this.boombaby();
-	  boomX = data.x;
-	  boomY = data.y;
+			boomX = data.x;
+			boomY = data.y;
       this.powerup = true;
       console.log("power do it", data)
       if (data.room === userStore.value.roomId) {
