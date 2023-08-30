@@ -19,6 +19,7 @@ model User {
   Wins                  Int     @default(0)
   Losses                Int     @default(0)
   Played                Int     @default(0)
+  winrate               Int     @default(0)
   is2faEnabled          Boolean @default(false)
   emailVerificationCode String?
 
@@ -31,7 +32,7 @@ model User {
 
   blockedUsers   BlockedUser[] @relation("Blocker_Relation")
   usersBlockedBy BlockedUser[] @relation("Blocked_Relation")
-  winrate               Float   @default(0)@map("Wins / Played * 100")
+
   @@map("users")
 }
 

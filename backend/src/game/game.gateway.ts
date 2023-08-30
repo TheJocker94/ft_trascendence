@@ -22,7 +22,7 @@ import { Server, Socket } from 'socket.io';
 })
 @Injectable()
 export class GameGateway {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   @WebSocketServer()
   server: Server;
   users = 0;
@@ -176,29 +176,29 @@ export class GameGateway {
   }
 
   @SubscribeMessage('updateScore')
-  handleUpdateScore(
+  async handleUpdateScore(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
-  ): void {
-    console.log('Update score received is ', data);
+  ): Promise<void> {
+    console.log('Update score received is ', data);// 3 +2 +1 // 3 1 +2
     console.log(
-      'Suca sempre Lore',
+      'Suca sempre Dani',
       this.Rooms[parseInt(data.room)].players[0].username,
     );
     console.log(
-      'Suca sempre Lore',
+      'Suca sempre Dani',
       this.Rooms[parseInt(data.room)].players[1].username,
     );
     if (data.score1 === 5) {
       // this.Rooms[parseInt(data.room)].winner =
       //   this.Rooms[parseInt(data.room)].players[0].username;
       console.log('suca il primo');
-      this.prisma.user.update({
-        where: { id: this.Rooms[parseInt(data.room)].players[0].username },
-        data: { Wins: 3, Played: { increment: 1 } },
-      });
-      this.prisma.user.update({
+      await this.prisma.user.update({
         where: { id: this.Rooms[parseInt(data.room)].players[1].username },
+        data: { Wins: { increment: 1 }, Played: { increment: 1 } },
+      });
+      await this.prisma.user.update({
+        where: { id: this.Rooms[parseInt(data.room)].players[0].username },
         data: { Losses: { increment: 1 }, Played: { increment: 1 } },
       });
     } else if (data.score2 === 5) {
@@ -206,16 +206,34 @@ export class GameGateway {
 
       // this.Rooms[parseInt(data.room)].winner =
       //   this.Rooms[parseInt(data.room)].players[1].username;
-      this.prisma.user.update({
+      await this.prisma.user.update({
         where: { id: this.Rooms[parseInt(data.room)].players[0].username },
-        data: { Wins: 3, Played: { increment: 1 } },
+        data: { Wins: { increment: 1 }, Played: { increment: 1 } },
       });
-      this.prisma.user.update({
+      await this.prisma.user.update({
         where: { id: this.Rooms[parseInt(data.room)].players[1].username },
         data: { Losses: { increment: 1 }, Played: { increment: 1 } },
       });
     }
     if (data.score1 === 5 || data.score2 === 5) {
+      const player1 = await this.prisma.user.findUnique({
+        where: { id: this.Rooms[parseInt(data.room)].players[0].username },
+      });
+      const player2 = await this.prisma.user.findUnique({
+        where: { id: this.Rooms[parseInt(data.room)].players[1].username },
+      });
+
+      const winrate1 = (player1.Wins / player1.Played) * 100;
+      const winrate2 = (player2.Wins / player2.Played) * 100;
+
+      await this.prisma.user.update({
+        where: { id: this.Rooms[parseInt(data.room)].players[0].username },
+        data: { winrate: winrate1 },
+      });
+      await this.prisma.user.update({
+        where: { id: this.Rooms[parseInt(data.room)].players[1].username },
+        data: { winrate: winrate2 },
+      });
       console.log('Room is ', this.Rooms[parseInt(data.room)]);
       console.log('Winner is ', this.Rooms[parseInt(data.room)].winner);
     }
