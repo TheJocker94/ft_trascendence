@@ -110,6 +110,28 @@ export class GameGateway {
       .emit('powerupServer', { power: random, room: data.room });
   }
 
+  @SubscribeMessage('pause')
+  handlePause(
+	@ConnectedSocket() client: Socket,
+	@MessageBody() data: any,
+	  ): void {
+		console.log('Pause received is ', data);
+		this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = true;
+		this.server.to(data.room).emit('pauseServer', data);
+	  }
+
+  @SubscribeMessage('unpause')
+  handleUnPause(
+	@ConnectedSocket() client: Socket,
+	@MessageBody() data: any,
+	  ): void {
+		this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = false;
+		console.log('Pause received is ', data);
+		if (this.Rooms[parseInt(data.room)].players[0].minimized == false && this.Rooms[parseInt(data.room)].players[1].minimized == false)
+			this.server.to(data.room).emit('unpauseServer', data);
+		
+	  }
+
   //Me l'ha scritta copilot
   // Execute powerup
   @SubscribeMessage('powerdoit')
@@ -317,6 +339,8 @@ export class GameGateway {
       playersSockets[0].join(gameId);
       playersSockets[1].join(gameId);
       this.server.to(gameId).emit('startingGame', this.Rooms[parseInt(gameId)]);
+	  this.Rooms[parseInt(gameId)].players[0].minimized = false;
+	  this.Rooms[parseInt(gameId)].players[1].minimized = false;
       // playersSockets[0].emit('matchFound', gameId);
       // playersSockets[1].emit('matchFound', gameId);
     }
@@ -330,16 +354,19 @@ export class GameGateway {
           username: userIds[0],
           playerNo: 1,
           score: 0,
+		  minimized: false,
         },
         {
           username: userIds[1],
           playerNo: 2,
           score: 0,
+		  minimized: false,
         },
       ],
       winner: '',
     };
     this.Rooms.push(room);
+	this.Rooms[room.roomId].players[0].minimized = true;
     return room.roomId.toString();
   }
 }

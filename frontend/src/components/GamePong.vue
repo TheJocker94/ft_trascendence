@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import PhaserContainer from '@/components/PhaserContainer.vue'
-import { socketGame } from '@/plugins/Socket.io';
+import { socket, socketGame } from '@/plugins/Socket.io';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { useAuthStore } from '@/stores/auth';
 import { onMounted, onUnmounted, ref } from 'vue'
@@ -24,9 +24,39 @@ onMounted(async () => {
     console.log(data);
   });
 })
+
+const isBrowserMinimized = ref(false);
+
+const handleVisibilityChange = () => {
+  isBrowserMinimized.value = document.hidden;
+  if (isBrowserMinimized.value === true && userStore.value.roomId) {
+			socketGame.emit('pause', {room: userStore.value.roomId, player : userStore.value.playerNo});
+  }
+	else if (isBrowserMinimized.value === false && userStore.value.roomId)
+		socketGame.emit('unpause', {room: userStore.value.roomId, player : userStore.value.playerNo}); 
+};
+
+// socketGame.on('unpauseServer', data => {
+//   // console.log('restartServer: ' + data);
+//   socketGame.emit('unpause', {userStore.value.roomId});
+//   router.push({ name: 'home' });
+//   //alert("Game Created! ID is: "+ JSON.stringify(data));
+// });
+
+onMounted(() => {
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+});
+
+// Assicurati di rimuovere l'ascoltatore quando il componente viene smontato
+const teardown = () => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+};
+
 // On leaving the page
 onUnmounted(() => {
-  // socketGame.off('welcome');
+	teardown();
+	socketGame.off('pauseServer');
+	socketGame.off('unpauseServer');
   socketGame.offAny();
   socketGame.off('playerDisconnected');
   socketGame.off('restartServer');
@@ -94,7 +124,7 @@ socketGame.on('gameCreated', function (data) {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center mt-48">
+  <div class="flex flex-col items-center justify-center mt-45">
     <div v-if="!press" class="flex flex-col items-center">
       <button @click="createGame(), press = true" class="btn  btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-4">Create Game</button>
       <!-- <button @click="joinGame()" class="btn  btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">Join Game</button> -->

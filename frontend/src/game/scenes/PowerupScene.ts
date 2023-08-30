@@ -1,7 +1,15 @@
 import { Scene } from 'phaser';
 import { socketGame } from '@/plugins/Socket.io';
 import { useCurrentUserStore } from '@/stores/currentUser';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+
+const isBrowserMinimized = ref(false);
+onMounted(() => {
+	document.addEventListener('visibilitychange', handleVisibilityChange);
+  });
+  const handleVisibilityChange = () => {
+	isBrowserMinimized.value = document.hidden;
+  };
 
 const userStore = ref(useCurrentUserStore());
 let SPEEDP = 300;
@@ -16,12 +24,14 @@ export default class PowerupScene extends Scene {
   private ball!: Phaser.Physics.Arcade.Sprite;
   private ballpower!: Phaser.Physics.Arcade.Sprite;
   private dashedLine!: Phaser.GameObjects.Graphics;
+	private veil!: Phaser.GameObjects.Rectangle;
   private cursor!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { up: Phaser.Input.Keyboard.Key; down: Phaser.Input.Keyboard.Key };
   private score1!: number;
   private score2!: number;
   private scoreText1!: Phaser.GameObjects.Text;
   private scoreText2!: Phaser.GameObjects.Text;
+  private pauseText!: Phaser.GameObjects.Text;
   private ballSound!: Phaser.Sound.BaseSound;
   private thud!: Phaser.Sound.BaseSound;
   private soundtrack!: Phaser.Sound.BaseSound;
@@ -59,7 +69,13 @@ export default class PowerupScene extends Scene {
     // Background
     const background = this.add.image(0, 0, 'matrix');
     background.setOrigin(0, 0);  // Set the origin to the top-left corner
-    // Game key input
+    // veil
+		this.veil = this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x000000, 0.5);
+		this.veil.setOrigin(0, 0);
+		this.veil.setDepth(1);
+		this.veil.setVisible(false);
+
+		// Game key input
     // Arrows
     this.physics.world.setBoundsCollision(false, false, true, true);
 
@@ -127,7 +143,11 @@ export default class PowerupScene extends Scene {
     // Score text
     this.scoreText1 = this.add.text(this.scale.width / 2 - 75, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
     this.scoreText2 = this.add.text(this.scale.width / 2 + 50, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
-    // audio
+    // Pause text
+		this.pauseText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Waiting for the other player', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' }).setOrigin(0.5)
+		this.pauseText.setDepth(1);
+		this.pauseText.setVisible(false);
+		// audio
     this.ballSound = this.sound.add('pong');
     this.thud = this.sound.add('thud');
     this.lee1 = this.sound.add('lee1');
@@ -284,9 +304,51 @@ export default class PowerupScene extends Scene {
           this.randomEnemy();
       }
     })
+
+	socketGame.on('pauseServer', (data: {room: string, player: number}) => {
+		if (data.room === userStore.value.roomId)
+		{
+			this.ballpower.setDepth(0);
+			this.pauseText.setVisible(true);
+			this.veil.setVisible(true);
+			this.scene.pause();
+		}
+  })
+  
+  socketGame.on('unpauseServer', (data: {room: string, player: number}) => {
+		if (data.room === userStore.value.roomId)
+		{
+			this.ballpower.setDepth(1);
+			this.pauseText.setVisible(false);
+			this.veil.setVisible(false);
+			this.scene.resume();
+		}
+	})
   }
 
   update() {
+		// setTimeout(() => {
+		// 	if (isBrowserMinimized.value) {
+		// 		this.ballpower.setDepth(0);
+		// 		this.pauseText.setVisible(true);
+		// 		this.veil.setVisible(true);
+		// 		this.scene.pause();
+		// 	}
+		// }, 1000);
+		// setTimeout(() => {
+		// 	if (!isBrowserMinimized.value) {
+		// 		this.ballpower.setDepth(1);
+		// 		this.pauseText.setVisible(false);
+		// 		this.veil.setVisible(false);
+		// 		this.scene.resume();
+		// 	}
+		// }, 1000);
+
+		if (userStore.value.playerNo === 1)
+		setInterval(() => {
+			socketGame.emit('updatePosition', { x: this.ball.x, y: this.ball.y, velX: this.ball.body!.velocity.x, velY: this.ball.body!.velocity.y, paddle1x: this.player1.x, paddle1y: this.player1.y , paddle2x: this.player2.x, paddle2y: this.player2.y ,room: userStore.value.roomId });
+		}, 1000 / 60);
+
     if (userStore.value.playerNo === 1)
     {
       this.checkVelocity();
@@ -495,6 +557,7 @@ export default class PowerupScene extends Scene {
       this.stopSound();
       SPEEDE = 300;
       SPEEDP = 300;
+			// power = 1;
       const winner = this.score1 === 5 ? 'Player 1' : 'Player 2';
       this.soundtrack.stop();
       socketGame.off('move');
@@ -504,6 +567,9 @@ export default class PowerupScene extends Scene {
       socketGame.off('powerdoitServer');
       socketGame.off('updateScoreServer');
       socketGame.off('hitPaddleServer');
+			socketGame.off('pauseServer');
+			socketGame.off('unpauseServer');
+			this.scene.remove('PowerupScene');
       this.scene.start('EndScene', { score1: this.score1, score2: this.score2, winner: winner });
     }
   }

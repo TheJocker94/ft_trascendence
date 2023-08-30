@@ -6,39 +6,41 @@ import PowerupScene from '@/game/scenes/PowerupScene'
 import EndScene from './scenes/EndScene'
 
 function launch(containerId: string) {
-  return new Phaser.Game({
+  const gameInstance = new Phaser.Game({
     type: Phaser.CANVAS,
-    width: 800,
-    height: 600,
-    parent: containerId,
-	// scale: {
-  //       mode: Phaser.Scale.MAX_ZOOM,
-  //       autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
-  //   },
-  scale: {
-    width: 800,
-    height: 600,
-    mode: Phaser.Scale.FIT,
-    // mode: Phaser.Scale.ENVELOP,
-    // mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
-    // mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
-    // mode: Phaser.Scale.RESIZE,
-    // autoCenter: Phaser.Scale.CENTER_BOTH,
-    // zoom: Phaser.Scale.NO_ZOOM,
-    // zoom: Phaser.Scale.MAX_ZOOM,
-    parent: containerId,
-    fullscreenTarget: containerId
-  },
-	physics: {
+    scale: {
+      parent: containerId,
+      mode: Phaser.Scale.FIT,
+      width: 800,
+      height: 600,
+    },
+    physics: {
       default: 'arcade',
       arcade: {
-      gravity: { y: 0 },
-      debug: true,
+        gravity: { y: 0 },
+        debug: false,
       }
     },
     scene: [BootScene, ChooseScene, PowerupScene, PlayScene, EndScene]
-  })
+  });
+
+	resizeGame(gameInstance);
+	return gameInstance;
 }
 
-export default launch
-export { launch }
+function resizeGame(gameInstance: Phaser.Game) {
+  const canvas = gameInstance.canvas;
+  const windowRatio = 800 / 600;
+  const gameRatio = gameInstance.config.width as number / (gameInstance.config.height as number);
+
+  if (windowRatio < gameRatio) {
+    canvas.style.width = 800 + 'px';
+    canvas.style.height = (800 / gameRatio) + 'px';
+  } else {
+    canvas.style.width = (600 * gameRatio) + 'px';
+    canvas.style.height = 600 + 'px';
+  }
+}
+
+export default launch;
+export { launch, resizeGame };
