@@ -557,7 +557,7 @@ export default class PowerupScene extends Scene {
       this.stopSound();
       SPEEDE = 300;
       SPEEDP = 300;
-			// power = 1;
+			power = 1;
       const winner = this.score1 === 5 ? 'Player 1' : 'Player 2';
       this.soundtrack.stop();
       socketGame.off('move');
@@ -569,7 +569,7 @@ export default class PowerupScene extends Scene {
       socketGame.off('hitPaddleServer');
 			socketGame.off('pauseServer');
 			socketGame.off('unpauseServer');
-			this.scene.remove('PowerupScene');
+			// this.scene.stop('PowerupScene');
       this.scene.start('EndScene', { score1: this.score1, score2: this.score2, winner: winner });
     }
   }
