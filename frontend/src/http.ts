@@ -3,8 +3,7 @@ import { useAuthStore } from "@/stores/auth";
 
 // The backend api
 const myApi: AxiosInstance = axios.create({
-//   baseURL: process.env.VUE_APP_API_URL,
-  baseURL: "http://localhost:3000",
+	baseURL: "/api",
 	headers: {
     'Content-type': 'application/json'
 	},

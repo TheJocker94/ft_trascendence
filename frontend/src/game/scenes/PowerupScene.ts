@@ -344,10 +344,10 @@ export default class PowerupScene extends Scene {
 		// 	}
 		// }, 1000);
 
-		if (userStore.value.playerNo === 1)
-		setInterval(() => {
-			socketGame.emit('updatePosition', { x: this.ball.x, y: this.ball.y, velX: this.ball.body!.velocity.x, velY: this.ball.body!.velocity.y, paddle1x: this.player1.x, paddle1y: this.player1.y , paddle2x: this.player2.x, paddle2y: this.player2.y ,room: userStore.value.roomId });
-		}, 1000 / 60);
+		// if (userStore.value.playerNo === 1)
+		// setInterval(() => {
+		// 	socketGame.emit('updatePosition', { x: this.ball.x, y: this.ball.y, velX: this.ball.body!.velocity.x, velY: this.ball.body!.velocity.y, paddle1x: this.player1.x, paddle1y: this.player1.y , paddle2x: this.player2.x, paddle2y: this.player2.y ,room: userStore.value.roomId });
+		// }, 1000 / 60);
 
     if (userStore.value.playerNo === 1)
     {
@@ -567,9 +567,9 @@ export default class PowerupScene extends Scene {
       socketGame.off('powerdoitServer');
       socketGame.off('updateScoreServer');
       socketGame.off('hitPaddleServer');
-			socketGame.off('pauseServer');
-			socketGame.off('unpauseServer');
-			// this.scene.stop('PowerupScene');
+		socketGame.off('pauseServer');
+		socketGame.off('unpauseServer');
+			this.scene.stop('PowerupScene');
       this.scene.start('EndScene', { score1: this.score1, score2: this.score2, winner: winner });
     }
   }

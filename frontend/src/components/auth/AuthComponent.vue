@@ -57,21 +57,9 @@ async function receiveMessageFortyTwo  (event?: MessageEvent<any>){
 
 
 async function loginFortyTwo() {
-	openSignInWindow(`http://localhost:3000/auth/42/signin`);
+	openSignInWindow('/api/auth/42/signin');
 }
 
-// async function log42() {
-
-//   const e = await authStore.value.signInFortyTwo();
-//   if (e)
-//   {
-//     alert(e.message)
-//     console.log("danger", "failure", e.message);
-//     return;
-//   }
-//   else
-// 		router.push('/');
-// }
 </script>
 
 <style scoped>

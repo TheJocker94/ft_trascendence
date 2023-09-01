@@ -10,9 +10,6 @@ services:
     volumes:
       - './backend/:/data'
     command: [ "/bin/sh", "-c", "npm install && npm run start:debug" ]
-
-    ports:
-      - 3000:3000
     restart: unless-stopped
     depends_on:
       - 'database'
@@ -57,17 +54,17 @@ services:
     networks:
       - app
   # # Postgres admin
-  pgadmin:
-    container_name: pgadmin4_container
-    image: dpage/pgadmin4
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
-    ports:
-      - '5050:80'
-    networks:
-      - app
+  # pgadmin:
+  #   container_name: pgadmin4_container
+  #   image: dpage/pgadmin4
+  #   restart: unless-stopped
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: root
+  #   ports:
+  #     - '5050:80'
+  #   networks:
+  #     - app
   # NETWORKS
 networks:
   app:

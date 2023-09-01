@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 
-const URL = "http://localhost:3000/chat";
-const URLgame = "http://localhost:3000/game";
+const URL = "/chat";
+const URLgame = "/game";
 // const URLchat = "http://localhost:3000/chat";
 const socket = io(URL, { autoConnect: false });
 const socketGame = io(URLgame, { autoConnect: false });

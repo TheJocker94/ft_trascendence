@@ -6,6 +6,7 @@ import { useLocalStorage } from '@vueuse/core';
 import type { IError } from '@/models/IError';
 import axios, { AxiosError } from 'axios';
 import AuthService from '@/services/AuthService';
+import { string } from 'yup';
 
 
 export const useAuthStore = defineStore('auth', {
