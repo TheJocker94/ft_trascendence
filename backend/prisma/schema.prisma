@@ -33,7 +33,18 @@ model User {
   blockedUsers   BlockedUser[] @relation("Blocker_Relation")
   usersBlockedBy BlockedUser[] @relation("Blocked_Relation")
 
+  matchHistory Int[] // array di id delle partite giocate
+
   @@map("users")
+}
+
+model matchHistory {
+  id      Int       @id @default(autoincrement())
+  User1Id String
+  User2Id String
+  winner  String
+  score   String
+  mode    MatchMode
 }
 
 // ho fatto solo un tipo CHANNEL diviso in PRIVATE: una chat privata tra 2, oppure GROUP: un canale vero e proprio con tanti membri
@@ -86,6 +97,11 @@ enum UserStatus {
   ACTIVE
   BANNED
   MUTED
+}
+
+enum MatchMode {
+  CLASSIC
+  POWERUP
 }
 
 model Friendship {

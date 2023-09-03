@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { GameService } from './game.service';
 import type { IRoom } from './models/IGame';
 import { GameQueue } from './models/GameQueue';
 import { Server, Socket } from 'socket.io';
@@ -22,7 +23,7 @@ import { Server, Socket } from 'socket.io';
 })
 @Injectable()
 export class GameGateway {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService, private gameService: GameService) { }
   @WebSocketServer()
   server: Server;
   users = 0;
@@ -112,25 +113,25 @@ export class GameGateway {
 
   @SubscribeMessage('pause')
   handlePause(
-	@ConnectedSocket() client: Socket,
-	@MessageBody() data: any,
-	  ): void {
-		console.log('Pause received is ', data);
-		this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = true;
-		this.server.to(data.room).emit('pauseServer', data);
-	  }
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Pause received is ', data);
+    this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = true;
+    this.server.to(data.room).emit('pauseServer', data);
+  }
 
   @SubscribeMessage('unpause')
   handleUnPause(
-	@ConnectedSocket() client: Socket,
-	@MessageBody() data: any,
-	  ): void {
-		this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = false;
-		console.log('Pause received is ', data);
-		if (this.Rooms[parseInt(data.room)].players[0].minimized == false && this.Rooms[parseInt(data.room)].players[1].minimized == false)
-			this.server.to(data.room).emit('unpauseServer', data);
-		
-	  }
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = false;
+    console.log('Pause received is ', data);
+    if (this.Rooms[parseInt(data.room)].players[0].minimized == false && this.Rooms[parseInt(data.room)].players[1].minimized == false)
+      this.server.to(data.room).emit('unpauseServer', data);
+
+  }
 
   //Me l'ha scritta copilot
   // Execute powerup
@@ -167,6 +168,7 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
+    this.Rooms[parseInt(data.room)].finished = false;
     console.log('Restart received is ', data);
     this.server.to(data.room).emit('restartServer', data.player);
   }
@@ -202,49 +204,44 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): Promise<void> {
-    console.log('Update score received is ', data);// 3 +2 +1 // 3 1 +2
-    console.log(
-      'Suca sempre Dani',
-      this.Rooms[parseInt(data.room)].players[0].username,
-    );
-    console.log(
-      'Suca sempre Dani',
-      this.Rooms[parseInt(data.room)].players[1].username,
-    );
-    if (data.score1 === 5) {
-      // this.Rooms[parseInt(data.room)].winner =
-      //   this.Rooms[parseInt(data.room)].players[0].username;
-      console.log('suca il primo');
-      await this.prisma.user.update({
-        where: { id: this.Rooms[parseInt(data.room)].players[1].username },
-        data: { Wins: { increment: 1 }, Played: { increment: 1 } },
-      });
-      await this.prisma.user.update({
-        where: { id: this.Rooms[parseInt(data.room)].players[0].username },
-        data: { Losses: { increment: 1 }, Played: { increment: 1 } },
-      });
-    } else if (data.score2 === 5) {
-      console.log('suca il secondo');
 
-      // this.Rooms[parseInt(data.room)].winner =
-      //   this.Rooms[parseInt(data.room)].players[1].username;
-      await this.prisma.user.update({
-        where: { id: this.Rooms[parseInt(data.room)].players[0].username },
-        data: { Wins: { increment: 1 }, Played: { increment: 1 } },
-      });
-      await this.prisma.user.update({
-        where: { id: this.Rooms[parseInt(data.room)].players[1].username },
-        data: { Losses: { increment: 1 }, Played: { increment: 1 } },
-      });
-    }
     if (data.score1 === 5 || data.score2 === 5) {
+      this.Rooms[parseInt(data.room)].finished = true;
+      let winner: string;
+      let loser: string;
+      if (data.score1 === 5) {
+        winner = this.Rooms[parseInt(data.room)].players[1].username;
+        loser = this.Rooms[parseInt(data.room)].players[0].username;
+      }
+      else if (data.score2 === 5) {
+        winner = this.Rooms[parseInt(data.room)].players[0].username;
+        loser = this.Rooms[parseInt(data.room)].players[1].username;
+      }
+
+      const matchplayed = await this.gameService.createHistory({
+        user1Id: this.Rooms[parseInt(data.room)].players[0].username,
+        user2Id: this.Rooms[parseInt(data.room)].players[1].username,
+        winnerId: winner,
+        score: data.score1 + '-' + data.score2,
+        mode: 'CLASSIC',
+      });
+      await this.prisma.user.update({
+        where: { id: winner },
+        data: {
+          Wins: { increment: 1 }, Played: { increment: 1 }, matchHistory: { push: matchplayed.id }
+        }
+      });
+      await this.prisma.user.update({
+        where: { id: loser },
+        data: { Losses: { increment: 1 }, Played: { increment: 1 }, matchHistory: { push: matchplayed.id } },
+      });
+
       const player1 = await this.prisma.user.findUnique({
         where: { id: this.Rooms[parseInt(data.room)].players[0].username },
       });
       const player2 = await this.prisma.user.findUnique({
         where: { id: this.Rooms[parseInt(data.room)].players[1].username },
       });
-
       const winrate1 = (player1.Wins / player1.Played) * 100;
       const winrate2 = (player2.Wins / player2.Played) * 100;
 
@@ -256,8 +253,6 @@ export class GameGateway {
         where: { id: this.Rooms[parseInt(data.room)].players[1].username },
         data: { winrate: winrate2 },
       });
-      console.log('Room is ', this.Rooms[parseInt(data.room)]);
-      console.log('Winner is ', this.Rooms[parseInt(data.room)].winner);
     }
     this.server.to(data.room).emit('updateScoreServer', data);
   }
@@ -339,8 +334,8 @@ export class GameGateway {
       playersSockets[0].join(gameId);
       playersSockets[1].join(gameId);
       this.server.to(gameId).emit('startingGame', this.Rooms[parseInt(gameId)]);
-	  this.Rooms[parseInt(gameId)].players[0].minimized = false;
-	  this.Rooms[parseInt(gameId)].players[1].minimized = false;
+      this.Rooms[parseInt(gameId)].players[0].minimized = false;
+      this.Rooms[parseInt(gameId)].players[1].minimized = false;
       // playersSockets[0].emit('matchFound', gameId);
       // playersSockets[1].emit('matchFound', gameId);
     }
@@ -353,20 +348,19 @@ export class GameGateway {
         {
           username: userIds[0],
           playerNo: 1,
-          score: 0,
-		  minimized: false,
+          minimized: false,
         },
         {
           username: userIds[1],
           playerNo: 2,
-          score: 0,
-		  minimized: false,
+          minimized: false,
         },
       ],
       winner: '',
+      finished: false,
     };
     this.Rooms.push(room);
-	this.Rooms[room.roomId].players[0].minimized = true;
+    this.Rooms[room.roomId].players[0].minimized = true;
     return room.roomId.toString();
   }
 }
