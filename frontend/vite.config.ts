@@ -31,11 +31,11 @@ export default defineConfig({
 		  ws: true,
 		  rewrite: path => path.replace(/^\/api/, ''),
 		},
-		// '/socket.io': {
-		//   target: 'ws://api:3000',
-		//   ws: true,
-		//   changeOrigin: true,
-		// }
+		'/socket.io': {
+		  target: 'ws://api:3000',
+		  ws: true,
+		  changeOrigin: true,
+		}
 	  }
 	},
 	plugins: [

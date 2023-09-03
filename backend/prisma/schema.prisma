@@ -47,12 +47,12 @@ model matchHistory {
   mode    MatchMode
 }
 
-// ho fatto solo un tipo CHANNEL diviso in PRIVATE: una chat privata tra 2, oppure GROUP: un canale vero e proprio con tanti membri
+// ho fatto solo un tipo CHANNEL diviso in DIRECT: una chat privata tra 2, oppure PRIVATE: un canale vero privato, oppure PUBLIC: un canale pubblico con tanti membri
 model Channel {
   id       String                 @id @default(uuid())
   ownerId  String
   owner    User                @relation(fields: [ownerId], references: [id])
-  type     ChannelType // PRIVATE o GROUP
+  type     ChannelType // PRIVATE o PUBLIC o DIRECT
   name     String? // se sono GROUP ho un nome del canale
   password String?
   members  ChannelMembership[] // membri del canale
@@ -83,8 +83,9 @@ model Message {
 }
 
 enum ChannelType {
+  PUBLIC
   PRIVATE
-  GROUP
+  DIRECT
 }
 
 enum UserRole {
