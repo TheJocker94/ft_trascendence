@@ -9,7 +9,7 @@ const authStore = ref(useAuthStore());
 const userStore = ref(useCurrentUserStore());
 onBeforeMount( async () => {
   if (userStore.value.userId)
-    await userStore.value.initStore(null, null);
+    await userStore.value.initStore(null, null, null);
 });
 </script>
 

@@ -43,12 +43,13 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { Form, Field, ErrorMessage } from 'vee-validate';
-import AuthService from '../../services/AuthService';
+import { useCurrentUserStore } from '@/stores/currentUser';
 import * as yup from 'yup';
 
 // Router, authStore, credentials
 const router = useRouter();
 const auth = ref(useAuthStore());
+const userStore = ref(useCurrentUserStore());
 const credentials = reactive({
   email:"",
   password:"",
@@ -83,24 +84,8 @@ async function onSubmit()
 		console.log("danger", "failure", e.message);
 		return;
 	} else {
-		router.push('/');
+		router.push('/users/' + userStore.value.userId);
 	}
 }
 
-
-// // Submit function
-// async function onSubmit() {
-//   console.log("Sommettiti")
-//   console.log("email", credentials.email)
-//   console.log("pass", credentials.password)
-//   const e = await auth.value.signInLocal(credentials.email, credentials.password);
-//   if (e)
-//   {
-//     alert(e.message)
-//     console.log("danger", "failure", e.message);
-//     return;
-//   }
-//   else
-// 	router.push('/');
-// }
 </script>

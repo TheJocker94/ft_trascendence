@@ -27,7 +27,6 @@ const router = useRouter();
 
 const currentUser = ref(useCurrentUserStore());
 async function fetchUsers() {
-  console.log("id new new ", props.idProfile);
   profile.value = await UserService.getUserById(props.idProfile!);
 }
 

@@ -36,7 +36,6 @@ const props = defineProps({
 const profile = ref<IUser>();
 
 async function fetchUsers() {
-  console.log("id new new ", props.idProfile);
   profile.value = await UserService.getUserById(props.idProfile!);
 }
 

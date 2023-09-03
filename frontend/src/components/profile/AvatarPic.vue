@@ -42,7 +42,6 @@ const props = defineProps({
 const profile = ref<IUser>();
 
 async function fetchUsers() {
-  console.log("id new new ", props.idProfile);
   profile.value = await UserService.getUserById(props.idProfile!);
 }
 
@@ -71,7 +70,7 @@ const handleImageChange = async () => {
       };
       reader.readAsDataURL(file);
       if (currentUser.value.userId)
-        await currentUser.value.initStore(null, null);
+        await currentUser.value.initStore(null, null, null);
     }
   }
 };

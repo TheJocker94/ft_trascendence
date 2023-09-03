@@ -129,7 +129,6 @@ export const useAuthStore = defineStore('auth', {
       this.setState(accessToken, refreshToken);
       // this.twoFaEnabled = resp.data.twoFaEnabled;
       // if (!this.twoFaEnabled)
-      console.log("awman", tokData);
       await useCurrentUserStore().initStore(tokData.id, tokData.email, this.twoFaEnabled);
       } catch (err) {
         const e = err as AxiosError<IError>;

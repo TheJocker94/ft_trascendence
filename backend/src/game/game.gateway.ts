@@ -23,7 +23,10 @@ import { Server, Socket } from 'socket.io';
 })
 @Injectable()
 export class GameGateway {
-  constructor(private prisma: PrismaService, private gameService: GameService) { }
+  constructor(
+    private prisma: PrismaService,
+    private gameService: GameService,
+  ) {}
   @WebSocketServer()
   server: Server;
   users = 0;
@@ -120,6 +123,12 @@ export class GameGateway {
     this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = true;
     this.server.to(data.room).emit('pauseServer', data);
   }
+  //   @ConnectedSocket() client: Socket,
+  //   @MessageBody() data: any,): void {
+  //   console.log('Pause received is ', data);
+  //   this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = true;
+  //   this.server.to(data.room).emit('pauseServer', data);
+  // }
 
   @SubscribeMessage('unpause')
   handleUnPause(
@@ -128,9 +137,11 @@ export class GameGateway {
   ): void {
     this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = false;
     console.log('Pause received is ', data);
-    if (this.Rooms[parseInt(data.room)].players[0].minimized == false && this.Rooms[parseInt(data.room)].players[1].minimized == false)
+    if (
+      this.Rooms[parseInt(data.room)].players[0].minimized == false &&
+      this.Rooms[parseInt(data.room)].players[1].minimized == false
+    )
       this.server.to(data.room).emit('unpauseServer', data);
-
   }
 
   //Me l'ha scritta copilot
@@ -204,7 +215,6 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): Promise<void> {
-
     if (data.score1 === 5 || data.score2 === 5) {
       this.Rooms[parseInt(data.room)].finished = true;
       let winner: string;
@@ -212,8 +222,7 @@ export class GameGateway {
       if (data.score1 === 5) {
         winner = this.Rooms[parseInt(data.room)].players[1].username;
         loser = this.Rooms[parseInt(data.room)].players[0].username;
-      }
-      else if (data.score2 === 5) {
+      } else if (data.score2 === 5) {
         winner = this.Rooms[parseInt(data.room)].players[0].username;
         loser = this.Rooms[parseInt(data.room)].players[1].username;
       }
@@ -228,12 +237,18 @@ export class GameGateway {
       await this.prisma.user.update({
         where: { id: winner },
         data: {
-          Wins: { increment: 1 }, Played: { increment: 1 }, matchHistory: { push: matchplayed.id }
-        }
+          Wins: { increment: 1 },
+          Played: { increment: 1 },
+          matchHistory: { push: matchplayed.id },
+        },
       });
       await this.prisma.user.update({
         where: { id: loser },
-        data: { Losses: { increment: 1 }, Played: { increment: 1 }, matchHistory: { push: matchplayed.id } },
+        data: {
+          Losses: { increment: 1 },
+          Played: { increment: 1 },
+          matchHistory: { push: matchplayed.id },
+        },
       });
 
       const player1 = await this.prisma.user.findUnique({
@@ -336,6 +351,8 @@ export class GameGateway {
       this.server.to(gameId).emit('startingGame', this.Rooms[parseInt(gameId)]);
       this.Rooms[parseInt(gameId)].players[0].minimized = false;
       this.Rooms[parseInt(gameId)].players[1].minimized = false;
+      this.Rooms[parseInt(gameId)].players[0].minimized = false;
+      this.Rooms[parseInt(gameId)].players[1].minimized = false;
       // playersSockets[0].emit('matchFound', gameId);
       // playersSockets[1].emit('matchFound', gameId);
     }
@@ -360,6 +377,7 @@ export class GameGateway {
       finished: false,
     };
     this.Rooms.push(room);
+    this.Rooms[room.roomId].players[0].minimized = true;
     this.Rooms[room.roomId].players[0].minimized = true;
     return room.roomId.toString();
   }
