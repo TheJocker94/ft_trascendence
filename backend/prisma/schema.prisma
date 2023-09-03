@@ -49,7 +49,7 @@ model matchHistory {
 
 // ho fatto solo un tipo CHANNEL diviso in PRIVATE: una chat privata tra 2, oppure GROUP: un canale vero e proprio con tanti membri
 model Channel {
-  id       Int                 @id @default(autoincrement())
+  id       String                 @id @default(uuid())
   ownerId  String
   owner    User                @relation(fields: [ownerId], references: [id])
   type     ChannelType // PRIVATE o GROUP
@@ -62,7 +62,7 @@ model Channel {
 model ChannelMembership {
   userId      String
   user        User        @relation(fields: [userId], references: [id])
-  channelId   Int
+  channelId   String
   channel     Channel     @relation(fields: [channelId], references: [id])
   role        UserRole // ruolo utente: OWNER, ADMIN o MEMBER
   status      UserStatus? // stato dell utente nel canale: (ACTIVE, BANNED, MUTED)
@@ -73,7 +73,7 @@ model ChannelMembership {
 
 model Message {
   id        Int      @id @default(autoincrement())
-  channelId Int
+  channelId String
   channel   Channel  @relation(fields: [channelId], references: [id])
   senderId  String
   sender    User     @relation("Message_Sender", fields: [senderId], references: [id])

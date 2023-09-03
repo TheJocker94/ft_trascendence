@@ -30,6 +30,8 @@
                   </span>
                   Groups
               </a>
+                <input v-model="groupName" @keyup.enter="createGroup" type="text" id="textInput" name="textInput" required placeholder="...nome canale">
+                <button @click="createGroup" type="submit">Submit</button>
           </div>
       </div>
       <div class="flex-1 bg-gray-100 w-full h-full">
@@ -153,10 +155,13 @@
                                       </div>
                                   </div>
                                   <div class="flex-1 px-2">
-                                      <div class="inline-block bg-gray-300 rounded-full p-2 px-6 text-gray-700">
-                                          <span>You are welome. We will stay in touch.</span>
-                                      </div>
-                                      <div class="pl-4"><small class="text-gray-500">15 April</small></div>
+                                    <div v-for="(message, index) in messages" :key="index" :class="['chat', message.myself === true ? 'chat-end' : 'chat-start']">
+                                        <div class="chat-header">
+                                        {{ message.sender }}
+                                        <time class="text-xs opacity-50">{{ message.time }}</time>
+                                        </div>
+                                        <div class="chat-bubble">{{ message.text }}</div>
+                                    </div>
                                   </div>
                               </div>
                           </div>
@@ -168,7 +173,7 @@
                                       </span>
                                   </div>
                                   <div class="flex-1">
-                                      <textarea name="message" class="w-full block outline-none py-4 px-4 bg-transparent" rows="1" placeholder="Type a message..." autofocus></textarea>
+                                      <textarea v-model="msg" @keyup.enter="sendMessage" name="message" class="w-full block outline-none py-4 px-4 bg-transparent" rows="1" placeholder="Type a message..." autofocus></textarea>
                                   </div>
                                   <div class="flex-2 w-32 p-2 flex content-center items-center">
                                       <div class="flex-1 text-center">
@@ -179,7 +184,7 @@
                                           </span>
                                       </div>
                                       <div class="flex-1">
-                                          <button class="bg-blue-400 w-10 h-10 rounded-full inline-block">
+                                          <button @click="sendMessage" class="bg-blue-400 w-10 h-10 rounded-full inline-block">
                                               <span class="inline-block align-text-bottom">
                                                   <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4 text-white"><path d="M5 13l4 4L19 7"></path></svg>
                                               </span>
@@ -198,13 +203,20 @@
   </template>
   
   <script setup lang="ts">
-  import {socket} from "@/plugins/Socket.io";
-  import {ref, watchEffect} from 'vue';
-  import type { IFriend } from "@/models/IFriendsLists";
-  import FriendService from "@/services/FriendService";
-  const isFriendsActive = ref(false);
-  const isGroupsActive = ref(false);
-  const profileFriend = ref<any[]>();
+    import {socket} from "@/plugins/Socket.io";
+    import {ref, watchEffect, onMounted, onUnmounted} from 'vue';
+    import type { IFriend } from "@/models/IFriendsLists";
+    import FriendService from "@/services/FriendService";
+    const isFriendsActive = ref(false);
+    const isGroupsActive = ref(false);
+    const profileFriend = ref<any[]>();
+    import { useCurrentUserStore } from "@/stores/currentUser";
+    import type { INewMessage } from '@/models/IChat'
+    const usernameAlreadySelected = ref(false);
+    const userStore = ref(useCurrentUserStore());
+    const msg = ref('');
+    const groupName = ref('');
+    const messages = ref<INewMessage[]>([]);
 
   const activChatUsr = ref('');
   function sendUsername(user: string)
@@ -227,6 +239,60 @@
       friend.active = i === index;
     });
   };
+  const sendMessage = () => {
+  if (msg.value === '')
+  return;
+  const newMessage = {
+    sender: userStore.value.username, // Set the sender's username
+    text: msg.value,
+    time: new Date().toLocaleTimeString(), // Set the message time
+    status: 'Delivered', // Set the status for the sender's message
+    myself: true
+  };
+  messages.value.push(newMessage);
+  socket.emit('messageToServer', {text: msg.value});
+  msg.value = '';
+  };
+  
+  const createGroup = () => {
+      if (groupName.value === '')
+      return;
+console.log('sto creando il gruppo da frontend')
+  socket.emit('createGroup', {text: groupName.value});
+  };
+  
+socket.on('messageFromServer', (dataFromServer)=> {
+    if (dataFromServer.username === userStore.value.username)
+      return;
+    const newMessage = {
+    sender: dataFromServer.username, // Set the sender for the received message
+    text: dataFromServer.text,
+    time: new Date().toLocaleTimeString(), // Set the message time
+    status: 'Seen', // Set the status for the received message
+    myself: false
+  };
+
+  messages.value.push(newMessage);
+})
+onMounted( async () => {
+  await userStore.value.initStore(null, null);
+  const username = userStore.value.username;
+  socket.auth = { username};
+  socket.connect();
+  socket.on("connect_error", (err) => {
+      if (err.message === "invalid username") {
+        usernameAlreadySelected.value = false;
+      }
+    });
+  socket.on('welcome', (message:string) => {
+    console.log(message);
+  });
+  });
+onUnmounted(() => {
+  socket.off('connect');
+  socket.off('connect_error');
+  socket.disconnect();
+});
   </script>
   
   
