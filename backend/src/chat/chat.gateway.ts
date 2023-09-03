@@ -10,6 +10,7 @@ import { Body, Post } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { Channel } from 'diagnostics_channel';
 
 @WebSocketGateway({
   namespace: '/chat',
@@ -44,6 +45,7 @@ export class ChatGateway {
 
     console.log('User connected:', username);
   }
+  
   getConnectedUsers(): { userID: string; username: string }[] {
     const users = [];
     for (const [id, socket] of this.server.sockets.sockets) {
@@ -57,6 +59,7 @@ export class ChatGateway {
     console.log('Users are :', users);
     return users;
   }
+
   @SubscribeMessage('messageToServer')
   handleMessage(
     @ConnectedSocket() client: Socket,
@@ -70,23 +73,26 @@ export class ChatGateway {
       username: client['username'],
     });
   }
+
   @SubscribeMessage('createGroup')
   handleCreateGroup(
     @ConnectedSocket() client: Socket,
-    @MessageBody() text: any,
-    @GetCurrUserId() userId: string,
+    @MessageBody() data: any,
+
   ): void {
-    console.log('client.data.userId: ', client.data.userId);
-    console.log('client.id: ', client.id);
-    console.log('userId:', userId);
+    // console.log('client.data.userId: ', client.data.userId);
+    // console.log('client.id: ', client.id);
+    console.log('userId:', data.sender);
+	// const channel = new Channel(1, 'PUBLIC', data.sender, data.text);
     this.prisma.channel.create({
-      data: { ownerId: userId, type: 'GROUP', name: text.text },
+      data: { ownerId: data.sender, type: 'PUBLIC', name: data.text },
     });
-    this.server.emit('messageFromServer', {
-      text: text.text,
-      username: client['username'],
-    });
+    // this.server.emit('messageFromServer', {
+    //   text: data.text,
+    //   username: client['username'],
+    // });
   }
+
   handleDisconnect(client: Socket) {
     console.log('Client disconnected:', client.id);
     // You can access the attached username if needed

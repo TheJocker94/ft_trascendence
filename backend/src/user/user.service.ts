@@ -28,11 +28,7 @@ export class UserService {
       throw new BadRequestException('User not found');
     }
     try {
-      const user = await this.prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
+      const user = await this.prisma.user.findUnique({ where: { id: userId } });
       const dtoUser = plainToClass(UserDto, user, transformationOptions);
       return dtoUser;
     } catch (error) {

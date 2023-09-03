@@ -258,7 +258,7 @@
       if (groupName.value === '')
       return;
 console.log('sto creando il gruppo da frontend')
-  socket.emit('createGroup', {text: groupName.value});
+  socket.emit('createGroup', {text: groupName.value, sender:userStore.value.userId});
   };
   
 socket.on('messageFromServer', (dataFromServer)=> {
@@ -275,7 +275,7 @@ socket.on('messageFromServer', (dataFromServer)=> {
   messages.value.push(newMessage);
 })
 onMounted( async () => {
-  await userStore.value.initStore(null, null);
+  await userStore.value.initStore(null, null, null);
   const username = userStore.value.username;
   socket.auth = { username};
   socket.connect();
