@@ -129,6 +129,16 @@ export class UserService {
     return updatedtoUser;
   }
 
+  async getLeaderboard(): Promise<UserDto[]> {
+    const users = await this.prisma.user.findMany({
+      orderBy: {
+        winrate: 'desc'
+      }
+    });
+    const dtoUsers = plainToClass(UserDto, users, transformationOptions);
+    return dtoUsers;
+  }
+
   async addFriend(senderId: string, receiverId: string): Promise<any> {
     if (senderId === receiverId) {
       throw new BadRequestException('You cannot send a friend request to yourself.');

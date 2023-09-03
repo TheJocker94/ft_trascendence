@@ -28,7 +28,7 @@ import { GetCurrUserId } from 'src/auth/common/decorators';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -64,6 +64,11 @@ export class UserController {
   ): Promise<UserDto> {
     const idToUse = userData.id || currentUserId;
     return this.userService.updateImage({ ...userData, id: idToUse });
+  }
+  @Get('leaderboard')
+  @HttpCode(HttpStatus.OK)
+  getLeaderboard(): Promise<UserDto[]> {
+    return this.userService.getLeaderboard();
   }
 
   @Post('add_friend')
@@ -164,4 +169,5 @@ export class UserController {
   getUser(@Param('userId') userId: string): Promise<UserDto | null> {
     return this.userService.getUser(userId);
   }
+
 }
