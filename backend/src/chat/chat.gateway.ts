@@ -1,16 +1,14 @@
-import {
+import{
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
   ConnectedSocket,
   MessageBody,
 } from '@nestjs/websockets';
-import { GetCurrUserId } from 'src/auth/common/decorators';
-import { Body, Post } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { Channel } from 'diagnostics_channel';
+import { ChannelType, UserRole, UserStatus } from '@prisma/client';
 
 @WebSocketGateway({
   namespace: '/chat',
@@ -75,22 +73,26 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('createGroup')
-  handleCreateGroup(
+  async handleCreateGroup(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
 
-  ): void {
+  ): Promise<void> {
     // console.log('client.data.userId: ', client.data.userId);
     // console.log('client.id: ', client.id);
     console.log('userId:', data.sender);
 	// const channel = new Channel(1, 'PUBLIC', data.sender, data.text);
-    this.prisma.channel.create({
-      data: { ownerId: data.sender, type: 'PUBLIC', name: data.text },
+  try {
+    const newChannel = await this.prisma.channel.create({
+      data: { ownerId: data.sender, type: ChannelType.PUBLIC, name: data.text },
     });
-    // this.server.emit('messageFromServer', {
-    //   text: data.text,
-    //   username: client['username'],
-    // });
+    const newUser = await this.prisma.channelMembership.create({
+      data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
+    })
+    console.log('Channel created:', newChannel);
+  } catch (error) {
+    console.error('Error creating channel:', error);
+  }
   }
 
   handleDisconnect(client: Socket) {
