@@ -9,3 +9,16 @@ export interface INewMessage{
     status: string
     myself: boolean;
 }
+
+export interface IChannel{
+    id: string,
+    name: string,
+    messages: IMessage[],
+    type: string,
+    active?: boolean,
+}
+
+export interface IMessage{
+    content: string,
+    time: Date,
+}

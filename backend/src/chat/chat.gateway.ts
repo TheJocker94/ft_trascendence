@@ -9,6 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChannelType, UserRole, UserStatus } from '@prisma/client';
+import { ChannelDto } from './dto/channel.dto';
 
 @WebSocketGateway({
   namespace: '/chat',
@@ -72,6 +73,40 @@ export class ChatGateway {
     });
   }
 
+  @SubscribeMessage('channelList')
+  async handleGrouplList(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+      const channels = await this.prisma.channel.findMany({
+        where:{
+          OR: [
+            {type: ChannelType.PUBLIC},
+            {type: ChannelType.PRIVATE}
+          ]
+        },
+        include: {
+          messages: {
+            select: {
+              content: true,
+              time: true,
+            }
+          }
+        }
+      });
+      const ChannelsList = channels.map(channel => {
+        return {
+          id: channel.id,
+          name: channel.name,
+          messages: channel.messages,
+          type: channel.type,
+        }
+      });
+      
+      client.emit('groupListServer', ChannelsList);
+    }
+
+
   @SubscribeMessage('createGroup')
   async handleCreateGroup(
     @ConnectedSocket() client: Socket,
@@ -81,18 +116,40 @@ export class ChatGateway {
     // console.log('client.data.userId: ', client.data.userId);
     // console.log('client.id: ', client.id);
     console.log('userId:', data.sender);
+    console.log("data.text: ", data.text);
+    console.log("FindFirst: ", this.prisma.channel.findFirst({where: {name: data.text}}));
+    const existingChannel = await this.prisma.channel.findFirst({where: {name: data.text}});
+    if (existingChannel) {
+      console.log('Channel already exists');
+      client.emit('channelAlreadyExists', data.text);
+      return;
+    }
 	// const channel = new Channel(1, 'PUBLIC', data.sender, data.text);
-  try {
-    const newChannel = await this.prisma.channel.create({
-      data: { ownerId: data.sender, type: ChannelType.PUBLIC, name: data.text },
-    });
+  if (data.password === '') {
+  try {const newChannel = await this.prisma.channel.create({
+    data: { ownerId: data.sender, type: data.type, name: data.text},
+  })
+  const newUser = await this.prisma.channelMembership.create({
+    data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
+  })
+}
+  catch (error) {
+    console.error('Error creating channel:', error);
+  }}
+  else {
+    try {const newChannel = await this.prisma.channel.create({
+      data: { ownerId: data.sender, type: data.type, name: data.text, password: data.password},
+    })
     const newUser = await this.prisma.channelMembership.create({
       data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
     })
-    console.log('Channel created:', newChannel);
-  } catch (error) {
-    console.error('Error creating channel:', error);
   }
+    catch (error) {
+      console.error('Error creating channel:', error);
+    }
+  }
+  
+
   }
 
   handleDisconnect(client: Socket) {

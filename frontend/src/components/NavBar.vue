@@ -76,6 +76,13 @@
               class="dropdown-item"
               >{{userStore.username}}</router-link
             ></li>
+            <li><router-link
+              :to="{
+                name: 'friends',
+              }"
+              class="dropdown-item"
+              >Chat</router-link
+            ></li>
             
             <li>
 				<div @click="openModal" >Notifications</div>
@@ -184,10 +191,10 @@ import FriendService from '@/services/FriendService';
 import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
 
-onBeforeRouteLeave(() => {
-  closeAllDropdowns();
-  return true; // Allow the route change to proceed
-});
+// onBeforeRouteLeave(() => {
+//   closeAllDropdowns();
+//   return true; // Allow the route change to proceed
+// });
 const friendStore = ref(useFriendStore());
 
 const showFriendRequest = ref(true);

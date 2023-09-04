@@ -23,15 +23,66 @@
                       'block py-4 px-12 border-l-4 border-gray-800 bg-gray-300 text-black hover:bg-gray-300 hover:text-black': isGroupsActive
                   }"
                   href="#"
-                  @click="isGroupsActive = true; isFriendsActive = false;"
+                  @click="isGroupsActive = true; isFriendsActive = false; getChannelList()"
                   >
                   <span class="inline-block align-text-bottom mr-2">
                       <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                   </span>
                   Groups
               </a>
-                <input v-model="groupName" @keyup.enter="createGroup" type="text" id="textInput" name="textInput" required placeholder="...nome canale">
-                <button @click="createGroup" type="submit">Submit</button>
+              <!-- Open the modal using ID.showModal() method -->
+
+              <a onclick="my_modal_2.showModal()" class="cursor-pointer block py-4 px-12 border-l-4 text-gray-600 hover:bg-gray-300 hover:text-black"> <i class="fa-solid fa-user-group mr-2"></i>Crea canale </a>
+                <dialog id="my_modal_2" class="modal">
+                <form method="dialog" class="modal-box w-full max-w-sm">
+                   <!-- inizio copia -->
+                   <Form @submit="createGroup()" :validation-schema="schema">
+                    <div class="md:flex md:items-center mb-6">
+                        <div class="md:w-1/3">
+                            <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="channelName">Channel name</label>
+                        </div>
+                        <div class="md:w-2/3">
+                            <Field v-model="credentials.name" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="channelName" name="channelName"/>
+                            <ErrorMessage name="channelName" class="text-red-500"/>
+                        </div>
+                    </div>
+                    <div class="md:flex md:items-center mb-6">
+                        <div class="md:w-1/3">
+                            <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="channelPassword">Password</label>
+                        </div>
+                        <div class="md:w-2/3">
+                            <Field v-model="credentials.password" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="channelPassword" name="channelPassword"/>
+                            <ErrorMessage name="channelPassword" class="text-red-500"/>
+                        </div>
+                    </div>
+                    <div class="md:flex md:items-center mb-6">
+                        <div class="md:w-1/3">
+                            <label class="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" for="channelType">Type</label>
+                        </div>
+                        <div class="md:w-2/3">
+                            <Field v-model="credentials.type" class="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500" id="channelType"  name="channelType" as="select">
+                                <option value="PUBLIC">Public</option>
+                                <option value="PRIVATE">Private</option>
+                            </Field>
+                            <ErrorMessage name="channelType" class="text-red-500"/>
+                        </div>
+                    </div>
+                    <div class=" md:flex md:items-center">
+    <div class="md:w-1/3"></div>
+    <div class=" md:w-2/3"> 
+        <button class="modal-action shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded">
+        Create
+      </button>
+    </div>
+</div>
+            </Form>
+                   <!-- Fine copiua -->
+</form>
+<form method="dialog" class="modal-backdrop">
+    <button ref="myButton" ></button>
+</form> 
+</dialog>
+                <!--  -->
           </div>
       </div>
       <div class="flex-1 bg-gray-100 w-full h-full">
@@ -76,33 +127,57 @@
                               <input type="text" class="outline-none py-2 block w-full bg-transparent border-b-2 border-gray-200" placeholder="Search">
                           </div>
                           <div class="flex-1 h-full overflow-auto px-2">
-                              <div v-for="(friend, index) in profileFriend" :key="index" :class="['entry', friend.active ? 'border-l-4 border-red-500' : '', 'cursor-pointer', 'transform', 'hover:scale-105', 'duration-300', 'transition-transform', 'bg-white', 'mb-4', 'rounded', 'p-4', 'flex', 'shadow-md']" @click="toggleActive(index), sendUsername(friend.username)">
-                              <div class="flex-2">
-                                      <div class="w-12 h-12 relative">
-                                          <img class="w-12 h-12 rounded-full mx-auto" :src="friend.profilePicture" :alt="friend.username"/>
-                                          <span class="absolute w-4 h-4 bg-green-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
-                                      </div>
-                                  </div>
-                                  <div class="flex-1 px-2">
-                                      <div class="truncate w-32"><span class="text-gray-800">{{ friend.username }}</span></div>
-                                      <div><small class="text-gray-600">Yea, Sure!</small></div>
-                                  </div>
-                                  <div class="flex-2 text-right"> 
-                                      <div><small class="text-gray-500">15 April</small></div>
-                                      <div>
-                                          <small class="text-xs bg-red-500 text-white rounded-full h-6 w-6 leading-6 text-center inline-block">
-                                              23
-                                          </small>
-                                      </div>
-                                  </div>
-                              </div>
+                            <div v-if="isFriendsActive">
+                                <div  v-for="(friend, index) in profileFriend" :key="index" :class="['entry', friend.active ? 'border-l-4 border-red-500' : '', 'cursor-pointer', 'transform', 'hover:scale-105', 'duration-300', 'transition-transform', 'bg-white', 'mb-4', 'rounded', 'p-4', 'flex', 'shadow-md']" @click="toggleActive(index), sendUsername(friend.username)">
+                                <div class="flex-2">
+                                        <div class="w-12 h-12 relative">
+                                            <img class="w-12 h-12 rounded-full mx-auto" :src="friend.profilePicture" :alt="friend.username"/>
+                                            <span class="absolute w-4 h-4 bg-green-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 px-2">
+                                        <div class="truncate w-32"><span class="text-gray-800">{{ friend.username }}</span></div>
+                                        <div><small class="text-gray-600">Yea, Sure!</small></div>
+                                    </div>
+                                    <div class="flex-2 text-right"> 
+                                        <div><small class="text-gray-500">15 April</small></div>
+                                        <div>
+                                            <small class="text-xs bg-red-500 text-white rounded-full h-6 w-6 leading-6 text-center inline-block">
+                                                23
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="isGroupsActive">
+                                <div  v-for="(channel, index) in channelList" :key="index" :class="['entry', channel.active ? 'border-l-4 border-red-500' : '', 'cursor-pointer', 'transform', 'hover:scale-105', 'duration-300', 'transition-transform', 'bg-white', 'mb-4', 'rounded', 'p-4', 'flex', 'shadow-md']" @click="toggleActive(index), sendUsername(channel.name)">
+                                <!-- <div class="flex-2">
+                                        <div class="w-12 h-12 relative">
+                                            <img class="w-12 h-12 rounded-full mx-auto" :src="friend.profilePicture" :alt="friend.username"/>
+                                            <span class="absolute w-4 h-4 bg-green-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
+                                        </div>
+                                    </div> -->
+                                    <div class="flex-1 px-2">
+                                        <div class="truncate w-32"><span class="text-gray-800">{{ channel.name }}</span></div>
+                                        <div v-if="channel.messages.length > 0" ><small class="text-gray-600">{{channel.messages[channel.messages.length - 1].content}}</small></div>
+                                    </div>
+                                    <div class="flex-2 text-right"> 
+                                        <div><small class="text-gray-500">15 April</small></div>
+                                        <div>
+                                            <small class="text-xs bg-red-500 text-white rounded-full h-6 w-6 leading-6 text-center inline-block">
+                                                23
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                           </div>
                       </div>
                       <div class="chat-area flex-1 flex flex-col">
                           <div class="flex-3">
                               <h2 class="text-xl py-1 mb-8 border-b-2 border-gray-200">Chatting with <b>{{ activChatUsr }}</b></h2>
                           </div>
-                          <div class="messages flex-1 overflow-auto">
+                          <div class="messages flex-1 overflow-auto max-h-[700px]">
                               <div class="message mb-4 flex">
                                   <div class="flex-2">
                                       <div class="w-12 h-12 relative">
@@ -204,25 +279,39 @@
   
   <script setup lang="ts">
     import {socket} from "@/plugins/Socket.io";
-    import {ref, watchEffect, onMounted, onUnmounted} from 'vue';
-    import type { IFriend } from "@/models/IFriendsLists";
+    import { Form, Field, ErrorMessage } from 'vee-validate';
+    import * as yup from 'yup';
+    import {ref, watchEffect, onMounted, onUnmounted, reactive} from 'vue';
     import FriendService from "@/services/FriendService";
+    import { useCurrentUserStore } from "@/stores/currentUser";
+    import type { INewMessage, IChannel, IMessage } from '@/models/IChat'
+
     const isFriendsActive = ref(false);
     const isGroupsActive = ref(false);
     const profileFriend = ref<any[]>();
-    import { useCurrentUserStore } from "@/stores/currentUser";
-    import type { INewMessage } from '@/models/IChat'
+    const channelList = ref<IChannel[]>();
     const usernameAlreadySelected = ref(false);
     const userStore = ref(useCurrentUserStore());
     const msg = ref('');
-    const groupName = ref('');
+    // const groupName = ref('');
     const messages = ref<INewMessage[]>([]);
+    const myButton = ref<HTMLButtonElement | null>(null);
+    const credentials = reactive({
+        name:"",
+        password:"",
+        type:""
+    })
 
   const activChatUsr = ref('');
   function sendUsername(user: string)
   {
       activChatUsr.value = user;
   }
+  const schema = yup.object().shape({
+  channelName: yup.string().required().label('Channel Name'),
+  channelPassword: yup.string().notRequired().label('Channel Password'),
+  channelType: yup.string().required().label('Channel Type')
+});
   // const currentUser = ref(useCurrentUserStore());
   async function friendPic() {
       // if (props.idProfile !== currentUser.value.userId)
@@ -238,6 +327,9 @@
     profileFriend.value!.forEach((friend, i) => {
       friend.active = i === index;
     });
+    channelList.value!.forEach((channel, i) => {
+        channel.active = i === index;
+      });
   };
   const sendMessage = () => {
   if (msg.value === '')
@@ -253,14 +345,38 @@
   socket.emit('messageToServer', {text: msg.value});
   msg.value = '';
   };
-  
-  const createGroup = () => {
-      if (groupName.value === '')
-      return;
-console.log('sto creando il gruppo da frontend')
-  socket.emit('createGroup', {text: groupName.value, sender:userStore.value.userId});
+  const getChannelList = () => {
+    socket.emit('channelList');
   };
-  
+
+  socket.on('groupListServer', (chList: IChannel[])=> {
+    console.log(chList);
+    channelList.value = chList;
+  });
+
+  const createGroup = () => {
+      if (credentials.name === '')
+      {
+        console.log('no 1')
+          return;
+      }
+      if (credentials.type === '')
+      {
+        console.log('no 2')
+          return;
+      }
+    console.log('sto creando il gruppo da frontend')
+    myButton.value!.click();
+    socket.emit('createGroup', {text: credentials.name, sender:userStore.value.userId, type: credentials.type, password: credentials.password});
+    credentials.name = '';
+    credentials.type = '';
+    credentials.password = '';
+};
+
+socket.on('channelAlreadyExists', (text)=> {
+    alert("Channel '" + text + "' already exists");
+    })
+
 socket.on('messageFromServer', (dataFromServer)=> {
     if (dataFromServer.username === userStore.value.username)
       return;
@@ -293,6 +409,17 @@ onUnmounted(() => {
   socket.off('connect_error');
   socket.disconnect();
 });
+
+// const isModalOpen = ref(false);
+
+// // const openModal = () => {
+// // 	isModalOpen.value = true;
+// // };
+
+// const closeModal = () => {
+// 	isModalOpen.value = false;
+// };
+
   </script>
   
   
