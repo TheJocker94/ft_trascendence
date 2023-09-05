@@ -436,6 +436,13 @@ socket.on('channelAlreadyExists', (text) => {
 
 socket.on('messageFromServer', (idChannel) => {
     socket.emit('getChannel', { id: idChannel });
+    nextTick(() => {
+        setTimeout(() => {
+            if (lastMessage.value) {
+                lastMessage.value.scrollIntoView();
+            }
+        }, 80);
+    });
 })
 onMounted(async () => {
     await userStore.value.initStore(null, null, null);
