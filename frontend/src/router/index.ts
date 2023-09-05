@@ -54,12 +54,12 @@ const router = createRouter({
       },
       component: ProfileView,
     },
-	{
-		path: '/user-profile/:userId',
-		name: 'UserProfile',
-		component: UserProfile,
-		props: true
-	},
+    {
+      path: '/user-profile/:userId',
+      name: 'UserProfile',
+      component: UserProfile,
+      props: true
+    },
   ]
 })
 // const authStore = useAuthStore();
@@ -73,7 +73,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !authStore.isLoggedIn)
     next('/');
   else if (to.meta.requiresUnAuth && authStore.isLoggedIn)
-		next('/');
+    next('/');
   else
     next();
 });
