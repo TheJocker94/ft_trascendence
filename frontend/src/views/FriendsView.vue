@@ -181,23 +181,13 @@
                                       </div>
                                   </div>
                                   <div class="flex-1 px-2">
-                                      <div :class="['inline-block rounded-full p-2 px-6', chMes.sender.id !== userStore.userId ? 'bg-gray-300 text-gray-700' : 'bg-blue-600  text-white']">
+                                      <div :class="['w-3/4 inline-block rounded-full p-2 px-6', chMes.sender.id !== userStore.userId ? 'bg-gray-300 text-gray-700' : 'bg-blue-600  text-white']" style="overflow-wrap:break-word">
                                           <span>{{ chMes.content }}</span>
                                       </div>
-                                      <div class="pl-4"><small class="text-gray-500">{{ chMes.time }}</small></div>
+                                      <div class="pl-4"><small class="text-gray-500">{{ formattedTime(chMes.time) }}</small></div>
                                   </div>
                               </div> 
-                            </div>                            
-<!--                               
-                              <div class="message me mb-4 flex text-right">
-                                  <div class="flex-1 px-2">
-                                      <div class="inline-block bg-blue-600 rounded-full p-2 px-6 text-white">
-                                          <span>I accept. Thank you very much.</span>
-                                      </div>
-                                      <div class="pr-4"><small class="text-gray-500">15 April</small></div>
-                                  </div>
-                              </div> -->
-
+                            </div>     
                           </div>
                           <div v-if="isGroupsActive" class="flex-2 pt-4 pb-10">
                               <div class="write bg-white shadow flex rounded-lg">
@@ -206,8 +196,8 @@
                                           <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24" class="h-6 w-6"><path d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                       </span>
                                   </div>
-                                  <div class="flex-1">
-                                      <textarea v-model="msg" @keyup.enter="sendMessage" name="message" class="w-full block outline-none py-4 px-4 bg-transparent" rows="1" placeholder="Type a message..." autofocus></textarea>
+                                  <div @keyup.enter="sendMessage" class="flex-1">
+                                      <textarea v-model="msg"  name="message" class="w-full block outline-none py-4 px-4 bg-transparent" rows="1" placeholder="Type a message..." autofocus></textarea>
                                   </div>
                                   <div class="flex-2 w-32 p-2 flex content-center items-center">
                                       <div class="flex-1 text-center">
@@ -240,21 +230,21 @@
     import {socket} from "@/plugins/Socket.io";
     import { Form, Field, ErrorMessage } from 'vee-validate';
     import * as yup from 'yup';
-    import {ref, watchEffect, onMounted, onUnmounted, reactive, computed} from 'vue';
+    import {ref, watchEffect, onMounted, onUnmounted, reactive,} from 'vue';
     import FriendService from "@/services/FriendService";
     import { useCurrentUserStore } from "@/stores/currentUser";
-    import type { INewMessage, IChannel, ISingleCh } from '@/models/IChat'
+    import type { IChannel, ISingleCh } from '@/models/IChat'
 
     const isFriendsActive = ref(false);
     const isGroupsActive = ref(false);
     const profileFriend = ref<any[]>();
     const channelList = ref<IChannel[]>();
     const channelAll = ref<ISingleCh>();
+    const currentChannelId = ref('');
     const usernameAlreadySelected = ref(false);
     const userStore = ref(useCurrentUserStore());
     const msg = ref('');
     // const groupName = ref('');
-    const messages = ref<INewMessage[]>([]);
     const myButton = ref<HTMLButtonElement | null>(null);
     const credentials = reactive({
         name:"",
@@ -291,25 +281,40 @@
         channel.active = i === index;
       });
   };
+
+  const formattedTime = (date: any) => {
+    if (typeof date === 'string') {
+        date = new Date(date);
+    }
+    if (!(date instanceof Date)) {
+        console.log("date is NOT a Date object:", date);
+        return "";
+    }
+
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+
+    return formattedTime;
+};
+
   const sendMessage = () => {
-  if (msg.value === '')
-  return;
-  const newMessage = {
-    sender: userStore.value.username, // Set the sender's username
-    text: msg.value,
-    time: new Date().toLocaleTimeString(), // Set the message time
-    status: 'Delivered', // Set the status for the sender's message
-    myself: true
-  };
-  messages.value.push(newMessage);
-  socket.emit('messageToServer', {text: msg.value});
-  msg.value = '';
+    if (/^[\s\n]*$/.test(msg.value))
+        return;
+    if (currentChannelId.value == '' || currentChannelId.value == null)
+    {
+        alert('Select a channel or direct message to Rohho');
+        return;
+    }
+    socket.emit('messageToServer', {text: msg.value, id: currentChannelId.value, sender: userStore.value.userId});
+    msg.value = '';
   };
   const getChannelList = () => {
     socket.emit('channelList');
   };
     const getChannel = (id: string) => {
         socket.emit('getChannel', {id: id});
+        currentChannelId.value = id;
     };
 
     socket.on('singleChannelServer', (channel: ISingleCh)=> {
@@ -320,13 +325,7 @@
     console.log(chList);
     channelList.value = chList;
   });
-    const puttanaTime = (date:Date) => {
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
-        console.log(formattedTime);
-        return formattedTime;
-    };
+
   const createGroup = () => {
       if (credentials.name === '')
       {
@@ -354,18 +353,8 @@ socket.on('channelAlreadyExists', (text)=> {
     alert("Channel '" + text + "' already exists");
     })
 
-socket.on('messageFromServer', (dataFromServer)=> {
-    if (dataFromServer.username === userStore.value.username)
-      return;
-    const newMessage = {
-    sender: dataFromServer.username, // Set the sender for the received message
-    text: dataFromServer.text,
-    time: new Date().toLocaleTimeString(), // Set the message time
-    status: 'Seen', // Set the status for the received message
-    myself: false
-  };
-
-  messages.value.push(newMessage);
+socket.on('messageFromServer', (idChannel)=> {
+    socket.emit('getChannel', {id: idChannel});
 })
 onMounted( async () => {
   await userStore.value.initStore(null, null, null);
