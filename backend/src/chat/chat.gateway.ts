@@ -59,19 +59,21 @@ export class ChatGateway {
     console.log('Users are :', users);
     return users;
   }
-
+  // text: msg.value, id: currentChannelId.value, sender: userStore.value.userId
   @SubscribeMessage('messageToServer')
-  handleMessage(
+  async handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() text: any,
-  ): void {
-    console.log('Received data from client:');
-    console.log(text.text);
-    console.log('Username client :', client['username']);
-    this.server.emit('messageFromServer', {
-      text: text.text,
-      username: client['username'],
-    });
+    @MessageBody() data: any,
+  ): Promise<void> {
+    await this.prisma.message.create({
+      data: {
+        content: data.text,
+        senderId: data.sender,
+        channelId: data.id,
+      }
+    })
+    client.join(data.id);
+    this.server.to(data.id).emit('messageFromServer', data.id);
   }
 
   @SubscribeMessage('channelList')

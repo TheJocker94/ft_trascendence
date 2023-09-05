@@ -7,7 +7,6 @@ export interface INewMessage{
     text: string,
     time: string,
     status: string
-    myself: boolean;
 }
 
 export interface IChannel{
