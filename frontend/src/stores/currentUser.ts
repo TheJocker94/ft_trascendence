@@ -9,6 +9,7 @@ import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
 // import { IFriendLists } from '@/models/IFriendLists';
 import { useLocalStorage, } from '@vueuse/core';
+import { useGameInviteStore } from './gameInvite';
 
 export const useCurrentUserStore = defineStore('currentUser', {
 	state: () => ({
@@ -17,6 +18,7 @@ export const useCurrentUserStore = defineStore('currentUser', {
     email: '',
     avatar: '',
     friendStore: useFriendStore(),
+	gameInviteStore: useGameInviteStore(),
     // Game info
     roomId: '',
     playerNo: 0,
@@ -61,6 +63,7 @@ export const useCurrentUserStore = defineStore('currentUser', {
         // this.setStore(user.data, avatar);
         this.setStore(user, user.profilePicture/*, { friends, pendings, sent }*/);
 		this.friendStore.initStore(this.userId);
+		this.gameInviteStore.initStore(this.userId);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;

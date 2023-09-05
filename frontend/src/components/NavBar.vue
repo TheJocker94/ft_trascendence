@@ -61,7 +61,7 @@
         <div class="dropdown dropdown-end">
           <label tabindex="0" class="btn btn-ghost btn-circle avatar indicator">
             
-              <span v-if="friendStore.pending.length > 0" class="indicator-item indicator-start badge badge-secondary">{{friendStore.pending.length}}</span>
+			<span v-if="friendStore.pending.length + gameInviteStore.pending.length > 0" class="indicator-item indicator-start badge badge-secondary">{{friendStore.pending.length + gameInviteStore.pending.length}}</span>
               <div class="w-10 rounded-full">
                 <img :src=userStore.avatar />
 
@@ -166,9 +166,32 @@
 						<div v-if="showChannelInvite">
 							<p class=" text-center">balh balhadifj ioawjekvds</p>
 						</div>
+						<!--//! down here -->
 						<div v-if="showGameRequest">
-							<p class=" text-center">what you said ah what yes</p>
+							<div v-if="gameInviteStore.pending.length > 0">
+								<ul>
+									<li v-for="invite in gameInviteStore.pending" :key="invite.id" class=" ">
+										<router-link :to="{ name: 'profile', params: { userid: invite.id } }" @click="closeModal"
+										class="btn btn-ghost btn-circle avatar">
+											<div class="w-6 rounded-full">
+												<img :src=invite.profilePicture />
+											</div>
+										</router-link>
+										{{ invite.username }}
+										
+										<!-- Accept button -->
+										<button @click="acceptRequest(invite.id)"> <i class="fa-solid fa-circle-check" style="color: #21b02b;"></i> </button>
+										
+										<!-- Reject button -->
+										<button @click="declineGameInviteRequest(invite.id)"><i class="fa-solid fa-circle-xmark" style="color: #d41616;"></i></button>
+									</li>
+								</ul>
+							</div>
+							<div v-else>
+								<p class=" text-center">No invite's requests</p>
+							</div>
 						</div>
+						<!--//! Ends here -->
 						<div class="modal-action self-end">
 							<!-- if there is a button in form, it will close the modal -->
 							<button v-if="isModalOpen" @click="closeModal" class="btn">Close</button>
@@ -190,17 +213,21 @@ import { useFriendStore } from '@/stores/friend';
 import FriendService from '@/services/FriendService';
 import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
+import GameInviteService from '@/services/GameInviteService';
+import { useGameInviteStore } from '@/stores/gameInvite';
 
 // onBeforeRouteLeave(() => {
 //   closeAllDropdowns();
 //   return true; // Allow the route change to proceed
 // });
 const friendStore = ref(useFriendStore());
+const gameInviteStore = ref(useGameInviteStore());
 
 const showFriendRequest = ref(true);
 const showChannelInvite = ref(false);
 const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
+const gamerStore = ref(useGameInviteStore());
 
 const closeAllDropdowns = () => {
   // Close all dropdowns
@@ -232,6 +259,18 @@ async function declineRequest(userId: string) {
 		if (axios.isAxiosError(e)) return e.response?.data;
 	}
 }
+
+async function declineGameInviteRequest(userId: string) {
+	try {
+		await GameInviteService.endGameInvite(userId);
+		gameInviteStore.value.updatePendings(userStore.value.userId);
+		gameInviteStore.value.updateFriends();
+	} catch (err) {
+		const e = err as AxiosError<IError>;
+		if (axios.isAxiosError(e)) return e.response?.data;
+	}
+}
+
 
 const isModalOpen = ref(false);
 

@@ -27,7 +27,7 @@
 			<div v-if="!isIdExistsInOtherBlocked && !isIdExistsInOtherPending && !isIdExistsInOtherFriends && !isIdExistsInOtherSent" @click="friendRequest(props.idProfile!)" class="my-auto text-white-800 bg-gray-500 hover:bg-gray-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">Add Friend</div>
 			<div v-if="!isIdExistsInOtherBlocked" @click="friendBlock()" class="my-auto text-white-800 bg-red-500 hover:bg-red-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">Block</div>
 			<div v-else-if="isIdExistsInOtherBlocked" @click="unblockFunction()" class="my-auto text-white-800 bg-green-500 hover:bg-green-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">UnBlock</div>
-			<div  class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Invite</div>
+			<div v-if="!isIdExistsInOtherGameInvites" @click="gameInvite(props.idProfile!)" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Invite</div>
 		</div>
 	</div>
 	</div>
@@ -43,11 +43,16 @@ import type { IUser } from '@/models/IUser';
 import { useFriendStore } from '@/stores/friend';
 import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
+import { useGameInviteStore } from '@/stores/gameInvite';
+import GameInviteService from '@/services/GameInviteService';
+import { socketGame } from '@/plugins/Socket.io';
 
+const userStore = ref(useCurrentUserStore());
 const isIdExistsInOtherFriends = ref(false);
 const isIdExistsInOtherPending = ref(false);
 const isIdExistsInOtherSent = ref(false);
 const isIdExistsInOtherBlocked = ref(false);
+const isIdExistsInOtherGameInvites = ref(false);
 
 
 // onMounted(() => {
@@ -63,6 +68,7 @@ const isIdExistsInOtherBlocked = ref(false);
 
 const currentUser = ref(useCurrentUserStore());
 const friendStore = ref(useFriendStore());
+const gameInviteStore = ref(useGameInviteStore());
 const isChangingUsername = ref(false);
 const newUsername = ref('');
 const errorMessage = ref('');
@@ -108,6 +114,8 @@ watchEffect(async () => {
   friendStore.value.pending;
   friendStore.value.sent;
   friendStore.value.blocked;
+  gameInviteStore.value.sent;
+  updateReactiveGameInviteChecks();
   updateReactiveChecks();
 });
 
@@ -139,6 +147,10 @@ watch(() => friendStore.value.blocked, () => {
     updateReactiveChecks();
 }, { deep: true });
 
+watch(() => gameInviteStore.value.sent, () => {
+    updateReactiveGameInviteChecks();
+}, { deep: true });
+
 async function friendRequest(userId: string) {
   try {
     await FriendService.sendFriendRequest(userId);
@@ -148,6 +160,21 @@ async function friendRequest(userId: string) {
     friendStore.value.updateSent(currentUser.value.userId);
     friendStore.value.updateBlocked();
 	updateReactiveChecks();
+	location.reload();
+  } catch (err) {
+    const e = err as AxiosError<IError>;
+    if (axios.isAxiosError(e)) return e.response?.data;
+  }
+}
+
+async function gameInvite(userId: string) {
+  try {
+    await GameInviteService.sendGameInvite(userId);
+    // Update the state after the API call
+    friendStore.value.updatePendings(currentUser.value.userId);
+    friendStore.value.updateFriends();
+    friendStore.value.updateSent(currentUser.value.userId);
+	updateReactiveGameInviteChecks();
 	location.reload();
   } catch (err) {
     const e = err as AxiosError<IError>;
@@ -183,6 +210,10 @@ async function unblockFunction() {
     const e = err as AxiosError<IError>;
     if (axios.isAxiosError(e)) return e.response?.data;
   }
+}
+
+function updateReactiveGameInviteChecks() {
+	isIdExistsInOtherGameInvites.value = gameInviteStore.value.sent.some(game => game.id === props.idProfile);
 }
 
 function updateReactiveChecks() {

@@ -6,11 +6,24 @@ export class AddFriendDto {
     friendId: string;
 }
 
+export class InviteFriendGameDto {
+    @IsNotEmpty()
+    @IsString()
+    gameId: string;
+}
+
 export class FriendsDto {
     id: string;
     username: string;
     profilePicture: string;
     isOnline: boolean;
+}
+
+export class InviteFriendsDto {
+	id: string;
+	username: string;
+	profilePicture: string;
+	isOnline: boolean;
 }
 
 export class blockUserDto {

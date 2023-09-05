@@ -14,6 +14,7 @@ import { userListDto } from './dto/userList.dto';
 import {
   BlockedUserResponseDto,
   FriendsDto,
+  InviteFriendsDto,
   userUpdateImageDto,
   userUpdateMailDto,
   userUpdateNameDto,
@@ -369,6 +370,148 @@ export class UserService {
       },
     });
   }
+
+  	//* ---------------------------------- nizz ---------------------------------- */
+
+	  async inviteGame(senderId: string, receiverId: string): Promise<any> {
+		// if (senderId === receiverId) {
+		// 	throw new BadRequestException('You cannot send a friend request to yourself.');
+		// }
+	
+		// if (await this.areUsersFriends(senderId, receiverId)) {
+		//   throw new BadRequestException('Friendship already exists or is pending.');
+		// }
+	
+		await this.prisma.gameinvite.create({
+		  data: {
+			senderId: senderId,
+			receiverId: receiverId,
+			status: 'PENDING'
+		  }
+		});
+	  }
+	
+	  async acceptInviteGameRequest(senderId: string, receiverId: string): Promise<void> {
+		const gameship = await this.prisma.gameinvite.findFirst({
+		  where: {
+			OR: [
+			  { senderId: senderId, receiverId: receiverId, status: 'PENDING' },
+			  { senderId: receiverId, receiverId: senderId, status: 'PENDING' }
+			]
+		  }
+		});
+	
+			//! what kind of controls do we need here?
+			// if (!gameship) {
+		//   throw new BadRequestException('No pending friend request found.');
+		// }
+	
+		// if (gameship.senderId !== receiverId) {
+		//   throw new BadRequestException('You cannot accept a friend request that you sent.');
+		// }
+	
+		// if (await this.isUserBlocked(senderId, receiverId) || await this.isUserBlocked(receiverId, senderId)) {
+		//   throw new BadRequestException('Friend request cannot be accepted as one user has blocked the other.');
+		// }
+	
+		await this.prisma.gameinvite.update({
+		  where: { id: gameship.id },
+		  data: { status: 'ACCEPTED' }
+		});
+		}
+	
+		async getReceivedGameInviteRequests(userId: string): Promise<InviteFriendsDto[]> {
+		const friendships = await this.prisma.gameinvite.findMany({
+		  where: {
+			receiverId: userId,
+			status: 'PENDING'
+		  },
+		  include: {
+			sender: {
+			  select: {
+				id: true,
+				username: true,
+				profilePicture: true,
+				isOnline: true
+			  }
+			}
+		  }
+		});
+	
+		const friendRequests = friendships.map(friendship => friendship.sender);
+		return friendRequests;
+	  }
+	
+		async getSentGameInvite(userId: string): Promise<InviteFriendsDto[]> {
+		const friendship = await this.prisma.gameinvite.findMany({
+		  where: {
+			senderId: userId,
+			status: 'PENDING'
+		  },
+		  include: {
+			receiver: {
+			  select: {
+				id: true,
+				username: true,
+				profilePicture: true,
+				isOnline: true
+			  }
+			}
+		  }
+		});
+	
+		const friends = friendship.map(friendship => friendship.receiver);
+		return friends;
+	  }
+	
+		async getFriendsInvited(userId: string): Promise<InviteFriendsDto[]> {
+		const friendships = await this.prisma.gameinvite.findMany({
+		  where: {
+			OR: [
+			  { senderId: userId, status: 'ACCEPTED' },
+			  { receiverId: userId, status: 'ACCEPTED' }
+			]
+		  },
+		  include: {
+			sender: {
+			  select: {
+				id: true,
+				username: true,
+				profilePicture: true,
+				isOnline: true
+			  }
+			},
+			receiver: {
+			  select: {
+				id: true,
+				username: true,
+				profilePicture: true,
+				isOnline: true
+			  }
+			}
+		  }
+		});
+	
+		const friends = friendships.map(friendship => {
+		  if (friendship.senderId === userId) {
+			return friendship.receiver;
+		  } else {
+			return friendship.sender;
+		  }
+		});
+		return friends;
+	  }
+	
+		async removeInvited(senderId: string, receiverId: string): Promise<void> {
+		await this.prisma.gameinvite.deleteMany({
+		  where: {
+			OR: [
+			  { senderId: senderId, receiverId: receiverId },
+			  { senderId: receiverId, receiverId: senderId }
+			]
+		  }
+		});
+	  }
 }
 
 const transformationOptions: ClassTransformOptions = {

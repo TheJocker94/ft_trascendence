@@ -34,6 +34,9 @@ model User {
 
   matchHistory Int[] // array di id delle partite giocate
 
+	receivedGameRequests Gameinvite[]        @relation("game_Receiver") //*nizz
+  sentGameRequests     Gameinvite[]        @relation("game_Sender") //*nizz
+
   @@map("users")
 }
 
@@ -109,6 +112,17 @@ model Friendship {
   receiverId String
   receiver   User             @relation("Friendship_Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
   status     FriendshipStatus
+
+  @@unique([senderId, receiverId])
+}
+
+model Gameinvite {
+  id         String           @id @default(uuid())
+  senderId   String
+  receiverId String
+  status     FriendshipStatus
+  receiver   User             @relation("game_Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User             @relation("game_Sender", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@unique([senderId, receiverId])
 }
