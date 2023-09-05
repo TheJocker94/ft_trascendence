@@ -22,3 +22,32 @@ export interface IMessage{
     content: string,
     time: Date,
 }
+
+export interface ISender{
+    id: string,
+    username: string,
+    profilePicture: string,
+    isOnline: boolean,
+}
+export interface IMessageChannel{
+    content: string,
+    read: boolean,
+    time: Date,
+    sender: ISender,
+}
+
+export interface IMember{
+    userId: string,
+    role: string,   
+    status: string,
+    muteEndTime: Date,
+}
+
+export interface ISingleCh{
+    id: string,
+    type: string,
+    name: string,
+    password: string,
+    messages: IMessageChannel[],
+    members: IMember[],
+}

@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import PhaserContainer from '@/components/PhaserContainer.vue'
-import { socket, socketGame } from '@/plugins/Socket.io';
+import { socketGame } from '@/plugins/Socket.io';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { useAuthStore } from '@/stores/auth';
 import { onMounted, onUnmounted, ref } from 'vue'

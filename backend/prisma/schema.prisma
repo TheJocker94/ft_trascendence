@@ -23,7 +23,6 @@ model User {
   is2faEnabled          Boolean @default(false)
   emailVerificationCode String?
 
-  ownedChannels Channel[] // sono admin di questi canali
   channels      ChannelMembership[] //sono membro di questi canali
   sentMessages  Message[]           @relation("Message_Sender") // ho mandato questi messaggi
 
@@ -50,8 +49,6 @@ model matchHistory {
 // ho fatto solo un tipo CHANNEL diviso in DIRECT: una chat privata tra 2, oppure PRIVATE: un canale vero privato, oppure PUBLIC: un canale pubblico con tanti membri
 model Channel {
   id       String                 @id @default(uuid()) @unique
-  ownerId  String
-  owner    User                @relation(fields: [ownerId], references: [id])
   type     ChannelType // PRIVATE o PUBLIC o DIRECT
   name     String? // se sono GROUP ho un nome del canale
   password String?

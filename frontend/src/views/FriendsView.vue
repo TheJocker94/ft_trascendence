@@ -150,13 +150,7 @@
                                 </div>
                             </div>
                             <div v-if="isGroupsActive">
-                                <div  v-for="(channel, index) in channelList" :key="index" :class="['entry', channel.active ? 'border-l-4 border-red-500' : '', 'cursor-pointer', 'transform', 'hover:scale-105', 'duration-300', 'transition-transform', 'bg-white', 'mb-4', 'rounded', 'p-4', 'flex', 'shadow-md']" @click="toggleActive(index), sendUsername(channel.name)">
-                                <!-- <div class="flex-2">
-                                        <div class="w-12 h-12 relative">
-                                            <img class="w-12 h-12 rounded-full mx-auto" :src="friend.profilePicture" :alt="friend.username"/>
-                                            <span class="absolute w-4 h-4 bg-green-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
-                                        </div>
-                                    </div> -->
+                                <div  v-for="(channel, index) in channelList" :key="index" :class="['entry', channel.active ? 'border-l-4 border-red-500' : '', 'cursor-pointer', 'transform', 'hover:scale-105', 'duration-300', 'transition-transform', 'bg-white', 'mb-4', 'rounded', 'p-4', 'flex', 'shadow-md']" @click="toggleActive(index), sendUsername(channel.name), getChannel(channel.id)">
                                     <div class="flex-1 px-2">
                                         <div class="truncate w-32"><span class="text-gray-800">{{ channel.name }}</span></div>
                                         <div v-if="channel.messages.length > 0" ><small class="text-gray-600">{{channel.messages[channel.messages.length - 1].content}}</small></div>
@@ -173,47 +167,28 @@
                             </div>
                           </div>
                       </div>
-                      <div class="chat-area flex-1 flex flex-col">
+                      <div  class="chat-area flex-1 flex flex-col">
                           <div class="flex-3">
                               <h2 class="text-xl py-1 mb-8 border-b-2 border-gray-200">Chatting with <b>{{ activChatUsr }}</b></h2>
                           </div>
-                          <div class="messages flex-1 overflow-auto max-h-[700px]">
-                              <div class="message mb-4 flex">
-                                  <div class="flex-2">
+                          <div  v-if="isGroupsActive" class="messages flex-1 overflow-auto max-h-[700px]">
+                            <div v-for="(chMes, index) in channelAll?.messages" :key="index">
+                              <div :class="['message mb-4', chMes.sender.id !== userStore.userId ? 'flex' : 'flex me text-right']">
+                                  <div v-if="userStore.userId !== chMes.sender.id" class="flex-2">
                                       <div class="w-12 h-12 relative">
-                                          <img class="w-12 h-12 rounded-full mx-auto" src="../resources/profile-image.png" alt="chat-user" />
+                                          <img class="w-12 h-12 rounded-full mx-auto" :src="chMes.sender.profilePicture" :alt= chMes.sender.username />
                                           <span class="absolute w-4 h-4 bg-gray-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
                                       </div>
                                   </div>
                                   <div class="flex-1 px-2">
-                                      <div class="inline-block bg-gray-300 rounded-full p-2 px-6 text-gray-700">
-                                          <span>Hey there. We would like to invite you over to our office for a visit. How about it?</span>
+                                      <div :class="['inline-block rounded-full p-2 px-6', chMes.sender.id !== userStore.userId ? 'bg-gray-300 text-gray-700' : 'bg-blue-600  text-white']">
+                                          <span>{{ chMes.content }}</span>
                                       </div>
-                                      <div class="pl-4"><small class="text-gray-500">15 April</small></div>
+                                      <div class="pl-4"><small class="text-gray-500">{{ chMes.time }}</small></div>
                                   </div>
-                              </div>
-                              <div class="message mb-4 flex">
-                                  <div class="flex-2">
-                                      <div class="w-12 h-12 relative">
-                                          <img class="w-12 h-12 rounded-full mx-auto" src="../resources/profile-image.png" alt="chat-user" />
-                                          <span class="absolute w-4 h-4 bg-gray-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
-                                      </div>
-                                  </div>
-                                  <div class="flex-1 px-2">
-                                      <div class="inline-block bg-gray-300 rounded-full p-2 px-6 text-gray-700">
-                                          <span>All travel expenses are covered by us of course :D</span>
-                                      </div>
-                                      <div class="pl-4"><small class="text-gray-500">15 April</small></div>
-                                  </div>
-                              </div>
-                              <div class="message me mb-4 flex text-right">
-                                  <div class="flex-1 px-2">
-                                      <div class="inline-block bg-blue-600 rounded-full p-2 px-6 text-white">
-                                          <span>It's like a dream come true</span>
-                                      </div>
-                                      <div class="pr-4"><small class="text-gray-500">15 April</small></div>
-                                  </div>
-                              </div>
+                              </div> 
+                            </div>                            
+<!--                               
                               <div class="message me mb-4 flex text-right">
                                   <div class="flex-1 px-2">
                                       <div class="inline-block bg-blue-600 rounded-full p-2 px-6 text-white">
@@ -221,26 +196,10 @@
                                       </div>
                                       <div class="pr-4"><small class="text-gray-500">15 April</small></div>
                                   </div>
-                              </div>
-                              <div class="message mb-4 flex">
-                                  <div class="flex-2">
-                                      <div class="w-12 h-12 relative">
-                                          <img class="w-12 h-12 rounded-full mx-auto" src="../resources/profile-image.png" alt="chat-user" />
-                                          <span class="absolute w-4 h-4 bg-gray-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
-                                      </div>
-                                  </div>
-                                  <div class="flex-1 px-2">
-                                    <div v-for="(message, index) in messages" :key="index" :class="['chat', message.myself === true ? 'chat-end' : 'chat-start']">
-                                        <div class="chat-header">
-                                        {{ message.sender }}
-                                        <time class="text-xs opacity-50">{{ message.time }}</time>
-                                        </div>
-                                        <div class="chat-bubble">{{ message.text }}</div>
-                                    </div>
-                                  </div>
-                              </div>
+                              </div> -->
+
                           </div>
-                          <div class="flex-2 pt-4 pb-10">
+                          <div v-if="isGroupsActive" class="flex-2 pt-4 pb-10">
                               <div class="write bg-white shadow flex rounded-lg">
                                   <div class="flex-3 flex content-center items-center text-center p-4 pr-0">
                                       <span class="block text-center text-gray-400 hover:text-gray-800">
@@ -281,15 +240,16 @@
     import {socket} from "@/plugins/Socket.io";
     import { Form, Field, ErrorMessage } from 'vee-validate';
     import * as yup from 'yup';
-    import {ref, watchEffect, onMounted, onUnmounted, reactive} from 'vue';
+    import {ref, watchEffect, onMounted, onUnmounted, reactive, computed} from 'vue';
     import FriendService from "@/services/FriendService";
     import { useCurrentUserStore } from "@/stores/currentUser";
-    import type { INewMessage, IChannel, IMessage } from '@/models/IChat'
+    import type { INewMessage, IChannel, ISingleCh } from '@/models/IChat'
 
     const isFriendsActive = ref(false);
     const isGroupsActive = ref(false);
     const profileFriend = ref<any[]>();
     const channelList = ref<IChannel[]>();
+    const channelAll = ref<ISingleCh>();
     const usernameAlreadySelected = ref(false);
     const userStore = ref(useCurrentUserStore());
     const msg = ref('');
@@ -348,12 +308,25 @@
   const getChannelList = () => {
     socket.emit('channelList');
   };
+    const getChannel = (id: string) => {
+        socket.emit('getChannel', {id: id});
+    };
 
+    socket.on('singleChannelServer', (channel: ISingleCh)=> {
+        console.log(channel);
+        channelAll.value = channel;
+    });
   socket.on('groupListServer', (chList: IChannel[])=> {
     console.log(chList);
     channelList.value = chList;
   });
-
+    const puttanaTime = (date:Date) => {
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+        console.log(formattedTime);
+        return formattedTime;
+    };
   const createGroup = () => {
       if (credentials.name === '')
       {
@@ -371,6 +344,10 @@
     credentials.name = '';
     credentials.type = '';
     credentials.password = '';
+    if (isGroupsActive.value === true)
+    {
+        socket.emit('channelList');
+    }
 };
 
 socket.on('channelAlreadyExists', (text)=> {

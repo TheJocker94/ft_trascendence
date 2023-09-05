@@ -9,7 +9,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChannelType, UserRole, UserStatus } from '@prisma/client';
-import { ChannelDto } from './dto/channel.dto';
+import { ChannelDto, MessageDto, ChannelMembershipDto } from './dto/channel.dto';
+import { ClassTransformOptions,plainToClass } from 'class-transformer';
 
 @WebSocketGateway({
   namespace: '/chat',
@@ -105,7 +106,41 @@ export class ChatGateway {
       
       client.emit('groupListServer', ChannelsList);
     }
-
+    @SubscribeMessage('getChannel')
+    async handleSingleChannel(
+      @ConnectedSocket() client: Socket,
+      @MessageBody() data: any,
+    ): Promise<void> {
+      const channel = await this.prisma.channel.findUnique({ 
+        where: {id: data.id},
+        include: {
+          messages: {
+            select: {
+              content: true,
+              time: true,
+              read: true,
+              sender: {
+                select: {
+                  id: true,
+                  username: true,
+                  profilePicture: true,
+                  isOnline: true,
+                  }
+                }
+              }
+            },
+            members: {
+              select: {
+                userId: true,
+                role: true,
+                status: true,
+                muteEndTime: true
+              }
+            }
+          }
+      });
+      client.emit('singleChannelServer', channel);
+    }
 
   @SubscribeMessage('createGroup')
   async handleCreateGroup(
@@ -115,9 +150,6 @@ export class ChatGateway {
   ): Promise<void> {
     // console.log('client.data.userId: ', client.data.userId);
     // console.log('client.id: ', client.id);
-    console.log('userId:', data.sender);
-    console.log("data.text: ", data.text);
-    console.log("FindFirst: ", this.prisma.channel.findFirst({where: {name: data.text}}));
     const existingChannel = await this.prisma.channel.findFirst({where: {name: data.text}});
     if (existingChannel) {
       console.log('Channel already exists');
@@ -127,7 +159,7 @@ export class ChatGateway {
 	// const channel = new Channel(1, 'PUBLIC', data.sender, data.text);
   if (data.password === '') {
   try {const newChannel = await this.prisma.channel.create({
-    data: { ownerId: data.sender, type: data.type, name: data.text},
+    data: { type: data.type, name: data.text},
   })
   const newUser = await this.prisma.channelMembership.create({
     data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
@@ -138,7 +170,7 @@ export class ChatGateway {
   }}
   else {
     try {const newChannel = await this.prisma.channel.create({
-      data: { ownerId: data.sender, type: data.type, name: data.text, password: data.password},
+      data: { type: data.type, name: data.text, password: data.password},
     })
     const newUser = await this.prisma.channelMembership.create({
       data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
@@ -161,3 +193,8 @@ export class ChatGateway {
     }
   }
 }
+
+const transformationOptions: ClassTransformOptions = {
+  strategy: 'excludeAll',
+};
+
