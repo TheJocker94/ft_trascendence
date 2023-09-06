@@ -100,29 +100,33 @@
                 </div>
             </div>
             <div class="flex-1 bg-gray-100 w-full h-full">
-                <div class="main-body container m-auto w-11/12 h-full flex flex-col">
-                    <div class="py-4 flex-2 flex flex-row">
+                <div class="main-body container m-auto w-11/12 h-full flex flex-col ">
+                    <div class="py-4 flex-2 flex flex-row ">
                         <div class="flex-1">
-                            <span class="xl:hidden inline-block text-gray-700 hover:text-gray-900 align-bottom">
-                                <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
-                                    <svg class="w-4 h-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path d="M4 6h16M4 12h16M4 18h16"></path>
-                                    </svg>
-                                </span>
-                            </span>
-                            <span class="lg:hidden inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
-                                <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
-                                    <svg class="h-4 w-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-                                        </path>
-                                    </svg>
-                                </span>
-                            </span>
+                            <!-- TODO make it clickable -->
+                                        <span class="xl:hidden inline-block text-gray-700 hover:text-gray-900 align-bottom">
+                                            <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
+                                                <svg class="w-4 h-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M4 6h16M4 12h16M4 18h16"></path>
+                                                </svg>
+                                            </span>
+                                        </span>
+                
+                                        <span class="lg:hidden inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
+                                            <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
+                                                <svg class="h-4 w-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path
+                                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                                    </path>
+                                                </svg>
+                                            </span>
+                                        </span>
+
+                            
                         </div>
-                        <div class="flex-1 text-right">
+                        <!-- <div class="flex-1 text-right">
                             <span class="inline-block text-gray-700">
                                 Status: <span
                                     class="inline-block align-text-bottom w-4 h-4 bg-green-400 rounded-full border-2 border-white"></span>
@@ -145,10 +149,10 @@
                                     </svg>
                                 </span>
                             </span>
-                        </div>
+                        </div> -->
                     </div>
 
-                    <div class="main flex-1 flex flex-col">
+                    <div class="main flex-1 flex flex-col ">
                         <div class="hidden lg:block heading flex-2">
                             <h1 class="text-3xl text-gray-700 mb-4">Chat</h1>
                         </div>
@@ -194,9 +198,12 @@
                                             :class="['entry', channel.active ? 'border-l-4 border-red-500' : '', 'cursor-pointer', 'transform', 'hover:scale-105', 'duration-300', 'transition-transform', 'bg-white', 'mb-4', 'rounded', 'p-4', 'flex', 'shadow-md']"
                                             @click="toggleActive(index), sendUsername(channel.name), getChannel(channel.id)">
                                             <div class="flex-1 px-2">
-                                                <div class="truncate w-32"><span class="text-gray-800">{{ channel.name
-                                                }}</span></div>
-                                                <div v-if="channel.messages.length > 0"><small class="text-gray-600">{{
+                                                <div class="truncate w-32">
+                                                    <span class="text-gray-800">
+                                                        {{ channel.name }}
+                                                    </span>
+                                                </div>
+                                                <div v-if="channel.messages.length > 0" class="truncate w-32" ><small class="text-gray-600 ">{{
                                                     channel.messages[channel.messages.length -
                                                         1].content }}</small></div>
                                             </div>
@@ -218,35 +225,7 @@
                                     <h2 class="text-xl py-1 mb-8 border-b-2 border-gray-200">Chatting with <b>{{
                                         activChatUsr }}</b></h2>
                                 </div>
-                                <div v-if="isGroupsActive" class="messages flex-1 overflow-auto max-h-[700px]">
-                                    <div v-for="(chMes, index) in channelAll?.messages" :key="index">
-                                        <div
-                                            :class="['message mb-4', chMes.sender.id !== userStore.userId ? 'flex' : 'flex me text-right']">
-                                            <div v-if="userStore.userId !== chMes.sender.id" class="flex-2">
-                                                <div class="w-12 h-12 relative">
-                                                    <img class="w-12 h-12 rounded-full mx-auto"
-                                                        :src="chMes.sender.profilePicture" :alt=chMes.sender.username />
-                                                    <span
-                                                        class="absolute w-4 h-4 bg-gray-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
-                                                </div>
-                                            </div>
-                                            <div class="flex-1 px-2">
-                                                <div :class="[chMes.sender.id !== userStore.userId ? 'bg-gray-300 text-gray-700' : 'bg-blue-600  text-white']"
-                                                    style="max-width: 60%; overflow-wrap: break-word; word-break: break-all; white-space: normal; border: 2px solid transparent; display: inline-block; padding: 0px 12px; border-radius: 25px;">
-                                                    <span>{{ chMes.content }}</span>
-                                                </div>
-
-
-
-
-
-                                                <div class="pl-4"><small class="text-gray-500">{{ formattedTime(chMes.time)
-                                                }}</small></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div ref="lastMessage"></div>
-                                </div>
+                                <ChatFluid :channelAll="channelAll" :isGroupsActive="isGroupsActive" />
                                 <div v-if="isGroupsActive" class="flex-2 pt-4 pb-10">
                                     <div class="write bg-white shadow flex rounded-lg">
                                         <div class="flex-3 flex content-center items-center text-center p-4 pr-0">
@@ -311,6 +290,7 @@ import { ref, watchEffect, onMounted, onUnmounted, reactive, type Ref, } from 'v
 import FriendService from "@/services/FriendService";
 import { useCurrentUserStore } from "@/stores/currentUser";
 import type { IChannel, ISingleCh } from '@/models/IChat'
+import ChatFluid from "@/components/chat/ChatFluid.vue";
 import { nextTick } from 'vue';
 const isFriendsActive = ref(false);
 const isGroupsActive = ref(false);
