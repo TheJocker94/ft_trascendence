@@ -104,6 +104,7 @@ export class ChatGateway {
               role: true,
               status: true,
               muteEndTime: true,
+              notRead: true,
             }
           },
           messages: {
@@ -120,6 +121,7 @@ export class ChatGateway {
           name: channel.name,
           messages: channel.messages,
           type: channel.type,
+          notInRoom: channel.notInRoom,
         }
       });
       

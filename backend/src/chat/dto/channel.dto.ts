@@ -2,6 +2,7 @@ export class ChannelDto {
     id: string;
     name: string;
     type: string;
+    notInRoom: string[];
 }
 
 export class MessageDto {

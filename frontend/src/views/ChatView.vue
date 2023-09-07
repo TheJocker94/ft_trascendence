@@ -123,7 +123,7 @@
 props.activChatUsr
 <script setup lang="ts">
 import { socket } from "@/plugins/Socket.io";
-import { ref, watchEffect, watch, onMounted, onUnmounted, type Ref, } from 'vue';
+import { ref, watchEffect, watch, onMounted, onUnmounted, type Ref, onBeforeUnmount, } from 'vue';
 import FriendService from "@/services/FriendService";
 import { useCurrentUserStore } from "@/stores/currentUser";
 import { type IChannel, type ISingleCh, EChat} from '@/models/IChat'
@@ -181,23 +181,38 @@ const userStore = ref(useCurrentUserStore());
 const msg = ref('');
 // const groupName = ref('');
 const activChatUsr = ref('');
+const intervalRef = ref<number | null>(null);
 // Quando si clicca su un gruppo o un utente, si cambia il valore di activChatUsr a
-watch(isFriendsActive, (newValue, oldValue) => {
+watch(isFriendsActive, () => {
     currentChannelId.value = '';
     activChatUsr.value = '';
 });
 
 // Watch for changes to isGroupsActive
-watch(isGroupsActive, (newValue, oldValue) => {
+watch(isGroupsActive, () => {
     currentChannelId.value = '';
     activChatUsr.value = '';
 });
+
+// funzione spamma grouplist
+onMounted(() => {
+  intervalRef.value = setInterval(getChannelList, 500); // 1000 milliseconds = 1 second
+});
+
+// Stop the interval when the component is unmounted
+onBeforeUnmount (() => {
+  if (intervalRef.value !== null) {
+    clearInterval(intervalRef.value);
+  }
+});
+
 // const changeToNull = (flg: number) => {
 //     if (flg === 1)
 //         currentChannelId.value = '';
 //     else if (flg === 2)
 //         activChatUsr.value = '';
 // }
+
 function sendUsername(user: string) {
   activChatUsr.value = user;
 }
@@ -233,6 +248,7 @@ const formattedTime = (date: any) => {
 const getChannelList = () => {
   socket.emit('channelList');
 };
+
 const getChannel = (id: string) => {
 	socket.emit('getChannel', { id: id });
 	if (id === currentChannelId.value) {
@@ -247,8 +263,10 @@ socket.on('singleChannelServer', (channel: ISingleCh) => {
   channelAll.value = channel;
 });
 socket.on('groupListServer', (chList: IChannel[]) => {
-  console.log(chList);
-  channelList.value = chList;
+//   console.log(chList);
+  if (chList.length !== channelList.value?.length ) {
+      channelList.value = chList;
+  }
 });
 
 socket.on('channelAlreadyExists', (text) => {

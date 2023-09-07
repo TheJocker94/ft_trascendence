@@ -18,7 +18,9 @@ socketGame.onAny((event, ...args) => {
 });
 
 socket.onAny((event, ...args) => {
+  if (event !== "groupListServer") {
   console.log(event, args);
+  }
 });
 
 // export default socket;
