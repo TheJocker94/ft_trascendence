@@ -15,6 +15,7 @@ export interface IChannel{
     messages: IMessage[],
     type: string,
     active?: boolean,
+    members: IMember[],
 }
 
 export interface IMessage{

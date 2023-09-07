@@ -11,6 +11,7 @@ import { Server, Socket } from 'socket.io';
 import { ChannelType, UserRole, UserStatus } from '@prisma/client';
 import { ChannelDto, MessageDto, ChannelMembershipDto } from './dto/channel.dto';
 import { ClassTransformOptions,plainToClass } from 'class-transformer';
+import { subscribe } from 'diagnostics_channel';
 
 @WebSocketGateway({
   namespace: '/chat',
@@ -89,6 +90,14 @@ export class ChatGateway {
           ]
         },
         include: {
+          members:{
+            select: {
+              userId: true,
+              role: true,
+              status: true,
+              muteEndTime: true,
+            }
+          },
           messages: {
             select: {
               content: true,
@@ -144,6 +153,34 @@ export class ChatGateway {
       client.emit('singleChannelServer', channel);
     }
 
+  @SubscribeMessage('joinChannel')
+  async handleJoinChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    if (data.password === '') {
+      try {
+        const newUser = await this.prisma.channelMembership.create({
+          data: { userId: data.sender, channelId: data.id, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
+      })
+    }
+      catch (error) {
+        console.error('Error creating channel:', error);
+      }}
+      else {
+        try {
+        const newUser = await this.prisma.channelMembership.create({
+          data: { userId: data.sender, channelId: data.id, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
+        })
+      }
+        catch (error) {
+          console.error('Error creating channel:', error);
+        }
+      } 
+    client.join(data.sender);
+    this.server.to(data.sender).emit('joinChannelServer', data.sender);
+  }
+
   @SubscribeMessage('createGroup')
   async handleCreateGroup(
     @ConnectedSocket() client: Socket,
@@ -182,8 +219,6 @@ export class ChatGateway {
       console.error('Error creating channel:', error);
     }
   }
-  
-
   }
 
   handleDisconnect(client: Socket) {

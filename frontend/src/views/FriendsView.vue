@@ -7,7 +7,7 @@
                     <a :class="{
                         'block py-4 px-12 border-l-4 text-gray-600 hover:bg-gray-300 hover:text-black': !isFriendsActive,
                         'block py-4 px-12 border-l-4 border-gray-800 bg-gray-300 text-black hover:bg-gray-300 hover:text-black': isFriendsActive
-                    }" href="#" @click="isFriendsActive = true; isGroupsActive = false;">
+                    }" href="#" @click="isFriendsActive = true; isGroupsActive = false; showJoined = false;">
                         <span class="inline-block align-text-bottom mr-2">
                             <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                                 stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4">
@@ -203,9 +203,11 @@
                                                         {{ channel.name }}
                                                     </span>
                                                 </div>
-                                                <div v-if="channel.messages.length > 0" class="truncate w-32" ><small class="text-gray-600 ">{{
-                                                    channel.messages[channel.messages.length -
-                                                        1].content }}</small></div>
+                                                <div v-if="channel.messages.length > 0" class="truncate w-32">
+                                                    <small class="text-gray-600">
+                                                        {{ channel.messages[channel.messages.length - 1].content }}
+                                                    </small>
+                                                </div>
                                             </div>
                                             <div class="flex-2 text-right">
                                                 <div><small class="text-gray-500">15 April</small></div>
@@ -220,12 +222,63 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="chat-area flex-1 flex flex-col">
+                            <div v-if="imIn()" class="chat-area flex-1 flex flex-col">
                                 <div class="flex-3">
                                     <h2 class="text-xl py-1 mb-8 border-b-2 border-gray-200">Chatting with <b>{{
                                         activChatUsr }}</b></h2>
                                 </div>
-                                <ChatFluid :channelAll="channelAll" :isGroupsActive="isGroupsActive" />
+                                <div v-if="isGroupsActive" class="messages flex-1 overflow-auto max-h-[700px]">
+                                    <div v-for="(chMes, index) in channelAll?.messages" :key="index">
+                                        <div :class="['message mb-4', chMes.sender.id !== userStore.userId ? 'flex' : 'flex me text-right']">
+                                            <div v-if="userStore.userId !== chMes.sender.id" class="flex-2">
+                                                <div class="w-12 h-12 relative">
+                                                    <div class="dropdown dropdown-right">
+                                                        <div class="w-10 rounded-full">
+                                                            <label tabindex="0" class="btn btn-ghost btn-circle avatar indicator">
+                                                                <img class="w-12 h-12 rounded-full mx-auto" :src="chMes.sender.profilePicture" :alt=chMes.sender.username />
+                                                                <span class="absolute w-4 h-4 bg-gray-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
+                                                            </label>
+                                                                <ul tabindex="0" class="menu menu-sm dropdown-content mt-1 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                                                                    <li>
+                                                                        <router-link :to="{ name: 'profile', params: { userid: chMes.sender.id },}" class="dropdown-item">
+                                                                            {{ chMes.sender.username }}
+                                                                        </router-link>
+                                                                    </li>                                                                    
+                                                                    <li>                                                                        
+                                                                        Invita
+                                                                    </li>
+                                                                    <div v-show="imAdmin()">
+                                                                        <li>
+                                                                            Ban
+                                                                        </li>  
+                                                                        <li>
+                                                                            Kick
+                                                                        </li>  
+                                                                        <li>                                              
+                                                                            Mute
+                                                                        </li>
+                                                                    </div>                                                                   
+                                                            </ul>
+                                                        </div>   
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1 px-2">
+                                                <div :class="[chMes.sender.id !== userStore.userId ? 'bg-gray-300 text-gray-700' : 'bg-blue-600  text-white']" style="max-width: 60%; overflow-wrap: break-word; word-break: break-all; white-space: normal; border: 2px solid transparent; display: inline-block; padding: 0px 12px; border-radius: 25px;">
+                                                    <span>
+                                                        {{ chMes.content }}
+                                                    </span>
+                                                </div>
+                                                <div class="pl-4">
+                                                    <small class="text-gray-500">
+                                                        {{ formattedTime(chMes.time) }}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div ref="lastMessage"></div>
+                                </div>
                                 <div v-if="isGroupsActive" class="flex-2 pt-4 pb-10">
                                     <div class="write bg-white shadow flex rounded-lg">
                                         <div class="flex-3 flex content-center items-center text-center p-4 pr-0">
@@ -274,6 +327,17 @@
                                     </div>
                                 </div>
                             </div>
+                            <div v-else-if="showJoined" class="chat-area flex-1 flex flex-col">                                             
+                                <div v-if="isGroupsActive" class="messages flex-1 overflow-auto max-h-[700px]">
+                                    <div class="alert">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <span>Non sei nel gruppo</span>
+                                        <div>
+                                            <button @click="channelJoin()" class="btn btn-sm btn-primary">Joina ora!</button>
+                                        </div>
+                                    </div>
+                                </div>  
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -293,6 +357,7 @@ import type { IChannel, ISingleCh } from '@/models/IChat'
 import ChatFluid from "@/components/chat/ChatFluid.vue";
 import { nextTick } from 'vue';
 const isFriendsActive = ref(false);
+const showJoined = ref(false);
 const isGroupsActive = ref(false);
 const profileFriend = ref<any[]>();
 const channelList = ref<IChannel[]>();
@@ -308,7 +373,7 @@ const credentials = reactive({
     name: "",
     password: "",
     type: ""
-})
+});
 
 const activChatUsr = ref('');
 function sendUsername(user: string) {
@@ -337,6 +402,7 @@ const toggleActive = (index: number) => {
     channelList.value!.forEach((channel, i) => {
         channel.active = i === index;
     });
+    showJoined.value = true;
 };
 
 const formattedTime = (date: any) => {
@@ -405,10 +471,20 @@ const createGroup = () => {
     credentials.name = '';
     credentials.type = '';
     credentials.password = '';
-    if (isGroupsActive.value === true) {
-        socket.emit('channelList');
-    }
+    showJoined.value = false;
+    socket.emit('channelList');
 };
+const channelJoin = () => {    
+    socket.emit('joinChannel', { id: channelAll.value?.id, sender: userStore.value.userId });
+    getChannel(channelAll.value?.id!);
+    showJoined.value = false;
+    imIn.value;
+}
+socket.on ('joinChannelServer', (channel: ISingleCh) => {
+    channelAll.value = channel;    
+    showJoined.value = false;
+    imIn.value;
+})
 
 socket.on('channelAlreadyExists', (text) => {
     alert("Channel '" + text + "' already exists");
@@ -444,16 +520,23 @@ onUnmounted(() => {
     socket.disconnect();
 });
 
-// const isModalOpen = ref(false);
+const imAdmin = () => {
+    const ret = channelAll.value?.members.find(member => member.userId === userStore.value.userId);
+    if (ret?.role === 'ADMIN' || ret?.role === 'OWNER')
+        return true;
+    else
+        return false;
+}
 
-// // const openModal = () => {
-// // 	isModalOpen.value = true;
-// // };
-
-// const closeModal = () => {
-// 	isModalOpen.value = false;
-// };
-
+const imIn = ref(() => {
+    if (channelAll.value?.members === undefined)
+        return false;
+    const ret = channelAll.value?.members.find(member => member.userId === userStore.value.userId);
+    if (ret)
+        return true;
+    else
+        return false;
+})
 </script>
   
   
