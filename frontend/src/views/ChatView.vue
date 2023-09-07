@@ -3,6 +3,7 @@
       <div class="flex h-full">
           <div class="hidden xl:block sm:flex-2 w-64 bg-gray-200">
             <SelectChatGroups 
+                v-if="numDiv === 'is3'"
               :isGroupsActive="isGroupsActive" :isFriendsActive="isFriendsActive"
               @friendsClicked="isFriendsActive = true, isGroupsActive = false"
               @groupsClicked="isGroupsActive = true, isFriendsActive = false, getChannelList()"
@@ -14,7 +15,7 @@
                       <div class="flex-1">
                           <!-- TODO make it clickable -->
                           <div v-if="numDiv === 'is2'">
-                            <span class=" inline-block text-gray-700 hover:text-gray-900 align-bottom">
+                            <span @click="middle=false" class=" inline-block text-gray-700 hover:text-gray-900 align-bottom">
                                 <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
                                     <svg class="w-4 h-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
                                         stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,7 +24,7 @@
                                 </span>
                             </span>
     
-                            <span class=" inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
+                            <span @click="middle=true" class=" inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
                                 <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
                                     <svg class="h-4 w-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
                                         stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,7 +36,7 @@
                             </span>
                           </div>
                           <div v-if="numDiv === 'is1'">
-                            <span class=" inline-block text-gray-700 hover:text-gray-900 align-bottom">
+                            <span @click="chatDiv = EChat.SELECT" class=" inline-block text-gray-700 hover:text-gray-900 align-bottom">
                                 <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
                                     <svg class="w-4 h-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
                                         stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +45,18 @@
                                 </span>
                             </span>
     
-                            <span class=" inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
+                            <span @click="chatDiv = EChat.GROUP" class=" inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
+                                <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
+                                    <svg class="h-4 w-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                        </path>
+                                    </svg>
+                                </span>
+                            </span>
+
+                            <span @click="chatDiv = EChat.CHAT" class=" inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
                                 <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
                                     <svg class="h-4 w-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
                                         stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
@@ -63,8 +75,9 @@
                           <h1 class="text-3xl text-gray-700 mb-4">Chat</h1>
                       </div>
 
-                      <div class="flex-1 flex h-full">
-                        <GroupFluid 
+                      <div class="flex-1 flex h-full overflow-auto max-h-[700px]">
+                        <GroupFluid
+                            v-if="(numDiv === 'is3' || numDiv === 'is2') && middle"
                             :isGroupsActive="isGroupsActive" 
                             :isFriendsActive="isFriendsActive" 
                             :channel-list="channelList"
@@ -74,59 +87,31 @@
                             :changeDirect="changeDirect" 
                             @changeDirect="changeDirect"
                         />
+                        <SelectChatGroups v-else-if="(numDiv === 'is3' || numDiv === 'is2') && !middle"
+                                    :isGroupsActive="isGroupsActive" :isFriendsActive="isFriendsActive"
+                                    @friendsClicked="isFriendsActive = true, isGroupsActive = false"
+                                    @groupsClicked="isGroupsActive = true, isFriendsActive = false, getChannelList()"
+                              />
                           <div class="chat-area flex-1 flex flex-col">
-                              <div class="flex-3">
-                                  <h2 class="text-xl py-1 mb-8 border-b-2 border-gray-200">{{screenWidth}}Chatting with <b>{{
-                                      activChatUsr }}</b></h2>
-                              </div>
-                              <ChatFluid :channelAll="channelAll" :isGroupsActive="isGroupsActive" />
-                              <div v-if="isGroupsActive" class="flex-2 pt-4 pb-10">
-                                  <div class="write bg-white shadow flex rounded-lg">
-                                      <div class="flex-3 flex content-center items-center text-center p-4 pr-0">
-                                          <span class="block text-center text-gray-400 hover:text-gray-800">
-                                              <svg fill="none" stroke-linecap="round" stroke-linejoin="round"
-                                                  stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"
-                                                  class="h-6 w-6">
-                                                  <path
-                                                      d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                  </path>
-                                              </svg>
-                                          </span>
-                                      </div>
-                                      <div @keyup.enter="sendMessage" class="flex-1">
-                                          <textarea v-model="msg" name="message"
-                                              class="w-full block outline-none py-4 px-4 bg-transparent" rows="1"
-                                              placeholder="Type a message..." autofocus></textarea>
-                                      </div>
-                                      <div class="flex-2 w-32 p-2 flex content-center items-center">
-                                          <div class="flex-1 text-center">
-                                              <span class="text-gray-400 hover:text-gray-800">
-                                                  <span class="inline-block align-text-bottom">
-                                                      <svg fill="none" stroke-linecap="round" stroke-linejoin="round"
-                                                          stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"
-                                                          class="w-6 h-6">
-                                                          <path
-                                                              d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
-                                                          </path>
-                                                      </svg>
-                                                  </span>
-                                              </span>
-                                          </div>
-                                          <div class="flex-1">
-                                              <button @click="sendMessage"
-                                                  class="bg-blue-400 w-10 h-10 rounded-full inline-block">
-                                                  <span class="inline-block align-text-bottom">
-                                                      <svg fill="none" stroke="currentColor" stroke-linecap="round"
-                                                          stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"
-                                                          class="w-4 h-4 text-white">
-                                                          <path d="M5 13l4 4L19 7"></path>
-                                                      </svg>
-                                                  </span>
-                                              </button>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
+                              <ChatFluid 
+                                v-if="chatDiv === EChat.CHAT" 
+                                :channelAll="channelAll" :isGroupsActive="isGroupsActive" :activChatUsr="activChatUsr" :currentChannelId="currentChannelId"
+                              />
+                              <GroupFluid v-else-if="chatDiv === EChat.GROUP" 
+                                :isGroupsActive="isGroupsActive" 
+                                :isFriendsActive="isFriendsActive" 
+                                :channel-list="channelList"
+                                :profileFriend="profileFriend"
+                                v-bind:changeChannel="changeChannel" 
+                                @changeChannel="changeChannel"
+                                :changeDirect="changeDirect" 
+                                @changeDirect="changeDirect"
+                              />
+                              <SelectChatGroups v-else-if="chatDiv === EChat.SELECT"
+                                    :isGroupsActive="isGroupsActive" :isFriendsActive="isFriendsActive"
+                                    @friendsClicked="isFriendsActive = true, isGroupsActive = false"
+                                    @groupsClicked="isGroupsActive = true, isFriendsActive = false, getChannelList()"
+                              />
                           </div>
                       </div>
                   </div>
@@ -135,13 +120,13 @@
       </div>
   </div>
 </template>
-
+props.activChatUsr
 <script setup lang="ts">
 import { socket } from "@/plugins/Socket.io";
-import { ref, watchEffect, onMounted, onUnmounted, type Ref, } from 'vue';
+import { ref, watchEffect, watch, onMounted, onUnmounted, type Ref, } from 'vue';
 import FriendService from "@/services/FriendService";
 import { useCurrentUserStore } from "@/stores/currentUser";
-import type { IChannel, ISingleCh } from '@/models/IChat'
+import { type IChannel, type ISingleCh, EChat} from '@/models/IChat'
 import ChatFluid from "@/components/chat/ChatFluid.vue";
 import GroupFluid from "@/components/chat/GroupFluid.vue";
 import { nextTick } from 'vue';
@@ -149,6 +134,8 @@ import SelectChatGroups from "@/components/chat/SelectChatGroups.vue";
 
 // Gestione responsive
 const numDiv = ref('');
+const middle = ref(true);
+const chatDiv = ref(EChat.CHAT);
 const screenWidth = ref(window.innerWidth);
 const handleResize = () => {
   screenWidth.value = window.innerWidth;
@@ -157,14 +144,18 @@ const handleResize = () => {
 watchEffect(() => {
   if (screenWidth.value > 1023 && screenWidth.value < 1280) {
     numDiv.value = 'is2'
+    chatDiv.value = EChat.CHAT;
     console.log(numDiv.value)
   }
   else if (screenWidth.value < 1024) {
     numDiv.value = 'is1'
+    middle.value = true;
     console.log(numDiv.value)
   }
   else {
     numDiv.value = 'is3'
+    middle.value = true;
+    chatDiv.value = EChat.CHAT;
     console.log(numDiv.value)
   }
 })
@@ -178,7 +169,7 @@ onUnmounted(() => {
 })
 
 // Fine gestione responsive
-const isFriendsActive = ref(false);
+const isFriendsActive = ref(true);
 const isGroupsActive = ref(false);
 const profileFriend = ref<any[]>();
 const channelList = ref<IChannel[]>();
@@ -189,8 +180,24 @@ const usernameAlreadySelected = ref(false);
 const userStore = ref(useCurrentUserStore());
 const msg = ref('');
 // const groupName = ref('');
-
 const activChatUsr = ref('');
+// Quando si clicca su un gruppo o un utente, si cambia il valore di activChatUsr a
+watch(isFriendsActive, (newValue, oldValue) => {
+    currentChannelId.value = '';
+    activChatUsr.value = '';
+});
+
+// Watch for changes to isGroupsActive
+watch(isGroupsActive, (newValue, oldValue) => {
+    currentChannelId.value = '';
+    activChatUsr.value = '';
+});
+// const changeToNull = (flg: number) => {
+//     if (flg === 1)
+//         currentChannelId.value = '';
+//     else if (flg === 2)
+//         activChatUsr.value = '';
+// }
 function sendUsername(user: string) {
   activChatUsr.value = user;
 }
@@ -222,23 +229,6 @@ const formattedTime = (date: any) => {
   return formattedTime;
 };
 
-const sendMessage = () => {
-  if (/^[\s\n]*$/.test(msg.value))
-      return;
-  if (currentChannelId.value == '' || currentChannelId.value == null) {
-      alert('Select a channel or direct message to Rohho');
-      return;
-  }
-  socket.emit('messageToServer', { text: msg.value, id: currentChannelId.value, sender: userStore.value.userId });
-  msg.value = '';
-  nextTick(() => {
-      setTimeout(() => {
-          if (lastMessage.value) {
-              lastMessage.value.scrollIntoView();
-          }
-      }, 80);
-  });
-};
 
 const getChannelList = () => {
   socket.emit('channelList');
@@ -299,16 +289,6 @@ const changeChannel = (channelName: string, id: string) => {
 const changeDirect = (username: string) => {
   sendUsername(username);
 };
-
-// const isModalOpen = ref(false);
-
-// // const openModal = () => {
-// // 	isModalOpen.value = true;
-// // };
-
-// const closeModal = () => {
-// 	isModalOpen.value = false;
-// };
 
 </script>
 

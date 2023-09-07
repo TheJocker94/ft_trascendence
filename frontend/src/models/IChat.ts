@@ -51,3 +51,9 @@ export interface ISingleCh{
     messages: IMessageChannel[],
     members: IMember[],
 }
+
+export enum EChat{
+    SELECT = "SELECT",
+    GROUP = "GROUP",
+    CHAT = "CHAT",
+}
