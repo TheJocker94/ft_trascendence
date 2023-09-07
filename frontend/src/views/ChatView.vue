@@ -64,10 +64,16 @@
                       </div>
 
                       <div class="flex-1 flex h-full">
-                          <GroupFluid 
-                            :isGroupsActive="isGroupsActive" :isFriendsActive="isFriendsActive" :channelList="channelList" :profileFriend="profileFriend"
-                            @changeDirect="sendUsername($event.name)"
-                          />
+                        <GroupFluid 
+                            :isGroupsActive="isGroupsActive" 
+                            :isFriendsActive="isFriendsActive" 
+                            :channel-list="channelList"
+                            :profileFriend="profileFriend"
+                            v-bind:changeChannel="changeChannel" 
+                            @changeChannel="changeChannel"
+                            :changeDirect="changeDirect" 
+                            @changeDirect="changeDirect"
+                        />
                           <div class="chat-area flex-1 flex flex-col">
                               <div class="flex-3">
                                   <h2 class="text-xl py-1 mb-8 border-b-2 border-gray-200">{{screenWidth}}Chatting with <b>{{
@@ -199,14 +205,6 @@ async function friendPic() {
 watchEffect(() => {
   friendPic();
 });
-const toggleActive = (index: number) => {
-  profileFriend.value!.forEach((friend, i) => {
-      friend.active = i === index;
-  });
-  channelList.value!.forEach((channel, i) => {
-      channel.active = i === index;
-  });
-};
 
 const formattedTime = (date: any) => {
   if (typeof date === 'string') {
@@ -292,6 +290,15 @@ onUnmounted(() => {
   socket.off('connect_error');
   socket.disconnect();
 });
+
+const changeChannel = (channelName: string, id: string) => {
+  getChannel(id);
+  sendUsername(channelName);
+};
+
+const changeDirect = (username: string) => {
+  sendUsername(username);
+};
 
 // const isModalOpen = ref(false);
 
