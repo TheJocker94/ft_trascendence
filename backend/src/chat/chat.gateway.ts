@@ -270,30 +270,36 @@ export class ChatGateway {
       return;
     }
 	// const channel = new Channel(1, 'PUBLIC', data.sender, data.text);
-  if (data.password === '') {
-  try {const newChannel = await this.prisma.channel.create({
-    data: { type: data.type, name: data.text},
-  })
-  const newUser = await this.prisma.channelMembership.create({
-    data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
-  })
-}
-  catch (error) {
-    console.error('Error creating channel:', error);
-  }}
-  else {
-    try {const newChannel = await this.prisma.channel.create({
-      data: { type: data.type, name: data.text, password: data.password},
-    })
-    const newUser = await this.prisma.channelMembership.create({
-      data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
-    })
-  }
-    catch (error) {
-      console.error('Error creating channel:', error);
+    if (data.password === '') {
+      try {
+        const newChannel = await this.prisma.channel.create({
+          data: { type: data.type, name: data.text},
+        })
+        await this.prisma.channelMembership.create({
+          data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
+        })
+      }
+      catch (error) {
+        console.error('Error creating channel:', error);
+      }
     }
+    else {
+      try {
+        const newChannel = await this.prisma.channel.create({
+          data: { type: data.type, name: data.text, password: data.password},
+        })
+        await this.prisma.channelMembership.create({
+          data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
+        })
+      }
+      catch (error) {
+        console.error('Error creating channel:', error);
+      }
+    }
+
+    this.server.emit('updateChannelList');
   }
-  }
+
 
   handleDisconnect(client: Socket) {
     console.log('Client disconnected:', client.id);

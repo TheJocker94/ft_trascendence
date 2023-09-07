@@ -195,16 +195,16 @@ watch(isGroupsActive, () => {
 });
 
 // funzione spamma grouplist
-onMounted(() => {
-  intervalRef.value = setInterval(getChannelList, 500); // 1000 milliseconds = 1 second
-});
+// onMounted(() => {
+//   intervalRef.value = setInterval(getChannelList, 500); // 1000 milliseconds = 1 second
+// });
 
-// Stop the interval when the component is unmounted
-onBeforeUnmount (() => {
-  if (intervalRef.value !== null) {
-    clearInterval(intervalRef.value);
-  }
-});
+// // Stop the interval when the component is unmounted
+// onBeforeUnmount (() => {
+//   if (intervalRef.value !== null) {
+//     clearInterval(intervalRef.value);
+//   }
+// });
 
 // const changeToNull = (flg: number) => {
 //     if (flg === 1)
@@ -264,9 +264,17 @@ socket.on('singleChannelServer', (channel: ISingleCh) => {
 });
 socket.on('groupListServer', (chList: IChannel[]) => {
 //   console.log(chList);
-  if (chList.length !== channelList.value?.length ) {
-      channelList.value = chList;
-  }
+//   if (chList.length !== channelList.value?.length ) {
+// }
+  channelList.value = chList;
+});
+
+// socket.on('groupCreated' => {
+
+// })
+
+socket.on('updateChannelList', () => {
+  socket.emit('channelList');
 });
 
 socket.on('channelAlreadyExists', (text) => {
