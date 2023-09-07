@@ -73,8 +73,16 @@ export class ChatGateway {
         channelId: data.id,
       }
     })
-    client.join(data.id);
     this.server.to(data.id).emit('messageFromServer', data.id);
+
+	const channel = await this.prisma.channel.findUnique({ 
+		where: {id: data.id}});
+	channel.notInRoom.forEach(async member => {
+		await this.prisma.channelMembership.update({
+			where: { userId_channelId: { userId: member, channelId: data.id } },
+			data: { notRead: { increment: 1 } },
+		});
+	});
   }
 
   @SubscribeMessage('channelList')
@@ -117,6 +125,7 @@ export class ChatGateway {
       
       client.emit('groupListServer', ChannelsList);
     }
+	
     @SubscribeMessage('getChannel')
     async handleSingleChannel(
       @ConnectedSocket() client: Socket,
@@ -152,6 +161,69 @@ export class ChatGateway {
       });
       client.emit('singleChannelServer', channel);
     }
+
+  @SubscribeMessage('enterRoom')
+  async handleEnterRoom(
+	@ConnectedSocket() client: Socket,
+	@MessageBody() data: any,
+  ): Promise<void> {
+	const channel = await this.prisma.channel.findUnique({ 
+	  where: {id: data.id}});
+	client.leave(data.currentChannelId);
+	client.join(data.id);
+	
+	const newNotInRoom: string[] = [];
+	for (let i = 0; i < channel.notInRoom.length; i++) {
+			  if (channel.notInRoom[i] !== data.sender) {
+				newNotInRoom.push(channel.notInRoom[i]);
+			  }
+			}
+	await this.prisma.channel.update({
+		where: {
+			id: data.id,
+		},
+		data: {
+			notInRoom: newNotInRoom,
+		},
+	})
+	await this.prisma.channelMembership.update({
+		where: { userId_channelId: { userId: data.sender, channelId: data.id } },
+		data: { notRead: 0 },
+	});
+	if (data.currentChannelId !== '') {
+	  await this.prisma.channel.update({
+	  	where: {
+	  	  id: data.currentChannelId,
+	  	},
+	  	data: {
+	  	  notInRoom: {
+	  		push: data.sender,
+	  	  },
+	  	},
+	    })
+	}
+  }
+
+  // sul front: socket.emit('leftRoom', {currentChannelId: currentChannelId.value, sender: userStore.value.userId});
+  @SubscribeMessage('leftRoom')
+  async handleLeftRoom(
+	@ConnectedSocket() client: Socket,
+	@MessageBody() data: any,
+  ): Promise<void> {
+	client.leave(data.currentChannelId);
+	if (data.currentChannelId !== '') {
+	  await this.prisma.channel.update({
+	  	where: {
+	  	  id: data.currentChannelId,
+	  	},
+	  	data: {
+	  	  notInRoom: {
+	  		push: data.sender,
+	  	  },
+	  	},
+	    })
+	}
+  }
 
   @SubscribeMessage('joinChannel')
   async handleJoinChannel(

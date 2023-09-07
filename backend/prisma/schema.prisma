@@ -51,12 +51,13 @@ model matchHistory {
 
 // ho fatto solo un tipo CHANNEL diviso in DIRECT: una chat privata tra 2, oppure PRIVATE: un canale vero privato, oppure PUBLIC: un canale pubblico con tanti membri
 model Channel {
-  id       String                 @id @default(uuid()) @unique
-  type     ChannelType // PRIVATE o PUBLIC o DIRECT
-  name     String? // se sono GROUP ho un nome del canale
-  password String?
-  members  ChannelMembership[] // membri del canale
-  messages Message[]
+  id        String                 @id @default(uuid()) @unique
+  type      ChannelType            // PRIVATE o PUBLIC o DIRECT
+  name      String?                // se sono GROUP ho un nome del canale
+  password  String?
+  members   ChannelMembership[]    // membri del canale
+  messages  Message[]
+  notInRoom String[]               @default([]) // utenti che non sono in questo canale
 }
 
 model ChannelMembership {
@@ -64,9 +65,10 @@ model ChannelMembership {
   user        User        @relation(fields: [userId], references: [id])
   channelId   String
   channel     Channel     @relation(fields: [channelId], references: [id])
-  role        UserRole // ruolo utente: OWNER, ADMIN o MEMBER
+  role        UserRole    // ruolo utente: OWNER, ADMIN o MEMBER
   status      UserStatus? // stato dell utente nel canale: (ACTIVE, BANNED, MUTED)
-  muteEndTime DateTime? // se mutato quanto tempo dura il mute
+  muteEndTime DateTime?   // se mutato quanto tempo dura il mute
+  notRead	  Int         @default(0) // numero di messaggi non letti
 
   @@id([userId, channelId])
 }

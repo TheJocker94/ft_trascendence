@@ -234,7 +234,11 @@ const getChannelList = () => {
   socket.emit('channelList');
 };
 const getChannel = (id: string) => {
-  socket.emit('getChannel', { id: id });
+	socket.emit('getChannel', { id: id });
+	if (id === currentChannelId.value) {
+		return;
+	}
+	socket.emit('enterRoom', { id: id, currentChannelId: currentChannelId.value, sender: userStore.value.userId});
   currentChannelId.value = id;
 };
 

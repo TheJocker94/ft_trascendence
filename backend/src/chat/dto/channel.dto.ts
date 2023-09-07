@@ -18,4 +18,5 @@ export class ChannelMembershipDto {
     channelId: string;
     role: string;
     status: string;
+	notRead: number;
 }
