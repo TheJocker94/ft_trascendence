@@ -1,62 +1,44 @@
+import { EChat, type IChannel, type ISingleCh } from '@/models/IChat';
 import { defineStore } from 'pinia';
-import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
 
-export const useChatStore = defineStore('chat', {
-  state: () => ({
-    username: '',
-    connected: false,
-    users: 0,
-    messages: []
-    }),
-    getters: {
-      Messages(state: any) {
-        return state.messages;
-    },
-    Username(state: any) {
-        return state.username;
-    }
-  },
-  actions: {
-    addMessage(message: any) {
-      this.messages.push(message);
-    },
-    updateUsers(users: number) {
-      this.users = users;
-    },
-    setUsername(nickname: string) {
-      this.username = nickname;
-      const router = useRouter();
-      router.replace({ name: 'live-chat' });
-    },
-    setConnected(flag: boolean) {
-      this.connected = flag;
-    },
-    socketMessage(message: any) {
-      this.addMessage(message);
-    },
-    socketUsers(users: number) {
-      this.updateUsers(users);
-    },
-    socketJoin(nickname: string) {
-      this.addMessage({
-        username: nickname,
-        content: 'Joined...',
-      });
-    },
-    socketTriggerRest() {
-      this.addMessage({
-        username: 'REST',
-        content: 'Triggered by REST API',
-      });
-    },
-    socketConnect() {
-      this.setConnected(true);
-    },
-    socketDisconnect() {
-      this.setConnected(false);
-    },
-    socketConnectError() {
-      this.setConnected(false);
-    },
-  },
-});
+export const useChatStore = defineStore('chat', () => {
+  const isGroupsActive = ref(false)
+  const isFriendsActive = ref(true)
+  // Getters and Setters IsFriendsActive and IsGroupsActive
+  const getFriend = computed(() => isFriendsActive.value);
+  const getGroup = computed(() => isGroupsActive.value);
+  const setFriend = (val:boolean) => { isFriendsActive.value = val, currentChannelId.value = ''; activChatUsr.value = ''; } 
+  const setGroup = (val:boolean) => { isGroupsActive.value = val, currentChannelId.value = ''; activChatUsr.value = '';  }
+  // List of friends and channels
+  const profileFriend = ref<any[]>();
+  const channelList = ref<IChannel[] | undefined>();
+  // Getters and Setters for channelList and profileFriend
+  const getProfileFriend = computed(() => profileFriend.value);
+  const setProfileFriend = (val:any[]) => { profileFriend.value = val }
+  const getChannelList = computed(() => channelList.value);
+  const setChannelList = (val:IChannel[]) => { channelList.value = val }
+  // Single channel
+  const channelAll = ref<ISingleCh>();
+  const getChannelAll = computed(() => channelAll.value);
+  const setChannelAll = (val:ISingleCh) => { channelAll.value = val }
+  // Active chat user and channel name
+  const activChatUsr = ref('');
+  const currentChannelId = ref('');
+  const getActivChatUsr = computed(() => activChatUsr.value);
+  const setActivChatUsr = (val:string) => { activChatUsr.value = val }
+  const getCurrentChannelId = computed(() => currentChannelId.value);
+  const setCurrentChannelId = (val:string) => { currentChannelId.value = val }
+  // num div
+  const numDiv = ref('');
+  const getNumDiv = computed(() => numDiv.value);
+  const setNumDiv = (val:string) => { numDiv.value = val }
+  // gestore single div mobile
+  const chatDiv = ref(EChat.CHAT);
+  const getChatDiv = computed(() => chatDiv.value);
+  const setChatDiv = (val:EChat) => { chatDiv.value = val }
+  return { isGroupsActive, isFriendsActive, getFriend, getGroup, setFriend, setGroup, profileFriend, channelList, channelAll,
+          activChatUsr, currentChannelId, setActivChatUsr, setCurrentChannelId, getActivChatUsr, getCurrentChannelId,
+          getChannelList, setChannelList, getChannelAll, setChannelAll, setProfileFriend, getProfileFriend,
+          numDiv, getNumDiv, setNumDiv, chatDiv, getChatDiv, setChatDiv }
+})

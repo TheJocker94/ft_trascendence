@@ -3,10 +3,9 @@
       <div class="flex h-full">
           <div class="hidden xl:block sm:flex-2 w-64 bg-gray-200">
             <SelectChatGroups 
-                v-if="numDiv === 'is3'"
-              :isGroupsActive="isGroupsActive" :isFriendsActive="isFriendsActive"
-              @friendsClicked="isFriendsActive = true, isGroupsActive = false"
-              @groupsClicked="isGroupsActive = true, isFriendsActive = false, getChannelList()"
+                v-if="chat.getNumDiv === 'is3'"
+              @friendsClicked="chat.setFriend(true), chat.setGroup(false)"
+              @groupsClicked="chat.setGroup(true), chat.setFriend(false) , getChannelList()"
             />
           </div>
           <div class="flex-1 bg-gray-100 w-full h-full">
@@ -14,7 +13,7 @@
                   <div class="py-4 flex-2 flex flex-row ">
                       <div class="flex-1">
                           <!-- TODO make it clickable -->
-                          <div v-if="numDiv === 'is2'">
+                          <div v-if="chat.getNumDiv === 'is2'">
                             <span @click="middle=false" class=" inline-block text-gray-700 hover:text-gray-900 align-bottom">
                                 <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
                                     <svg class="w-4 h-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
@@ -35,8 +34,8 @@
                                 </span>
                             </span>
                           </div>
-                          <div v-if="numDiv === 'is1'">
-                            <span @click="chatDiv = EChat.SELECT" class=" inline-block text-gray-700 hover:text-gray-900 align-bottom">
+                          <div v-if="chat.getNumDiv === 'is1'">
+                            <span @click="chat.setChatDiv(EChat.SELECT); console.log('Valore chatDiv', chat.getChatDiv);" class=" inline-block text-gray-700 hover:text-gray-900 align-bottom">
                                 <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
                                     <svg class="w-4 h-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
                                         stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,7 +44,7 @@
                                 </span>
                             </span>
     
-                            <span @click="chatDiv = EChat.GROUP" class=" inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
+                            <span @click="chat.setChatDiv(EChat.GROUP); console.log('Valore chatDiv ', chat.getChatDiv)" class=" inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
                                 <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
                                     <svg class="h-4 w-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
                                         stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +55,7 @@
                                 </span>
                             </span>
 
-                            <span @click="chatDiv = EChat.CHAT" class=" inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
+                            <span @click="chat.setChatDiv(EChat.CHAT); console.log('Valore chatDiv', chat.getChatDiv);" class=" inline-block ml-8 text-gray-700 hover:text-gray-900 align-bottom">
                                 <span class="block h-6 w-6 p-1 rounded-full hover:bg-gray-400">
                                     <svg class="h-4 w-4" fill="none" stroke-linecap="round" stroke-linejoin="round"
                                         stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,41 +76,23 @@
 
                       <div class="flex-1 flex h-full overflow-auto max-h-[700px]">
                         <GroupFluid
-                            v-if="(numDiv === 'is3' || numDiv === 'is2') && middle"
-                            :isGroupsActive="isGroupsActive" 
-                            :isFriendsActive="isFriendsActive" 
-                            :channel-list="channelList"
-                            :profileFriend="profileFriend"
-                            v-bind:changeChannel="changeChannel" 
-                            @changeChannel="changeChannel"
-                            :changeDirect="changeDirect" 
-                            @changeDirect="changeDirect"
+                            v-if="(chat.getNumDiv === 'is3' || chat.getNumDiv === 'is2') && middle"
                         />
-                        <SelectChatGroups v-else-if="(numDiv === 'is3' || numDiv === 'is2') && !middle"
-                                    :isGroupsActive="isGroupsActive" :isFriendsActive="isFriendsActive"
-                                    @friendsClicked="isFriendsActive = true, isGroupsActive = false"
-                                    @groupsClicked="isGroupsActive = true, isFriendsActive = false, getChannelList()"
+                        <SelectChatGroups v-else-if="(chat.getNumDiv === 'is3' || chat.getNumDiv === 'is2') && !middle"
+                                    @friendsClicked="chat.setFriend(true), chat.setGroup(false), middle=true"
+                                    @groupsClicked="chat.setGroup(true), chat.setFriend(false), getChannelList(), middle=true"
                               />
                           <div class="chat-area flex-1 flex flex-col">
                               <ChatFluid 
-                                v-if="chatDiv === EChat.CHAT" 
-                                :channelAll="channelAll" :isGroupsActive="isGroupsActive" :activChatUsr="activChatUsr" :currentChannelId="currentChannelId"
+                                v-if="chat.getChatDiv === EChat.CHAT" 
                               />
-                              <GroupFluid v-else-if="chatDiv === EChat.GROUP" 
-                                :isGroupsActive="isGroupsActive" 
-                                :isFriendsActive="isFriendsActive" 
-                                :channel-list="channelList"
-                                :profileFriend="profileFriend"
-                                v-bind:changeChannel="changeChannel" 
-                                @changeChannel="changeChannel"
-                                :changeDirect="changeDirect" 
-                                @changeDirect="changeDirect"
+                              <SelectChatGroups v-if="chat.getChatDiv === EChat.SELECT"
+                                @friendsClicked="chat.setFriend(true), chat.setGroup(false)"
+                                @groupsClicked="chat.setFriend(false), chat.setGroup(true), getChannelList()"
                               />
-                              <SelectChatGroups v-else-if="chatDiv === EChat.SELECT"
-                                    :isGroupsActive="isGroupsActive" :isFriendsActive="isFriendsActive"
-                                    @friendsClicked="isFriendsActive = true, isGroupsActive = false"
-                                    @groupsClicked="isGroupsActive = true, isFriendsActive = false, getChannelList()"
-                              />
+                              <GroupFluid
+                                v-if="chat.getChatDiv === EChat.GROUP"
+                            />
                           </div>
                       </div>
                   </div>
@@ -120,10 +101,10 @@
       </div>
   </div>
 </template>
-props.activChatUsr
+
 <script setup lang="ts">
 import { socket } from "@/plugins/Socket.io";
-import { ref, watchEffect, watch, onMounted, onUnmounted, type Ref, onBeforeUnmount, } from 'vue';
+import { ref, watchEffect, onMounted, onUnmounted, type Ref } from 'vue';
 import FriendService from "@/services/FriendService";
 import { useCurrentUserStore } from "@/stores/currentUser";
 import { type IChannel, type ISingleCh, EChat} from '@/models/IChat'
@@ -131,11 +112,10 @@ import ChatFluid from "@/components/chat/ChatFluid.vue";
 import GroupFluid from "@/components/chat/GroupFluid.vue";
 import { nextTick } from 'vue';
 import SelectChatGroups from "@/components/chat/SelectChatGroups.vue";
-
+import { useChatStore } from "@/stores/chat";
 // Gestione responsive
-const numDiv = ref('');
+const chat = ref(useChatStore());
 const middle = ref(true);
-const chatDiv = ref(EChat.CHAT);
 const screenWidth = ref(window.innerWidth);
 const handleResize = () => {
   screenWidth.value = window.innerWidth;
@@ -143,20 +123,17 @@ const handleResize = () => {
 
 watchEffect(() => {
   if (screenWidth.value > 1023 && screenWidth.value < 1280) {
-    numDiv.value = 'is2'
-    chatDiv.value = EChat.CHAT;
-    console.log(numDiv.value)
+    chat.value.setNumDiv('is2')
+    chat.value.setChatDiv(EChat.CHAT);
   }
   else if (screenWidth.value < 1024) {
-    numDiv.value = 'is1'
+    chat.value.setNumDiv('is1')
     middle.value = true;
-    console.log(numDiv.value)
   }
   else {
-    numDiv.value = 'is3'
+    chat.value.setNumDiv('is3')
     middle.value = true;
-    chatDiv.value = EChat.CHAT;
-    console.log(numDiv.value)
+    chat.value.setChatDiv(EChat.CHAT);
   }
 })
 
@@ -169,58 +146,19 @@ onUnmounted(() => {
 })
 
 // Fine gestione responsive
-const isFriendsActive = ref(true);
-const isGroupsActive = ref(false);
-const profileFriend = ref<any[]>();
-const channelList = ref<IChannel[]>();
-const channelAll = ref<ISingleCh>();
-const currentChannelId = ref('');
+// const profileFriend = ref<any[]>();
 const lastMessage: Ref<HTMLDivElement | null> = ref(null);
 const usernameAlreadySelected = ref(false);
 const userStore = ref(useCurrentUserStore());
-const msg = ref('');
-// const groupName = ref('');
-const activChatUsr = ref('');
-const intervalRef = ref<number | null>(null);
-// Quando si clicca su un gruppo o un utente, si cambia il valore di activChatUsr a
-watch(isFriendsActive, () => {
-    currentChannelId.value = '';
-    activChatUsr.value = '';
-});
 
-// Watch for changes to isGroupsActive
-watch(isGroupsActive, () => {
-    currentChannelId.value = '';
-    activChatUsr.value = '';
-});
-
-// funzione spamma grouplist
-// onMounted(() => {
-//   intervalRef.value = setInterval(getChannelList, 500); // 1000 milliseconds = 1 second
-// });
-
-// // Stop the interval when the component is unmounted
-// onBeforeUnmount (() => {
-//   if (intervalRef.value !== null) {
-//     clearInterval(intervalRef.value);
-//   }
-// });
-
-// const changeToNull = (flg: number) => {
-//     if (flg === 1)
-//         currentChannelId.value = '';
-//     else if (flg === 2)
-//         activChatUsr.value = '';
+// function sendUsername(user: string) {
+//   chat.value.setActivChatUsr(user);
 // }
-
-function sendUsername(user: string) {
-  activChatUsr.value = user;
-}
 
 async function friendPic() {
   // if (props.idProfile !== currentUser.value.userId)
   const response = await FriendService.getFriendList();
-  profileFriend.value = response.map(friend => ({ ...friend, active: false }));
+  chat.value.setProfileFriend(response.map(friend => ({ ...friend, active: false })));
   // else
   //     profileFriend.value = await FriendService.getFriendList(currentUser.value.userId!);
 }
@@ -249,24 +187,21 @@ const getChannelList = () => {
   socket.emit('channelList');
 };
 
-const getChannel = (id: string) => {
-	socket.emit('getChannel', { id: id });
-	if (id === currentChannelId.value) {
-		return;
-	}
-	socket.emit('enterRoom', { id: id, currentChannelId: currentChannelId.value, sender: userStore.value.userId});
-  currentChannelId.value = id;
-};
+// const getChannel = (id: string) => {
+// 	socket.emit('getChannel', { id: id });
+// 	if (id === chat.value.getCurrentChannelId) {
+// 		return;
+// 	}
+//   chat.value.setCurrentChannelId(id);
+// 	socket.emit('enterRoom', { id: id, currentChannelId: chat.value.getCurrentChannelId, sender: userStore.value.userId});
+// };
 
 socket.on('singleChannelServer', (channel: ISingleCh) => {
   console.log(channel);
-  channelAll.value = channel;
+  chat.value.setChannelAll(channel);
 });
 socket.on('groupListServer', (chList: IChannel[]) => {
-//   console.log(chList);
-//   if (chList.length !== channelList.value?.length ) {
-// }
-  channelList.value = chList;
+  chat.value.setChannelList(chList);
 });
 
 // socket.on('groupCreated' => {
@@ -311,14 +246,14 @@ onUnmounted(() => {
   socket.disconnect();
 });
 
-const changeChannel = (channelName: string, id: string) => {
-  getChannel(id);
-  sendUsername(channelName);
-};
+// const changeChannel = (channelName: string, id: string) => {
+//   getChannel(id);
+//   sendUsername(channelName);
+// };
 
-const changeDirect = (username: string) => {
-  sendUsername(username);
-};
+// const changeDirect = (username: string) => {
+//   sendUsername(username);
+// };
 
 </script>
 

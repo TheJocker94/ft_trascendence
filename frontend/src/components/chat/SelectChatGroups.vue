@@ -1,9 +1,9 @@
 <template>
     <div class="menu mt-8">
         <a :class="{
-            'block py-4 px-12 border-l-4 text-gray-600 hover:bg-gray-300 hover:text-black': !isFriendsActive,
-            'block py-4 px-12 border-l-4 border-gray-800 bg-gray-300 text-black hover:bg-gray-300 hover:text-black': isFriendsActive
-        }" href="#" @click="$emit('friendsClicked')">
+            'block py-4 px-12 border-l-4 text-gray-600 hover:bg-gray-300 hover:text-black': !chat.getFriend,
+            'block py-4 px-12 border-l-4 border-gray-800 bg-gray-300 text-black hover:bg-gray-300 hover:text-black': chat.getFriend
+        }" href="#" @click="$emit('friendsClicked'), changeComponent()">
             <span class="inline-block align-text-bottom mr-2">
                 <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                     stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4">
@@ -15,9 +15,9 @@
             Friends
         </a>
         <a :class="{
-            'block py-4 px-12 border-l-4 text-gray-600 hover:bg-gray-300 hover:text-black': !props.isGroupsActive,
-            'block py-4 px-12 border-l-4 border-gray-800 bg-gray-300 text-black hover:bg-gray-300 hover:text-black': props.isGroupsActive
-        }" href="#" @click="$emit('groupsClicked')">
+            'block py-4 px-12 border-l-4 text-gray-600 hover:bg-gray-300 hover:text-black': !chat.getGroup,
+            'block py-4 px-12 border-l-4 border-gray-800 bg-gray-300 text-black hover:bg-gray-300 hover:text-black': chat.getGroup
+        }" href="#" @click="$emit('groupsClicked'), changeComponent()">
             <span class="inline-block align-text-bottom mr-2">
                 <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                     stroke-width="2" viewBox="0 0 24 24" class="w-4 h-4">
@@ -102,12 +102,12 @@ import { Form, Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { socket } from '@/plugins/Socket.io';
+import { useChatStore } from "@/stores/chat";
+import { EChat } from '@/models/IChat';
 
+const chat = ref(useChatStore());
 // Props
-const props = defineProps({
-    isGroupsActive: Boolean,
-    isFriendsActive: Boolean
-});
+
 // Variable declaration
 const schema = yup.object().shape({
 channelName: yup.string().required().label('Channel Name'),
@@ -121,6 +121,11 @@ const credentials = reactive({
 })
 const userStore = ref(useCurrentUserStore());
 const myButton = ref<HTMLButtonElement | null>(null);
+const changeComponent = () => {
+    if (chat.value.getNumDiv === "is1") {
+        chat.value.setChatDiv(EChat.GROUP)
+    }
+};
 // Functions
 const createGroup = () => {
   if (credentials.name === '') {
@@ -137,7 +142,7 @@ const createGroup = () => {
   credentials.name = '';
   credentials.type = '';
   credentials.password = '';
-  if (props.isGroupsActive === true) {
+  if (chat.value.getGroup === true) {
       socket.emit('channelList');
   }
 };

@@ -1,15 +1,15 @@
 <template>
-    <div class="sidebar hidden lg:flex w-1/3 flex-2 flex-col pr-6">
+    <div :class=" ['sidebar lg:flex flex-2 flex-col pr-6',  chat.getNumDiv !== 'is1' ? 'w-1/3 ' : '']">
         <div class="search flex-2 pb-6 px-2">
             <input type="text"
                 class="outline-none py-2 block w-full bg-transparent border-b-2 border-gray-200"
                 placeholder="Search">
         </div>
         <div class="flex-1 h-full overflow-auto px-2">
-            <div v-if="props.isFriendsActive">
-                <div v-for="(friend, index) in props.profileFriend" :key="index"
+            <div v-if="chat.getFriend && chat.getProfileFriend">
+                <div v-for="(friend, index) in chat.getProfileFriend" :key="index"
                     :class="['entry', friend.active ? 'border-l-4 border-red-500' : '', 'cursor-pointer', 'transform', 'hover:scale-105', 'duration-300', 'transition-transform', 'bg-white', 'mb-4', 'rounded', 'p-4', 'flex', 'shadow-md']"
-                    @click="toggleActive(index), $emit('changeDirect', friend.username) ">
+                    @click="toggleActiveFriend(index)">
                     <div class="flex-2">
                         <div class="w-12 h-12 relative">
                             <img class="w-12 h-12 rounded-full mx-auto" :src="friend.profilePicture"
@@ -34,11 +34,10 @@
                     </div>
                 </div>
             </div>
-            <div v-if="props.isGroupsActive">
-                <div v-for="(channel, index) in props.channelList" :key="index"
+            <div v-if="chat.getGroup && chat.getChannelList">
+                <div v-for="(channel, index) in chat.getChannelList" :key="index"
                     :class="['entry', channel.active ? 'border-l-4 border-red-500' : '', 'cursor-pointer', 'transform', 'hover:scale-105', 'duration-300', 'transition-transform', 'bg-white', 'mb-4', 'rounded', 'p-4', 'flex', 'shadow-md']"
-                    @click="toggleActive(index), $emit('changeChannel', channel.name, channel.id)">
-                    <!-- ,sendUsername(channel.name), getChannel(channel.id) -->
+                    @click="toggleActiveGroup(index)">
                     <div class="flex-1 px-2">
                         <div class="truncate w-32">
                             <span class="text-gray-800">
@@ -65,29 +64,61 @@
 </template>
 
 <script setup lang="ts">
-import type { IChannel } from '@/models/IChat';
+import { useChatStore } from "@/stores/chat";
+import { useCurrentUserStore } from '@/stores/currentUser';
+import { ref } from 'vue';
+import { socket } from '@/plugins/Socket.io';
+import { EChat } from "@/models/IChat";
+
+const chat = ref(useChatStore());
+const userStore = ref(useCurrentUserStore());
 // Props
-const props = defineProps({
-    isGroupsActive: Boolean,
-    isFriendsActive: Boolean,
-    channelList: {
-            type: Object as () => IChannel[] | undefined, // use the interface as a type
-            required: true
-        },
-    profileFriend: {
-            type: Object as () => any[] | undefined, // use the interface as a type
-            required: true
-        }
-});
 
 // functions
-const toggleActive = (index: number) => {
-  props.profileFriend!.forEach((friend, i) => {
-      friend.active = i === index;
-  });
-  props.channelList!.forEach((channel, i) => {
-      channel.active = i === index;
-  });
+console.log('Sucami il cazzo');
+console.log('Channel list is daje: ',chat.value.getChannelList);
+console.log('Friend is daje: ',chat.value.getFriend);
+console.log('Current group is daje: ',chat.value.getGroup);
+const getChannel = (id: string) => {
+	socket.emit('getChannel', { id: id });
+	if (id === chat.value.getCurrentChannelId) {
+		return;
+	}
+  chat.value.setCurrentChannelId(id);
+	socket.emit('enterRoom', { id: id, currentChannelId: chat.value.getCurrentChannelId, sender: userStore.value.userId});
+};
+
+const changeChannel = (channelName: string, id: string) => {
+  getChannel(id);
+  chat.value.setActivChatUsr(channelName);
+};
+
+const changeDirect = (username: string) => {
+    chat.value.setActivChatUsr(username);
+};
+const toggleActiveGroup = (index: number) => {
+    if (chat.value.getChannelList){
+    chat.value.getChannelList!.forEach((channel, i) => {
+          channel.active = i === index;
+      });
+      changeChannel(chat.value.getChannelList[index].name, chat.value.getChannelList[index].id);
+      if (chat.value.getNumDiv === "is1") {
+        chat.value.setChatDiv(EChat.CHAT)
+    }
+  }
+}
+const toggleActiveFriend = (index: number) => {
+    if (chat.value.getProfileFriend){
+        chat.value.getProfileFriend.forEach((friend, i) => {
+            friend.active = i === index;
+        });
+        changeDirect(chat.value.getProfileFriend[index].username);
+        if (chat.value.getNumDiv === "is1") {
+            chat.value.setChatDiv(EChat.CHAT)
+    }
+    }
+
+
 };
 </script>
 

@@ -1,12 +1,12 @@
 <template>
-    <div v-if='props.activChatUsr !== ""' class="flex-3">
+    <div v-if='chat.getActivChatUsr !== ""' class="flex-3">
         <h2 class="text-xl py-1 mb-8 border-b-2 border-gray-200">Chatting with 
-            <b>{{props.activChatUsr}}</b>
+            <b>{{chat.getActivChatUsr}}</b>
         </h2>
     </div>
     <!-- Inizio GroupChat -->
-    <div v-if="props.isGroupsActive" class="messages flex-1 overflow-auto max-h-[700px]">
-        <div v-for="(chMes, index) in props.channelAll?.messages" :key="index">
+    <div v-if="chat.getGroup && chat.getChannelAll != undefined" class="messages flex-1 overflow-auto max-h-[700px]">
+        <div v-for="(chMes, index) in chat.getChannelAll?.messages" :key="index">
             <div
                 :class="['message mb-4', chMes.sender.id !== userStore.userId ? 'flex' : 'flex me text-right']">
                 <div v-if="userStore.userId !== chMes.sender.id" class="flex-2">
@@ -34,7 +34,7 @@
     
     <!-- Fine Select Group/Direct -->
     <!-- Inizio Text area -->
-    <div v-if="isGroupsActive" class="flex-2 pt-4 pb-10">
+    <div v-if="chat.getGroup && chat.getChannelAll != undefined" class="flex-2 pt-4 pb-10">
         <div class="write bg-white shadow flex rounded-lg">
             <div class="flex-3 flex content-center items-center text-center p-4 pr-0">
                 <span class="block text-center text-gray-400 hover:text-gray-800">
@@ -84,22 +84,14 @@
 </template>
 
 <script setup lang="ts">
-import  { type ISingleCh } from '@/models/IChat'
 import { useCurrentUserStore } from "@/stores/currentUser";
 import { socket } from '@/plugins/Socket.io';
 import { ref, type Ref } from "vue";
 import { nextTick } from 'vue';
+import { useChatStore } from "@/stores/chat";
 
+const chat = ref(useChatStore());
 const userStore = ref(useCurrentUserStore());
-const props = defineProps({
-        channelAll: {
-            type: Object as () => ISingleCh | undefined, // use the interface as a type
-            required: true
-        },
-        isGroupsActive: Boolean,
-        activChatUsr: String,
-        currentChannelId: String
-    });
 const msg = ref('');
 const lastMessage: Ref<HTMLDivElement | null> = ref(null);
 
@@ -121,11 +113,11 @@ const formattedTime = (date: any) => {
 const sendMessage = () => {
   if (/^[\s\n]*$/.test(msg.value))
       return;
-  if (props.currentChannelId == '' || props.currentChannelId == null) {
+  if (chat.value.getCurrentChannelId == '' || chat.value.getCurrentChannelId == null) {
       alert('Select a channel or direct message to Rohho');
       return;
   }
-  socket.emit('messageToServer', { text: msg.value, id: props.currentChannelId, sender: userStore.value.userId });
+  socket.emit('messageToServer', { text: msg.value, id: chat.value.getCurrentChannelId, sender: userStore.value.userId });
   msg.value = '';
   nextTick(() => {
       setTimeout(() => {
