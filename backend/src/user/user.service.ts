@@ -157,6 +157,20 @@ export class UserService {
     });
   }
 
+  async enable2fa(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { is2faEnabled: true },
+    });
+  }
+
+  async disable2fa(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { is2faEnabled: false },
+    });
+  }
+  
   async acceptFriendRequest(senderId: string, receiverId: string): Promise<void> {
     const friendship = await this.prisma.friendship.findFirst({
       where: {

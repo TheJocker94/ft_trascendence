@@ -39,16 +39,12 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import { useCurrentUserStore } from '@/stores/currentUser';
 import { Form, Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 
 // Router, authStore, credentials
-const router = useRouter();
 const auth = ref(useAuthStore())
-const userStore = ref(useCurrentUserStore());
 const credentials = reactive({
   email:"",
   password:"",
@@ -75,8 +71,6 @@ async function onSubmit() {
     console.log("danger", "failure", e.message);
     return;
   }
-  else
-  router.push('/users/' + userStore.value.userId);
 }
 
 </script>

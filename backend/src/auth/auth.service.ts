@@ -60,7 +60,9 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(dto.password, user.hash))) {
       throw new Error('Invalid credentials');
     }
-    if (user.is2FAEnabled) {
+    console.log('USER 2FA BACKEND : ',user.is2faEnabled);
+    if (user.is2faEnabled === true) {
+    console.log('USER 2FA BACKEND dentro if: ',user.is2faEnabled);
       const verificationCode = this.generateVerificationCode();
 
       await this.prisma.user.update({

@@ -76,13 +76,12 @@
               class="dropdown-item"
               >{{userStore.username}}</router-link
             ></li>
-            <li><router-link
-              :to="{
-                name: 'friends',
-              }"
-              class="dropdown-item"
-              >Chat</router-link
-            ></li>
+            <li class="dropdown-item">
+              <button>
+                TwoFa
+                <input type="checkbox" class="toggle toggle-sm toggle-success" checked />
+              </button>
+              </li>
             
             <li>
 				<div @click="openModal" >Notifications</div>
@@ -208,7 +207,7 @@
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth';
 import { useCurrentUserStore } from '@/stores/currentUser';
-import { onBeforeRouteLeave, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useFriendStore } from '@/stores/friend';
 import FriendService from '@/services/FriendService';
 import axios, { AxiosError } from 'axios';
@@ -227,16 +226,6 @@ const showFriendRequest = ref(true);
 const showChannelInvite = ref(false);
 const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
-const gamerStore = ref(useGameInviteStore());
-
-const closeAllDropdowns = () => {
-  // Close all dropdowns
-  const dropdowns = document.querySelectorAll('.dropdown-content');
-  dropdowns.forEach(dropdown => {
-    dropdown.classList.remove('open'); // Assuming 'open' class makes the dropdown visible
-  });
-};
-
 
 async function acceptRequest(userId: string) {
 	try {

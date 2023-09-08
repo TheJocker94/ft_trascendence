@@ -2,12 +2,11 @@ import { defineStore } from 'pinia';
 import api from '@/services/AuthService';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { useLocalStorage } from '@vueuse/core';
-
 import type { IError } from '@/models/IError';
 import axios, { AxiosError } from 'axios';
 import AuthService from '@/services/AuthService';
-import { string } from 'yup';
-
+import router from '@/router';
+import { ref } from 'vue';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -16,6 +15,7 @@ export const useAuthStore = defineStore('auth', {
       registerInProgress: useLocalStorage('registerInProgress', false),
       needsRefresh: false,
       twoFaEnabled: false,
+      twofa: ref(''),
     }),
     getters: {
 
@@ -39,19 +39,21 @@ export const useAuthStore = defineStore('auth', {
       email: string,
       password: string,
       isEmail: boolean,
-    ): Promise<IError | undefined> {
+    ): Promise<IError | undefined | boolean> {
       try {
         const resp = await api.signInLocal(email, password, isEmail);
-        const tokData = api.decodePayload(resp.data.tokens.accessToken);
-        console.log(resp.data.tokens.accessToken);
-        console.log(resp.data.tokens.refreshToken);
+        console.log('Lore ti vuole? ',resp.data.is2faEnabled);
         if (resp.data.is2faEnabled)
         {
           // Popup per inserire il codice
-
+          return true;
           //Chiamata @Post('local/signin/2fa'{verificationCode: string})
 
         }
+
+        const tokData = api.decodePayload(resp.data.tokens.accessToken);
+        console.log(resp.data.tokens.accessToken);
+        console.log(resp.data.tokens.refreshToken);
 
 
         this.setState(resp.data.tokens.accessToken, resp.data.tokens.refreshToken, false, resp.data.tokens.is2faEnabled);
@@ -61,6 +63,17 @@ export const useAuthStore = defineStore('auth', {
             // await useCurrentUserStore().initStore(resp.data.id);
             // await this.renewToken();
 		await useCurrentUserStore().initStore(tokData.id, tokData.email, this.twoFaEnabled);
+        router.push('/users/' + useCurrentUserStore().userId);
+  } catch (err) {
+        const e = err as AxiosError<IError>;
+        if (axios.isAxiosError(e)) return e.response?.data;
+      }
+    },
+
+    async signInLocal2fa (emailcode: string
+    ): Promise<IError | undefined> {
+      try {
+        const resp = await api.signInLocal2fa(emailcode);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
@@ -79,6 +92,7 @@ export const useAuthStore = defineStore('auth', {
 
         // await useCurrentUserStore().initStore(resp.data.id);
 		await useCurrentUserStore().initStore(tokData.id, tokData.email, this.twoFaEnabled);
+        router.push('/users/' + useCurrentUserStore().userId);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
@@ -130,6 +144,7 @@ export const useAuthStore = defineStore('auth', {
       // this.twoFaEnabled = resp.data.twoFaEnabled;
       // if (!this.twoFaEnabled)
       await useCurrentUserStore().initStore(tokData.id, tokData.email, this.twoFaEnabled);
+      router.push('/users/' + useCurrentUserStore().userId);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;

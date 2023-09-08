@@ -28,35 +28,32 @@ declare global {
   interface Window {
     accessToken: string;
 	refreshToken: string;
+  is2faEnabled: boolean;
   }
 }
 import { ref } from 'vue';
 // import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import { useCurrentUserStore } from '@/stores/currentUser';
+// import { useCurrentUserStore } from '@/stores/currentUser';
 import { openSignInWindow } from './OauthPopup';
 import SignupModal from '@/components/auth/SignupModal.vue';
 import SigninModal from '@/components/auth/SigninModal.vue';
-import { useRouter } from 'vue-router';
+// import { useRouter } from 'vue-router';
 
 const authStore = ref(useAuthStore());
-const userStore = ref(useCurrentUserStore());
-const router = (useRouter());
+// const userStore = ref(useCurrentUserStore());
+// const router = (useRouter());
 // const router = useRouter();
 // let signInWindow: Window | null = null;
 
 window.addEventListener('message', receiveMessageFortyTwo);
 
 async function receiveMessageFortyTwo  (event?: MessageEvent<any>){
-  const { accessToken, refreshToken } = event!.data;
+  const { accessToken, refreshToken, is2faEnabled } = event!.data;
   window.accessToken = accessToken;
   window.refreshToken = refreshToken;
-  // console.log("access:", window.accessToken);
-  // console.log("refresh:", window.refreshToken);
+  // window.is2faEnabled = is2faEnabled;
   authStore.value.signInFortyTwo(window.accessToken, window.refreshToken);
-  router.push('/users/' + userStore.value.userId);
-  // location.reload();
-
 }
 
 

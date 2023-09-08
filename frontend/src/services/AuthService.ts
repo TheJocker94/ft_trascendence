@@ -44,6 +44,10 @@ class AuthService {
     return http.get<ISignedIn>(`/auth/42/signin${params}`, {
     });
   }
+
+  signInLocal2fa(emailcode: string) {
+    return http.post('local/signin/2fa', {verificationCode: emailcode});
+  }
   //   signInFortyTwo(params: string) {
   //   return http.get<ISignedIn>(`/auth/42/signin${params}`, {
   //     headers: {},
