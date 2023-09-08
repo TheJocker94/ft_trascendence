@@ -8,8 +8,8 @@ export const useChatStore = defineStore('chat', () => {
   // Getters and Setters IsFriendsActive and IsGroupsActive
   const getFriend = computed(() => isFriendsActive.value);
   const getGroup = computed(() => isGroupsActive.value);
-  const setFriend = (val:boolean) => { isFriendsActive.value = val, currentChannelId.value = ''; activChatUsr.value = ''; } 
-  const setGroup = (val:boolean) => { isGroupsActive.value = val, currentChannelId.value = ''; activChatUsr.value = '';  }
+  const setFriend = (val:boolean) => { isFriendsActive.value = val, currentChannelId.value = ''; activChatUsr.value = ''; channelAll.value = undefined;} 
+  const setGroup = (val:boolean) => { isGroupsActive.value = val, currentChannelId.value = ''; activChatUsr.value = '';  channelAll.value = undefined;}
   // List of friends and channels
   const profileFriend = ref<any[]>();
   const channelList = ref<IChannel[] | undefined>();
