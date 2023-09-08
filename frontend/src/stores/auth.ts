@@ -62,7 +62,7 @@ export const useAuthStore = defineStore('auth', {
 				// if (!this.twoFaEnabled)
             // await useCurrentUserStore().initStore(resp.data.id);
             // await this.renewToken();
-		await useCurrentUserStore().initStore(tokData.id, tokData.email, this.twoFaEnabled);
+		await useCurrentUserStore().initStore(tokData.id, tokData.email, false);
         router.push('/users/' + useCurrentUserStore().userId);
   } catch (err) {
         const e = err as AxiosError<IError>;
@@ -70,11 +70,25 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async signInLocal2fa (emailcode: string
+    async signInLocal2fa (emailcode: string, email: string, isEmail: boolean
     ): Promise<IError | undefined> {
       try {
-        const resp = await api.signInLocal2fa(emailcode);
-      } catch (err) {
+        const resp = await api.signInLocal2fa(emailcode, email, isEmail);
+        console.log('Lore ti vuole tanto? ',resp.data);
+        const tokData = api.decodePayload(resp.data.accessToken);
+        console.log('bhobhe',resp.data.accessToken);
+        console.log(resp.data.refreshToken);
+
+
+        this.setState(resp.data.accessToken, resp.data.refreshToken, false, true);
+        console.log("token saved is", this.token)
+				// this.twoFaEnabled = resp.data.twoFaEnabled;
+				// if (!this.twoFaEnabled)
+            // await useCurrentUserStore().initStore(resp.data.id);
+            // await this.renewToken();
+		await useCurrentUserStore().initStore(tokData.id, tokData.email, true);
+        router.push('/users/' + useCurrentUserStore().userId);
+  } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
       }

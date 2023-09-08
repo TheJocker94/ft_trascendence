@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AuthDto } from './dto';
+import { AuthDto, TwoFaDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
@@ -88,18 +88,27 @@ export class AuthService {
     return { tokens, is2faEnabled: false };
   }
 
-  async verify2fa(userId: string, verificationCode: string): Promise<Tokens> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (user && user.emailVerificationCode === verificationCode) {
+  async verify2fa(dto: TwoFaDto): Promise<Tokens> {
+    let user;
+    if (dto.email) {
+      user = await this.prisma.user.findFirst({
+        where: { email: dto.email },
+      });
+    } else if (dto.username) {
+      user = await this.prisma.user.findFirst({
+        where: { username: dto.username },
+      });
+    }
+    if (user && user.emailVerificationCode === dto.verificationCode) {
       // Code is correct
+      console.log('verification code is correct');
       await this.prisma.user.update({
         where: { id: user.id },
         data: { emailVerificationCode: null },
       });
 
       const tokens = await this.getTokens(user.id, user.email);
+      console.log('tokens are being sent!', tokens);
       await this.updateRtHash(user.id, tokens.refreshToken);
       return tokens;
     }

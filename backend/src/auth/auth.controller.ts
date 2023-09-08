@@ -45,10 +45,9 @@ export class AuthController {
   @Post('local/signin/2fa')
   @HttpCode(HttpStatus.OK)
   async signin2FA(
-    @GetCurrUserId() userId,
     @Body() dto: TwoFaDto,
   ): Promise<Tokens> {
-    return this.authService.verify2fa(userId, dto.verificationCode);
+    return this.authService.verify2fa(dto);
   }
 
   @Post('logout')

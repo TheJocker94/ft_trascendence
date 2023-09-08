@@ -19,4 +19,14 @@ export class AuthDto {
 export class TwoFaDto {
   @IsNotEmpty()
   verificationCode: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  @ValidateIf((o) => !o.username)
+  email?: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ValidateIf((o) => !o.email)
+  username?: string;
 }

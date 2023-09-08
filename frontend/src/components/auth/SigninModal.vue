@@ -61,6 +61,7 @@ import type { IError } from '@/models/IError';
 // Router, authStore, credentials
 const auth = ref(useAuthStore());
 const twofa = ref(false);
+const isEmail = ref(false);
 const credentials = reactive({
   email:"",
   password:"",
@@ -84,29 +85,31 @@ function isError(obj: any): obj is IError {
 
 async function onSubmit2fa() {
   console.log("2fa");
-  try {
-    const e = await auth.value.signIn2fa(credentials.twofaCode);
-  } catch (e) {
-    console.log("danger", e.message);
-    return;
-  }
+    const e = await auth.value.signInLocal2fa(credentials.twofaCode, credentials.email, isEmail.value);
+    console.log("email", credentials.email, ":", isEmail.value);
+    credentials.twofaCode = "";
+    if (isError(e)) {
+      alert(e.message);
+      console.log("danger", e.message);
+      return;
+	}
 }
 
 async function onSubmit()
 {
 	console.log("Sommettiti");
 	let email: string | null = credentials.email;
-  let isEmail = false;
+  
 	// Check if the provided input is a username and not an email
 	if (!email.includes('@')) {
-    isEmail = false;
+    isEmail.value = false;
 	}
   else {
-    isEmail = true;
+    isEmail.value = true;
   }
 	console.log("pass", credentials.password);
 
-	const e = await auth.value.signInLocal(email, credentials.password, isEmail);
+	const e = await auth.value.signInLocal(email, credentials.password, isEmail.value);
   if (typeof e === 'boolean'){
     if (e === true)
       twofa.value = true;

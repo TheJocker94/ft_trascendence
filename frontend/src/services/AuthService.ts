@@ -45,8 +45,11 @@ class AuthService {
     });
   }
 
-  signInLocal2fa(emailcode: string) {
-    return http.post('local/signin/2fa', {verificationCode: emailcode});
+  signInLocal2fa(emailcode: string, email: string, isEmail: boolean) {
+    if (isEmail)
+      return http.post('/auth/local/signin/2fa', {verificationCode: emailcode, email: email});
+    else
+      return http.post('/auth/local/signin/2fa', { verificationCode: emailcode, username: email });
   }
   //   signInFortyTwo(params: string) {
   //   return http.get<ISignedIn>(`/auth/42/signin${params}`, {

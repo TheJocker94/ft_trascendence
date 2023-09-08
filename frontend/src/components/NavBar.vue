@@ -79,7 +79,7 @@
             <li class="dropdown-item">
               <button>
                 TwoFa
-                <input type="checkbox" class="toggle toggle-sm toggle-success" checked />
+                <input type="checkbox" class="toggle toggle-sm toggle-success" v-if="auth.twoFaEnabled" checked  @click="console.log('we Mario, it\'s me ', auth.twoFaEnabled)"/>
               </button>
               </li>
             
@@ -226,7 +226,6 @@ const showFriendRequest = ref(true);
 const showChannelInvite = ref(false);
 const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
-
 async function acceptRequest(userId: string) {
 	try {
 		await FriendService.acceptFriendship(userId);
@@ -272,6 +271,8 @@ const closeModal = () => {
 };
 
 const auth = ref(useAuthStore());
+console.log("2fa", auth.value.twoFaEnabled);
+
 const router = useRouter();
 // console.log("UserStore",userStore.value.username);
 const logout = () => {
