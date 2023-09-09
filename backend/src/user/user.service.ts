@@ -19,6 +19,7 @@ import {
   userUpdateMailDto,
   userUpdateNameDto,
 } from './dto';
+import { stat } from 'fs';
 
 @Injectable()
 export class UserService {
@@ -157,18 +158,38 @@ export class UserService {
     });
   }
 
-  async enable2fa(userId: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { is2faEnabled: true },
-    });
-  }
+  // async enable2fa(userId: string): Promise<boolean> {
+  //   await this.prisma.user.update({
+  //     where: { id: userId },
+  //     data: { is2faEnabled: true },
+  //   });
+  //   return true;
+  // }
 
-  async disable2fa(userId: string): Promise<void> {
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { is2faEnabled: false },
-    });
+  // async disable2fa(userId: string): Promise<boolean> {
+  //   await this.prisma.user.update({
+  //     where: { id: userId },
+  //     data: { is2faEnabled: false },
+  //   });
+  //   return false;
+  // }
+
+  async change2fa(userId: string): Promise<boolean> {
+    const status = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (status.is2faEnabled) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { is2faEnabled: false },
+      });
+      return false;
+    }
+    else {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { is2faEnabled: true },
+      });
+      return true;
+    }
   }
   
   async acceptFriendRequest(senderId: string, receiverId: string): Promise<void> {

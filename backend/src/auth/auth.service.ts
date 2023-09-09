@@ -149,7 +149,7 @@ export class AuthService {
 		);
   
 		return {
-		  is2faEnabled: true,
+		  is2faEnabled: true, email: user.email
 		};
 	  }
     const tokens = await this.getTokens(user.id, user.email);

@@ -12,18 +12,15 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
       token: useLocalStorage('token', ''),
       refreshToken: useLocalStorage('refreshToken', ''),
-      registerInProgress: useLocalStorage('registerInProgress', false),
       needsRefresh: false,
-      twoFaEnabled: false,
+      twoFaEnabled:useLocalStorage('twoFaEnabled', false),
       twofa: ref(''),
     }),
     getters: {
 
     isLoggedIn() {
-      if (this.registerInProgress || this.token === '')
+      if (this.token === '')
 				return false;
-			// if (state.twoFaEnabled && !state.twoFaAuthenticated)
-			// 	return false;
 			return true;
 		},
     tokenBearer(): string {
@@ -44,25 +41,11 @@ export const useAuthStore = defineStore('auth', {
         const resp = await api.signInLocal(email, password, isEmail);
         console.log('Lore ti vuole? ',resp.data.is2faEnabled);
         if (resp.data.is2faEnabled)
-        {
-          // Popup per inserire il codice
           return true;
-          //Chiamata @Post('local/signin/2fa'{verificationCode: string})
-
-        }
-
         const tokData = api.decodePayload(resp.data.tokens.accessToken);
-        console.log(resp.data.tokens.accessToken);
-        console.log(resp.data.tokens.refreshToken);
-
-
-        this.setState(resp.data.tokens.accessToken, resp.data.tokens.refreshToken, false, resp.data.tokens.is2faEnabled);
+        this.setState(resp.data.tokens.accessToken, resp.data.tokens.refreshToken, resp.data.tokens.is2faEnabled);
         console.log("token saved is", this.token)
-				// this.twoFaEnabled = resp.data.twoFaEnabled;
-				// if (!this.twoFaEnabled)
-            // await useCurrentUserStore().initStore(resp.data.id);
-            // await this.renewToken();
-		await useCurrentUserStore().initStore(tokData.id, tokData.email, false);
+		await useCurrentUserStore().initStore(tokData.id, tokData.email);
         router.push('/users/' + useCurrentUserStore().userId);
   } catch (err) {
         const e = err as AxiosError<IError>;
@@ -78,15 +61,9 @@ export const useAuthStore = defineStore('auth', {
         const tokData = api.decodePayload(resp.data.accessToken);
         console.log('bhobhe',resp.data.accessToken);
         console.log(resp.data.refreshToken);
-
-
-        this.setState(resp.data.accessToken, resp.data.refreshToken, false, true);
+        this.setState(resp.data.accessToken, resp.data.refreshToken, true);
         console.log("token saved is", this.token)
-				// this.twoFaEnabled = resp.data.twoFaEnabled;
-				// if (!this.twoFaEnabled)
-            // await useCurrentUserStore().initStore(resp.data.id);
-            // await this.renewToken();
-		await useCurrentUserStore().initStore(tokData.id, tokData.email, true);
+		await useCurrentUserStore().initStore(tokData.id, tokData.email);
         router.push('/users/' + useCurrentUserStore().userId);
   } catch (err) {
         const e = err as AxiosError<IError>;
@@ -94,18 +71,23 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    async change2fa(): Promise<IError | undefined> {
+      try {
+        const resp = await api.change2fa();
+        console.log('Lore ti vuole? ',resp.data);
+        this.twoFaEnabled = resp.data;
+  } catch (err) {
+        const e = err as AxiosError<IError>;
+        if (axios.isAxiosError(e)) return e.response?.data;
+      }
+  },
+
     async signUpLocal(email: string, username:string, password: string){
       try {
         const resp = await api.signUpLocal(email, username, password);
         const tokData = api.decodePayload(resp.data.accessToken);
-        // console.log("Acces token is",resp.data.access_token.accesToken)
-        // this.setState(resp.data.accessToken, resp.data.refreshToken, true); //questo giusto dopo per ora facciamo registration false
-        this.setState(resp.data.accessToken, resp.data.refreshToken);
-        console.log(this.token)
-				// this.twoFaEnabled = resp.data.twoFaEnabled;
-
-        // await useCurrentUserStore().initStore(resp.data.id);
-		await useCurrentUserStore().initStore(tokData.id, tokData.email, this.twoFaEnabled);
+        this.setState(resp.data.accessToken, resp.data.refreshToken, false);
+		await useCurrentUserStore().initStore(tokData.id, tokData.email);
         router.push('/users/' + useCurrentUserStore().userId);
       } catch (err) {
         const e = err as AxiosError<IError>;
@@ -123,41 +105,14 @@ export const useAuthStore = defineStore('auth', {
         // Handle token renewal error here
       }
     },
-    // google
-    // async signInGoogle(params: string): Promise<IError | undefined> {
-    //   try {
-    //     const resp = await api.signInGoogle(params);
-    //     this.setState(resp.data.access_token);
-	// 			this.twoFaEnabled = resp.data.twoFaEnabled;
-
-	// 			if (!this.twoFaEnabled)
-    //         await useCurrentUserStore().initStore(resp.data.id);
-    //   } catch (err) {
-    //     const e = err as AxiosError<IError>;
-    //     if (axios.isAxiosError(e)) return e.response?.data;
-    //   }
-    // },
-    // async signUpGoogle(params: string) {
-    //   try {
-    //     const resp = await api.signUpGoogle(params);
-    //     this.setState(resp.data.access_token, true);
-	// 			this.twoFaEnabled = resp.data.twoFaEnabled;
-
-    //     await useCurrentUserStore().initStore(resp.data.id);
-    //   } catch (err) {
-    //     const e = err as AxiosError<IError>;
-    //     if (axios.isAxiosError(e)) return e.response?.data;
-    //   }
-    // },
-
+    
     // 42
     async signInFortyTwo(accessToken: string, refreshToken: string): Promise<IError | undefined> {
       try {
       const tokData = api.decodePayload(accessToken);
-      this.setState(accessToken, refreshToken);
-      // this.twoFaEnabled = resp.data.twoFaEnabled;
-      // if (!this.twoFaEnabled)
-      await useCurrentUserStore().initStore(tokData.id, tokData.email, this.twoFaEnabled);
+      // inserire 2fa value della 42
+      this.setState(accessToken, refreshToken, false);
+      await useCurrentUserStore().initStore(tokData.id, tokData.email);
       router.push('/users/' + useCurrentUserStore().userId);
       } catch (err) {
         const e = err as AxiosError<IError>;
@@ -178,13 +133,12 @@ export const useAuthStore = defineStore('auth', {
     // },
 	async initStoreasync(){
 		if (this.token)
-      await useCurrentUserStore().initStore(null, null, this.twoFaEnabled);
+      await useCurrentUserStore().initStore(null, null);
     },
 
-    setState(token: string, refreshToken: string,  registerInProgress: boolean = false, is2faEnabled: boolean = false){
+    setState(token: string, refreshToken: string, is2faEnabled: boolean){
       this.token = token;
       this.refreshToken = refreshToken;
-      this.registerInProgress = registerInProgress;
       this.twoFaEnabled = is2faEnabled;
     },
 
@@ -201,7 +155,6 @@ export const useAuthStore = defineStore('auth', {
       localStorage.clear();
       this.token = '';
       this.refreshToken = '';
-      this.registerInProgress = false;
       useCurrentUserStore().$reset();
     }
   },

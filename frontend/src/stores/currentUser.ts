@@ -22,7 +22,6 @@ export const useCurrentUserStore = defineStore('currentUser', {
     // Game info
     roomId: '',
     playerNo: 0,
-    twoFaEnabled: false,
     // friendLists: {
     //   friends: [],
     //   pendings: [],
@@ -41,13 +40,11 @@ export const useCurrentUserStore = defineStore('currentUser', {
 	// 	},
   // },
   actions: {
-    async initStore(userId: string | null, email: string | null, twoFaEnabled: boolean | null) {
+    async initStore(userId: string | null, email: string | null) {
       if (userId)
         this.userId = userId;
       if (email)
         this.email = email;
-      if (twoFaEnabled)
-        this.twoFaEnabled = twoFaEnabled;
       try {
         /*
         Da implementare chiamate User

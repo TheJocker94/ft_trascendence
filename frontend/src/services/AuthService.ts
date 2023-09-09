@@ -51,6 +51,10 @@ class AuthService {
     else
       return http.post('/auth/local/signin/2fa', { verificationCode: emailcode, username: email });
   }
+
+  change2fa() {
+    return http.post('/user/change2fa');
+  }
   //   signInFortyTwo(params: string) {
   //   return http.get<ISignedIn>(`/auth/42/signin${params}`, {
   //     headers: {},

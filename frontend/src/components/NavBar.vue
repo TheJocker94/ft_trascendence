@@ -79,7 +79,13 @@
             <li class="dropdown-item">
               <button>
                 TwoFa
-                <input type="checkbox" class="toggle toggle-sm toggle-success" v-if="auth.twoFaEnabled" checked  @click="console.log('we Mario, it\'s me ', auth.twoFaEnabled)"/>
+                <div v-if="auth.twoFaEnabled" @click="auth.change2fa(); console.log('we Mario, it\'s me ', auth.twoFaEnabled)">
+                  <input type="checkbox" class="toggle toggle-sm toggle-success" checked />
+
+                </div>
+                <div v-else-if="!auth.twoFaEnabled" @click="auth.change2fa();console.log('we Mario, it\'s me ', auth.twoFaEnabled)">
+                  <input class="toggle toggle-sm toggle-success "/>
+                </div>
               </button>
               </li>
             
@@ -247,11 +253,10 @@ const showChannelInvite = ref(false);
 const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
 const gamerStore = ref(useGameInviteStore());
-
 onMounted(async () => {
 	await userStore.value.initStore(null, null, null);
 	if (authStore.value.isLoggedIn){
-	  socketGame.auth = { token: authStore.value.token }
+    socketGame.auth = { token: authStore.value.token }
   socketGame.connect();
   socketGame.on('welcome', (data: any) => {
 	console.log(data);

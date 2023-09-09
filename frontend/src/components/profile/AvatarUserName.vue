@@ -101,7 +101,7 @@ onMounted(async () => {
 	socketGame.connect();
 	// This can be used for testing the connection
 	socketGame.on('connect', function() {
-    	console.log('Connected to the server. Socket ID:', socketGame.id);
+    console.log('Connected to the server. Socket ID:', socketGame.id);
 	});
 	socketGame.on('welcome', (data: any) => {
 		console.log(data);

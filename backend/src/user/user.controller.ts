@@ -161,16 +161,10 @@ export class UserController {
     return this.userService.getBlockedUsers(userId);
   }
 
-  @Post('enable2fa')
+  @Post('change2fa')
   @HttpCode(HttpStatus.CREATED)
-  async enable2fa(@GetCurrUserId() userId: string): Promise<any> {
-    await this.userService.enable2fa(userId);
-  }
-
-  @Post('disable2fa')
-  @HttpCode(HttpStatus.CREATED)
-  async disable2fa(@GetCurrUserId() userId: string): Promise<any> {
-    await this.userService.enable2fa(userId);
+  async change2fa(@GetCurrUserId() userId: string): Promise<boolean> {
+    return await this.userService.change2fa(userId);
   }
 
   @Post('delete')
