@@ -1,6 +1,6 @@
 <template>
   <div v-if="profileBlocked">
-      <h4 class="text-sm text-center my-2 font-semibold text-white-700">Blocked</h4>
+      <h4 class="text-sm text-center my-2 font-semibold text-white-700 mt-2">Blocked</h4>
       <div class="avatar-group -space-x-6 flex justify-center items-center">
         <!-- Loop through the first 5 friends -->
         <div class="avatar" v-for="friend in profileBlocked!.slice(0, 5)" :key="friend.id">

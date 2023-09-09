@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-center space-x-4 mb-3">
+  <div class="flex justify-center space-x-4 mb-3 mt-4">
     <div class="card w-125 h-50 bg-green-900 shadow-xl p-4">
       <div class="flex flex-col items-center justify-center h-full">
         <h2 class="card-title text-lg mb-1">Rules</h2>

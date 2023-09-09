@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <div class="max-w-sm h-auto mx-auto my-20 rounded-md overflow-hidden shadow-lg">
+    <div class="max-w-md h-auto mx-auto my-20 rounded-md overflow-hidden shadow-lg">
       <!-- boh --> 
       <Suspense>
         <template #fallback>
@@ -45,7 +45,7 @@ watchEffect(async () => {
   console.log("userId is ", userId.value);
 
   if (currentUser.value.userId)
-    await currentUser.value.initStore(null, null, null);
+    await currentUser.value.initStore(null, null);
 
 });
 

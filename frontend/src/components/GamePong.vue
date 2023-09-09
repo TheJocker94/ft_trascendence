@@ -127,12 +127,14 @@ socketGame.on('gameCreated', function (data) {
 <template>
   <div class="flex flex-col items-center justify-center mt-45">
     <div v-if="!press" class="flex flex-col items-center">
-      <button @click="createGame(), press = true" class="btn  btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-4">Create Game</button>
+      <button @click="createGame(), press = true" class="btn btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-3 mt-4">Create Game</button>
       <!-- <button @click="joinGame()" class="btn  btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">Join Game</button> -->
     </div>
     <div v-if="leaveQ" class="flex flex-col items-center">
-      <span class="loading loading-spinner loading-lg"></span>
-      <button @click="exitQueue(), leaveQ = false, press = false" class="btn  btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-4">Leave Matchmaking</button>
+	  <button class="btn no-animation btn-accent btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-3 mt-4">Searching for a player
+        <span class="loading loading-spinner loading-lg"></span>
+	  </button>
+      <button @click="exitQueue(), leaveQ = false, press = false" class="btn  btn-neutral btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-4 mt-4">Leave Matchmaking</button>
       <!-- <button @click="joinGame()" class="btn  btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">Join Game</button> -->
     </div>
     <div v-if="goGame">
