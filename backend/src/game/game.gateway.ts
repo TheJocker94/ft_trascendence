@@ -10,6 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { GameService } from './game.service';
 import type { IRoom } from './models/IGame';
 import { GameQueue } from './models/GameQueue';
+import { GameInviteQueue } from './models/GameInviteQueue'; //* nizz
 import { Server, Socket } from 'socket.io';
 @WebSocketGateway({
   namespace: '/game',
@@ -31,6 +32,7 @@ export class GameGateway {
   server: Server;
   users = 0;
   private queue: GameQueue = new GameQueue();
+  private inviteQueue: GameInviteQueue = new GameInviteQueue(); //* nizz
   private inGame: string[] = [];
   //interface room
   private Rooms: IRoom[] = [];
@@ -54,6 +56,34 @@ export class GameGateway {
     console.log('User connected:', userId);
     console.log('Users in server are ', this.usersConnected);
   }
+
+  //* ------------------------------- nizz start ------------------------------- */
+
+	@SubscribeMessage('joinGameInviteQueue')
+	handleGameInvite(@ConnectedSocket() client: Socket): void {
+		if (this.inGame.includes(client.data.userId))
+			return;
+		this.inviteQueue.add(client);
+		this.checkGameInvteQueue();
+	}
+
+	//! from here on the functions should be placed in the unMounted
+	@SubscribeMessage('removeAcceptedInvite')
+  handleLeaveInviteQueue(@ConnectedSocket() client: Socket): void {
+    console.log('Leave queue received');
+    this.inviteQueue.remove(client);
+  }
+
+	@SubscribeMessage('readyInvite')
+  handleReadyInvite(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): void {
+    console.log('Ready received');
+    this.server.to(data.room).emit('start', data.player);
+  }
+
+//* -------------------------------- nizz end -------------------------------- */
 
   @SubscribeMessage('joinQueue')
   handleJoinQueue(@ConnectedSocket() client: Socket): void {
@@ -332,6 +362,35 @@ export class GameGateway {
   }
 
   // Utility function to start the game
+
+	//* ------------------------------- start nizz ------------------------------- */
+
+	private async checkGameInvteQueue() {
+		let playersSockets: Socket[];
+		if (this.inviteQueue.size() < 2)
+		{
+			console.log("first time i got inside here");
+			return;
+		}
+		else {
+		  playersSockets = this.inviteQueue.pop2();
+		  this.inGame.push(playersSockets[0].data.userId);
+		  this.inGame.push(playersSockets[1].data.userId);
+		  const gameId = await this.createGame([
+				playersSockets[0].data.userId,
+				playersSockets[1].data.userId,
+		  ]);
+		  playersSockets[0].emit('playerInviteNo', { player: 1, room: gameId });
+		  playersSockets[1].emit('playerInviteNo', { player: 2, room: gameId });
+		  playersSockets[0].join(gameId);
+		  playersSockets[1].join(gameId);
+		  this.server.to(gameId).emit('startingInviteGame', this.Rooms[parseInt(gameId)]);
+				this.Rooms[parseInt(gameId)].players[0].minimized = false;
+				this.Rooms[parseInt(gameId)].players[1].minimized = false;
+		}
+	}
+	
+	//* -------------------------------- end nizz -------------------------------- */
 
   private async checkQueue() {
     let playersSockets: Socket[];

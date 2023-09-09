@@ -179,7 +179,7 @@
 										{{ invite.username }}
 										
 										<!-- Accept button -->
-										<button @click="acceptRequest(invite.id)"> <i class="fa-solid fa-circle-check" style="color: #21b02b;"></i> </button>
+										<button @click="acceptGameInviteRequest(invite.id)"> <i class="fa-solid fa-circle-check" style="color: #21b02b;"></i> </button>
 										
 										<!-- Reject button -->
 										<button @click="declineGameInviteRequest(invite.id)"><i class="fa-solid fa-circle-xmark" style="color: #d41616;"></i></button>
@@ -198,6 +198,16 @@
 					</dialog>
 				</div>
     </div>
+		<!-- <div v-if="goGame"> -->
+      <!-- <Suspense>
+        <PhaserContainer />
+        <template #fallback>
+          <div class="placeholder">
+            Downloading ...
+          </div>
+        </template>
+      </Suspense> -->
+    <!-- </div> -->
   </div>
 </template>
 
@@ -214,18 +224,104 @@ import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
 import GameInviteService from '@/services/GameInviteService';
 import { useGameInviteStore } from '@/stores/gameInvite';
+// import { socketNoti } from '@/plugins/Socket.io';
+import { onMounted, onUnmounted } from 'vue'
+import PhaserContainer from '@/components/PhaserContainer.vue'
+import { socketGame } from '@/plugins/Socket.io';
+import { watch } from 'vue';
 
 // onBeforeRouteLeave(() => {
 //   closeAllDropdowns();
 //   return true; // Allow the route change to proceed
 // });
+const authStore = ref(useAuthStore());
 const friendStore = ref(useFriendStore());
 const gameInviteStore = ref(useGameInviteStore());
+
+const press = ref(false);
+const leaveQ = ref(false);
+const goGame = ref(false);
 
 const showFriendRequest = ref(true);
 const showChannelInvite = ref(false);
 const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
+const gamerStore = ref(useGameInviteStore());
+
+onMounted(async () => {
+	await userStore.value.initStore(null, null, null);
+	if (authStore.value.isLoggedIn){
+	  socketGame.auth = { token: authStore.value.token }
+  socketGame.connect();
+  socketGame.on('welcome', (data: any) => {
+	console.log(data);
+  });
+}
+});
+
+// watch(goGame, (newValue: boolean) => {
+// 	if (newValue) {
+// 		console.log("navbar gogame");
+// 		router.push('/gameInvite');
+// 	}
+// });
+
+const isBrowserMinimized = ref(false);
+const handleVisibilityChange = () => {
+  isBrowserMinimized.value = document.hidden;
+  if (isBrowserMinimized.value === true && userStore.value.roomId) {
+			socketGame.emit('pause', {room: userStore.value.roomId, player : userStore.value.playerNo});
+  }
+	else if (isBrowserMinimized.value === false && userStore.value.roomId)
+		socketGame.emit('unpause', {room: userStore.value.roomId, player : userStore.value.playerNo}); 
+};
+
+onMounted(() => {
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+});
+
+
+const teardown = () => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+};
+
+// On leaving the page
+onUnmounted(() => {
+	teardown();
+  socketGame.disconnect();
+})
+
+const createGame = () => {
+	console.log("create game")
+  socketGame.emit('joinGameInviteQueue');
+  leaveQ.value = true;
+}
+
+socketGame.on('playerInviteNo', function (data) {
+    console.log("Game Created! ID room is: " + data.room)
+    console.log('Your id is: ' + data.player);
+    userStore.value.initGame(data.room, data.player);
+});
+
+socketGame.on('startingInviteGame', function (data) {
+    console.log("Game Created! ID room is: " + data)
+    goGame.value = true;
+		gameInviteStore.value.renderer = true;
+    leaveQ.value = false;
+    press.value = true;
+		router.push('/gameInvite');
+    //alert("Game Created! ID is: "+ JSON.stringify(data));
+});
+
+const closeAllDropdowns = () => {
+  // Close all dropdowns
+  const dropdowns = document.querySelectorAll('.dropdown-content');
+  dropdowns.forEach(dropdown => {
+    dropdown.classList.remove('open'); // Assuming 'open' class makes the dropdown visible
+  });
+};
+
+
 async function acceptRequest(userId: string) {
 	try {
 		await FriendService.acceptFriendship(userId);
@@ -253,6 +349,19 @@ async function declineGameInviteRequest(userId: string) {
 		await GameInviteService.endGameInvite(userId);
 		gameInviteStore.value.updatePendings(userStore.value.userId);
 		gameInviteStore.value.updateFriends();
+	} catch (err) {
+		const e = err as AxiosError<IError>;
+		if (axios.isAxiosError(e)) return e.response?.data;
+	}
+}
+
+async function acceptGameInviteRequest(userId: string) {
+	try {
+		createGame();
+		await GameInviteService.acceptGameInvite(userId);
+		gameInviteStore.value.updatePendings(userStore.value.userId);
+		gameInviteStore.value.updateFriends();
+		declineGameInviteRequest(userId);
 	} catch (err) {
 		const e = err as AxiosError<IError>;
 		if (axios.isAxiosError(e)) return e.response?.data;
@@ -307,5 +416,10 @@ const logout = () => {
   padding: 20px; /* Reset padding */
   box-sizing: border-box; /* Ensure padding and borders are included in the total width and height */
   width: 60%; /* Set a specific width; adjust as needed */
+}
+
+.placeholder {
+  font-size: 2rem;
+  font-family: 'Courier New', Courier, monospace;
 }
 </style>

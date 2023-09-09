@@ -5,8 +5,18 @@ import NavBar from './components/NavBar.vue';
 import { useAuthStore } from './stores/auth';
 import { useCurrentUserStore } from './stores/currentUser';
 import { ref, onBeforeMount } from 'vue';
+// import { socketNoti } from './plugins/Socket.io';
+import { socketGame } from './plugins/Socket.io';
+
 const authStore = ref(useAuthStore());
 const userStore = ref(useCurrentUserStore());
+if (authStore.value.isLoggedIn){
+	  socketGame.auth = { token: authStore.value.token }
+  socketGame.connect();
+  socketGame.on('welcome', (data: any) => {
+	console.log(data);
+  });
+}
 onBeforeMount( async () => {
   if (userStore.value.userId)
     await userStore.value.initStore(null, null, null);

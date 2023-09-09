@@ -53,6 +53,7 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrUserId() userId: string) {
+	console.log("oh dio ", userId);
     return this.authService.logout(userId);
   }
 

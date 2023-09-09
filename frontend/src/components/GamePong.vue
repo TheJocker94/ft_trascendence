@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import PhaserContainer from '@/components/PhaserContainer.vue'
-import { socketGame } from '@/plugins/Socket.io';
+import { socketGame/*, socketNoti */} from '@/plugins/Socket.io';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { useAuthStore } from '@/stores/auth';
 import { onMounted, onUnmounted, ref } from 'vue'
@@ -25,8 +25,8 @@ onMounted(async () => {
   });
 })
 
-const isBrowserMinimized = ref(false);
 
+const isBrowserMinimized = ref(false);
 const handleVisibilityChange = () => {
   isBrowserMinimized.value = document.hidden;
   if (isBrowserMinimized.value === true && userStore.value.roomId) {
@@ -80,6 +80,7 @@ onUnmounted(() => {
   socketGame.off('hitPaddleServer');
   socketGame.off('start');
   socketGame.disconnect();
+	/*socketNoti.connect();*/
 })
 // Create a game
 const createGame = () => {

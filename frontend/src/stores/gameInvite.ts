@@ -9,10 +9,12 @@ export const useGameInviteStore = defineStore('game', {
 			friends: IGInvite[];
 			pending: IGInvite[];
 			sent: IGInvite[];
+			renderer: boolean;
     } => ({
 			friends: [],
 			pending: [],
 			sent: [],
+			renderer: false,
     }),
 
 	actions: {
