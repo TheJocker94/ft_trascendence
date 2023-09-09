@@ -30,3 +30,17 @@ export class TwoFaDto {
   @ValidateIf((o) => !o.email)
   username?: string;
 }
+
+export class SignInDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+
+  @IsNotEmpty()
+  @IsString()
+  username: string;
+}

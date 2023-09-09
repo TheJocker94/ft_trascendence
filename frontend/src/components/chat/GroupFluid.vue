@@ -91,6 +91,7 @@ const getChannel = (id: string) => {
 const changeChannel = (channelName: string, id: string) => {
   getChannel(id);
   chat.value.setActivChatUsr(channelName);
+  socket.emit('isUserInCh', { sender: userStore.value.userId, id: id });
 };
 
 const changeDirect = (username: string) => {

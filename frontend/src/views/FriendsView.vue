@@ -528,9 +528,7 @@ const imAdmin = () => {
         return false;
 }
 
-const imIn = ref(() => {
-    if (channelAll.value?.members === undefined)
-        return false;
+const imIn = ref(() => {   
     const ret = channelAll.value?.members.find(member => member.userId === userStore.value.userId);
     if (ret)
         return true;

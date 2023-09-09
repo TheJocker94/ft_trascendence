@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto, TwoFaDto } from './dto';
+import { AuthDto, SignInDto, TwoFaDto } from './dto';
 import { Tokens } from './types';
 import { FortyTwoAuthGuard, RtGuard } from './common/guards';
 import { GetCurrUser, GetCurrUserId, Public } from './common/decorators';
@@ -29,7 +29,7 @@ export class AuthController {
   @Public()
   @Post('local/signup')
   @HttpCode(HttpStatus.CREATED)
-  signupLocal(@Body() dto: AuthDto): Promise<Tokens> {
+  signupLocal(@Body() dto: SignInDto): Promise<Tokens> {
     return this.authService.signupLocal(dto);
   }
 

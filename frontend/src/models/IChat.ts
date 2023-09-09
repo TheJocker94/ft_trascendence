@@ -47,7 +47,6 @@ export interface ISingleCh{
     id: string,
     type: string,
     name: string,
-    password: string,
     messages: IMessageChannel[],
     members: IMember[],
 }

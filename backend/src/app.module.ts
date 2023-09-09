@@ -5,9 +5,10 @@ import { AtGuard } from './auth/common/guards';
 import { UserModule } from './user/user.module';
 import { ChatModule } from './chat/chat.module';
 import { GameModule } from './game/game.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UserModule, ChatModule, GameModule],
+  imports: [PrismaModule, AuthModule, UserModule, ChatModule, GameModule, ScheduleModule.forRoot()],
   providers: [
     {
       provide: 'APP_GUARD',
@@ -15,4 +16,5 @@ import { GameModule } from './game/game.module';
     },
   ],
 })
+
 export class AppModule {}

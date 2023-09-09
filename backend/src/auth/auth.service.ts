@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AuthDto, TwoFaDto } from './dto';
+import { AuthDto, SignInDto, TwoFaDto } from './dto';
 import * as bcrypt from 'bcrypt';
 import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
@@ -15,7 +15,7 @@ export class AuthService {
     private sendEmailService: SendEmailService,
   ) {}
 
-  async signupLocal(dto: AuthDto): Promise<Tokens> {
+  async signupLocal(dto: SignInDto): Promise<Tokens> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });

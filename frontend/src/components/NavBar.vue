@@ -18,7 +18,7 @@
           <li>
                 <RouterLink
                 to="/game"
-                
+                c
                 >
                 Game
                 </RouterLink>

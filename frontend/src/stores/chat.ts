@@ -37,8 +37,13 @@ export const useChatStore = defineStore('chat', () => {
   const chatDiv = ref(EChat.CHAT);
   const getChatDiv = computed(() => chatDiv.value);
   const setChatDiv = (val:EChat) => { chatDiv.value = val }
+
+  // flag im in channel
+  const flagImIn = ref(false);
+  const getFlagImIn = computed(() => flagImIn.value);
+  const setFlagImIn = (val:boolean) => {flagImIn.value = val, console.log('flagImIn', flagImIn.value) };
   return { isGroupsActive, isFriendsActive, getFriend, getGroup, setFriend, setGroup, profileFriend, channelList, channelAll,
           activChatUsr, currentChannelId, setActivChatUsr, setCurrentChannelId, getActivChatUsr, getCurrentChannelId,
           getChannelList, setChannelList, getChannelAll, setChannelAll, setProfileFriend, getProfileFriend,
-          numDiv, getNumDiv, setNumDiv, chatDiv, getChatDiv, setChatDiv }
+          numDiv, getNumDiv, setNumDiv, chatDiv, getChatDiv, setChatDiv, flagImIn, getFlagImIn, setFlagImIn }
 })

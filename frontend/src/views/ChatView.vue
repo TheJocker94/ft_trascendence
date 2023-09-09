@@ -79,7 +79,7 @@
                               />
                           <div class="chat-area flex-1 flex flex-col">
                               <ChatFluid 
-                                v-if="chat.getChatDiv === EChat.CHAT" 
+                                v-if="chat.getChatDiv === EChat.CHAT"
                               />
                               <SelectChatGroups v-if="chat.getChatDiv === EChat.SELECT"
                                 @friendsClicked="chat.setFriend(true), chat.setGroup(false)"
@@ -89,6 +89,7 @@
                                 v-if="chat.getChatDiv === EChat.GROUP"
                             />
                           </div>
+                                                   
                       </div>
                   </div>
               </div>
@@ -107,6 +108,20 @@ import ChatFluid from "@/components/chat/ChatFluid.vue";
 import GroupFluid from "@/components/chat/GroupFluid.vue";
 import { nextTick } from 'vue';
 import SelectChatGroups from "@/components/chat/SelectChatGroups.vue";
+
+socket.on('gettingSingleChannel', (data: any) => {
+  console.log('userstore valore: ' + userStore.value.userId);
+  console.log('channelID in getSingle: ' + data.id);
+    socket.emit('isUserInCh', { sender: userStore.value.userId, id: data.id });
+  })
+
+socket.on ('isUserInChannel', (channelIn: boolean | string) => {
+    if (channelIn === 'BANNED')
+        alert('You are banned from this channel');
+    else
+      chat.value.setFlagImIn(channelIn as boolean);
+    console.log('Valore di flagImIn Dopo: ' + channelIn);
+})
 import { useChatStore } from "@/stores/chat";
 // Gestione responsive
 const chat = ref(useChatStore());
@@ -161,27 +176,11 @@ watchEffect(() => {
   friendPic();
 });
 
-const formattedTime = (date: any) => {
-  if (typeof date === 'string') {
-      date = new Date(date);
-  }
-  if (!(date instanceof Date)) {
-      console.log("date is NOT a Date object:", date);
-      return "";
-  }
-
-  const hours = date.getUTCHours();
-  const minutes = date.getUTCMinutes();
-  const formattedTime = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
-
-  return formattedTime;
-};
-
-
 const getChannelList = () => {
   socket.emit('channelList');
 };
 
+//TODO
 // const getChannel = (id: string) => {
 // 	socket.emit('getChannel', { id: id });
 // 	if (id === chat.value.getCurrentChannelId) {
@@ -195,13 +194,11 @@ socket.on('singleChannelServer', (channel: ISingleCh) => {
   console.log(channel);
   chat.value.setChannelAll(channel);
 });
+
 socket.on('groupListServer', (chList: IChannel[]) => {
   chat.value.setChannelList(chList);
 });
 
-// socket.on('groupCreated' => {
-
-// })
 
 socket.on('updateChannelList', () => {
   socket.emit('channelList');
@@ -244,6 +241,7 @@ onUnmounted(() => {
 // const changeChannel = (channelName: string, id: string) => {
 //   getChannel(id);
 //   sendUsername(channelName);
+//  socket.emit('isUserInCh', { sender: userStore.value.userId, id: id });
 // };
 
 // const changeDirect = (username: string) => {

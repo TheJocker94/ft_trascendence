@@ -21,3 +21,11 @@ export class ChannelMembershipDto {
     status: string;
 	notRead: number;
 }
+
+export class SingleChannelDto {
+    id: string;
+    name: string;
+    type: string;
+    messages: MessageDto[];
+    members: ChannelMembershipDto[];
+}
