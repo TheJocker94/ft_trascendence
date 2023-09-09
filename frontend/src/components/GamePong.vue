@@ -126,7 +126,7 @@ socketGame.on('gameCreated', function (data) {
 
 <template>
   <div class="flex flex-col items-center justify-center mt-45">
-    <div v-if="!press" class="flex flex-col items-center">
+	  <div v-if="!press" class="flex flex-col items-center">
       <button @click="createGame(), press = true" class="btn btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-3 mt-4">Create Game</button>
       <!-- <button @click="joinGame()" class="btn  btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">Join Game</button> -->
     </div>
