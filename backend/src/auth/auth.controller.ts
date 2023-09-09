@@ -53,7 +53,6 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@GetCurrUserId() userId: string) {
-	console.log("oh dio ", userId);
     return this.authService.logout(userId);
   }
 
@@ -81,14 +80,15 @@ export class AuthController {
   @Get('42')
   async callback_42(@Req() request: any, @Res() response: Response) {
     const profile = request.user;
-    const tokens = await this.authService.signin42(profile);
+
+    return await this.authService.signin42(profile);
     // response.send(tokens);
     // window.opener.postMessage({ accessToken: 'YOUR_ACCESS_TOKEN', refreshToken: 'YOUR_REFRESH_TOKEN' }, '*');
-    const script = `
-        <script>
-		window.opener.postMessage(${JSON.stringify(tokens)}, '*');
-		window.close(); // Close the popup after sending the message
-        </script>`;
-    response.send(script);
+    // const script = `
+    //     <script>
+	// 	window.opener.postMessage(${JSON.stringify(tokens)}, '*');
+	// 	window.close(); // Close the popup after sending the message
+    //     </script>`;
+    // response.send(script);
   }
 }

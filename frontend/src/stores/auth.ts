@@ -87,7 +87,7 @@ export const useAuthStore = defineStore('auth', {
             // await useCurrentUserStore().initStore(resp.data.id);
             // await this.renewToken();
 		await useCurrentUserStore().initStore(tokData.id, tokData.email, true);
-        // router.push('/users/' + useCurrentUserStore().userId);
+        router.push('/users/' + useCurrentUserStore().userId);
   } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
@@ -106,7 +106,7 @@ export const useAuthStore = defineStore('auth', {
 
         // await useCurrentUserStore().initStore(resp.data.id);
 		await useCurrentUserStore().initStore(tokData.id, tokData.email, this.twoFaEnabled);
-        // router.push('/users/' + useCurrentUserStore().userId);
+        router.push('/users/' + useCurrentUserStore().userId);
       } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;

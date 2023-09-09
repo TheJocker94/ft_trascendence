@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
 import { SendEmailService } from './2fa/2fa.service';
+import { async } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -60,9 +61,7 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(dto.password, user.hash))) {
       throw new Error('Invalid credentials');
     }
-    console.log('USER 2FA BACKEND : ',user.is2faEnabled);
     if (user.is2faEnabled === true) {
-    console.log('USER 2FA BACKEND dentro if: ',user.is2faEnabled);
       const verificationCode = this.generateVerificationCode();
 
       await this.prisma.user.update({
@@ -116,7 +115,7 @@ export class AuthService {
     throw new Error('Invalid verification code');
   }
 
-  async signin42(profile: any): Promise<Tokens> {
+  async signin42(profile: any): Promise<any> {
     let user = await this.prisma.user.findUnique({
       where: { email: profile.email },
     });
@@ -136,10 +135,28 @@ export class AuthService {
       data: { isOnline: true },
     });
     console.log(profile);
+	if (user.is2faEnabled === true) {
+		const verificationCode = this.generateVerificationCode();
+  
+		await this.prisma.user.update({
+		  where: { id: user.id },
+		  data: { emailVerificationCode: verificationCode },
+		});
+  
+		await this.sendEmailService.sendVerificationCode(
+		  user.email,
+		  verificationCode,
+		);
+  
+		return {
+		  is2faEnabled: true,
+		};
+	  }
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refreshToken);
-    return tokens;
+    return {tokens, is2faEnabled: false};
   }
+
 
   async logout(userId: string) {
     await this.prisma.user.update({
