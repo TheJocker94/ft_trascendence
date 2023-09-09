@@ -7,6 +7,7 @@ export interface IUser {
   friendsId : string[];
   id : string;
   isOnline : boolean;
+  isPlaying : boolean;
   profilePicture : string;
   username : string;
   winrate : number;

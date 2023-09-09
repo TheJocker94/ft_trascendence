@@ -1,10 +1,10 @@
 <template>
     <div v-if="profileFriend">
         <h4 class="text-sm text-center my-2 font-semibold text-white-700">Friends</h4>
-        <div class="avatar-group -space-x-6 flex justify-center items-center">
-          <!-- Loop through the first 3 friends -->
-          <div class="avatar" v-for="friend in profileFriend!.slice(0, 3)" :key="friend.id">
-            <div class="w-12">
+        <div class="avatar-group -space-x-1 flex justify-center items-center">
+          <!-- Loop through the first 10 friends -->
+          <div class="avatar" v-for="friend in profileFriend!.slice(0, 10)" :key="friend.id">
+            <div :class="['object-cover rounded-full h-12 w-12 mx-auto m-1 p-1 border-4', !friend.isOnline ? 'border-red-500' : friend.isPlaying ? 'border-purple-500' : 'border-green-600']">
                 <router-link
     :to="{
         name: 'profile',
@@ -16,10 +16,10 @@
     </router-link> 
             </div>
           </div>
-          <!-- Show the remaining count if there are more than 3 friends -->
-          <div class="avatar placeholder" v-if="profileFriend!.length > 3">
-            <div class="w-12 bg-neutral-focus text-neutral-content">
-              <span>+{{ profileFriend!.length - 3 }}</span>
+          <!-- Show the remaining count if there are more than 10 friends -->
+          <div class="avatar placeholder" v-if="profileFriend!.length > 10">
+            <div class="w-12 rounded-full ring ring-secondary ring-offset-base-100 ring-offset-2">
+              <span>+{{ profileFriend!.length - 10 }}</span>
             </div>
           </div>
           <!-- Show "You have no friends" if the array is empty -->

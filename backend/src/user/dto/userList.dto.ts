@@ -38,4 +38,9 @@ export class userListDto {
     @IsBoolean()
     @IsOptional()
     isOnline?: boolean;
+
+    @Expose()
+    @IsBoolean()
+    @IsOptional()
+    isPlaying?: boolean;
 }

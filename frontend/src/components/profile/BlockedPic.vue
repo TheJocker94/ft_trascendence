@@ -2,8 +2,8 @@
   <div v-if="profileBlocked">
       <h4 class="text-sm text-center my-2 font-semibold text-white-700">Blocked</h4>
       <div class="avatar-group -space-x-6 flex justify-center items-center">
-        <!-- Loop through the first 3 friends -->
-        <div class="avatar" v-for="friend in profileBlocked!.slice(0, 3)" :key="friend.id">
+        <!-- Loop through the first 5 friends -->
+        <div class="avatar" v-for="friend in profileBlocked!.slice(0, 5)" :key="friend.id">
           <div class="w-12">
               <router-link
   :to="{
@@ -16,10 +16,10 @@
   </router-link> 
           </div>
         </div>
-        <!-- Show the remaining count if there are more than 3 friends -->
-        <div class="avatar placeholder" v-if="profileBlocked!.length > 3">
+        <!-- Show the remaining count if there are more than 5 friends -->
+        <div class="avatar placeholder" v-if="profileBlocked!.length > 5">
           <div class="w-12 bg-neutral-focus text-neutral-content">
-            <span>+{{ profileBlocked!.length - 3 }}</span>
+            <span>+{{ profileBlocked!.length - 5 }}</span>
           </div>
         </div>
         <!-- Show "You have no friends" if the array is empty -->

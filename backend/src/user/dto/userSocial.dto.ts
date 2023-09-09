@@ -17,6 +17,7 @@ export class FriendsDto {
     username: string;
     profilePicture: string;
     isOnline: boolean;
+    isPlaying: boolean;
 }
 
 export class InviteFriendsDto {
@@ -24,6 +25,7 @@ export class InviteFriendsDto {
 	username: string;
 	profilePicture: string;
 	isOnline: boolean;
+    isPlaying: boolean;
 }
 
 export class blockUserDto {
@@ -37,6 +39,7 @@ export class BlockedUserResponseDto {
     username: string;
     profilePicture: string;
 	isOnline: boolean;
+    isPlaying: boolean;
 }
 
 export class removeBlockedDto {

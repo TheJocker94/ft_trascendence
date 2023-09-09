@@ -12,9 +12,9 @@
       <!-- Search friend bar -->
       <SearchBar :idProfile="userId"/>
 <!-- Blocked list with avatar -->
-    <BlockedPic v-if="currentUser.userId === userId" :idProfile="userId"/>
-<!-- Friend list with avatar -->
       <FriendsPic v-if="currentUser.userId === userId" :idProfile="userId"/>
+<!-- Friend list with avatar -->
+      <BlockedPic v-if="currentUser.userId === userId" :idProfile="userId"/>
 <!--Stats user TODO -->
       <StatsComponent :idProfile="userId"/>
     </div>

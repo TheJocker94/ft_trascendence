@@ -223,7 +223,8 @@ export class UserService {
             id: true,
             username: true,
             profilePicture: true,
-            isOnline: true
+            isOnline: true,
+            isPlaying: true
           }
         },
         receiver: {
@@ -231,7 +232,8 @@ export class UserService {
             id: true,
             username: true,
             profilePicture: true,
-            isOnline: true
+            isOnline: true,
+            isPlaying: true
           }
         }
       }
@@ -259,7 +261,8 @@ export class UserService {
             id: true,
             username: true,
             profilePicture: true,
-            isOnline: true
+            isOnline: true,
+            isPlaying: true
           }
         }
       }
@@ -319,7 +322,8 @@ export class UserService {
             id: true,
             username: true,
             profilePicture: true,
-            isOnline: true
+            isOnline: true,
+            isPlaying: true
           }
         }
       }
@@ -341,7 +345,8 @@ export class UserService {
             id: true,
             username: true,
             profilePicture: true,
-            isOnline: true
+            isOnline: true,
+            isPlaying: true
           }
         }
       }
@@ -446,7 +451,8 @@ export class UserService {
 				id: true,
 				username: true,
 				profilePicture: true,
-				isOnline: true
+				isOnline: true,
+        isPlaying: true
 			  }
 			}
 		  }
@@ -468,7 +474,8 @@ export class UserService {
 				id: true,
 				username: true,
 				profilePicture: true,
-				isOnline: true
+				isOnline: true,
+        isPlaying: true
 			  }
 			}
 		  }
@@ -492,7 +499,8 @@ export class UserService {
 				id: true,
 				username: true,
 				profilePicture: true,
-				isOnline: true
+				isOnline: true,
+        isPlaying: true
 			  }
 			},
 			receiver: {
@@ -500,7 +508,8 @@ export class UserService {
 				id: true,
 				username: true,
 				profilePicture: true,
-				isOnline: true
+				isOnline: true,
+        isPlaying: true
 			  }
 			}
 		  }

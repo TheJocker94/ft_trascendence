@@ -44,6 +44,11 @@ export class UserDto {
     isOnline?: boolean;
 
     @Expose()
+    @IsBoolean()
+    @IsOptional()
+    isPlaying?: boolean;
+
+    @Expose()
     @IsArray()
     friendsId: string[];
 

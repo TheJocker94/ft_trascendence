@@ -16,6 +16,7 @@ model User {
   hash                  String
   hashedRt              String?
   isOnline              Boolean @default(false)
+  isPlaying             Boolean @default(false)
   Wins                  Int     @default(0)
   Losses                Int     @default(0)
   Played                Int     @default(0)

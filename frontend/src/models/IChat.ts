@@ -28,6 +28,7 @@ export interface ISender{
     username: string,
     profilePicture: string,
     isOnline: boolean,
+    isPlaying: boolean,
 }
 export interface IMessageChannel{
     content: string,
