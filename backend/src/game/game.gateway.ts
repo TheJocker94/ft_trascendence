@@ -417,8 +417,8 @@ export class GameGateway {
       this.server.to(gameId).emit('startingGame', this.Rooms[parseInt(gameId)]);
       this.Rooms[parseInt(gameId)].players[0].minimized = false;
       this.Rooms[parseInt(gameId)].players[1].minimized = false;
-      this.Rooms[parseInt(gameId)].players[0].minimized = false;
-      this.Rooms[parseInt(gameId)].players[1].minimized = false;
+    //   this.Rooms[parseInt(gameId)].players[0].minimized = false;
+    //   this.Rooms[parseInt(gameId)].players[1].minimized = false;
       // playersSockets[0].emit('matchFound', gameId);
       // playersSockets[1].emit('matchFound', gameId);
     }
