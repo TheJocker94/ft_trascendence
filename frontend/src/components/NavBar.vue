@@ -254,7 +254,7 @@ const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
 const gamerStore = ref(useGameInviteStore());
 onMounted(async () => {
-	await userStore.value.initStore(null, null, null);
+	await userStore.value.initStore(null, null);
 	if (authStore.value.isLoggedIn){
     socketGame.auth = { token: authStore.value.token }
   socketGame.connect();
@@ -271,6 +271,7 @@ onMounted(async () => {
 // 	}
 // });
 
+
 const isBrowserMinimized = ref(false);
 const handleVisibilityChange = () => {
   isBrowserMinimized.value = document.hidden;
@@ -283,16 +284,18 @@ const handleVisibilityChange = () => {
 
 onMounted(() => {
   document.addEventListener('visibilitychange', handleVisibilityChange);
+//   document.addEventListener('beforeunload', handleBeforeUnload);
 });
 
 
 const teardown = () => {
   document.removeEventListener('visibilitychange', handleVisibilityChange);
+//   document.removeEventListener('beforeunload', handleBeforeUnload);
 };
 
 // On leaving the page
 onUnmounted(() => {
-	teardown();
+  teardown();
   socketGame.disconnect();
 })
 

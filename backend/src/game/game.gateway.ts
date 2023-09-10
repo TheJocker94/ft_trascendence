@@ -39,7 +39,7 @@ export class GameGateway {
   private Rooms: IRoom[] = [];
   private usersConnected: string[] = [];
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     console.log('Client game connected:', client.id);
     const parseId = this.queue.parseJwt(client.handshake.auth.token);
     const userId = parseId.id;
@@ -54,8 +54,12 @@ export class GameGateway {
     client.emit('welcome', message);
     // Attach the userId to the socket for future use
     this.usersConnected.push(userId);
-    console.log('User connected:', userId);
+    console.log('User connected game:', userId);
     console.log('Users in server are ', this.usersConnected);
+	await this.prisma.user.update({
+		where: { id: userId },
+		data: { isOnline: true },
+	});
   }
 
   //* ------------------------------- nizz start ------------------------------- */
@@ -348,8 +352,12 @@ export class GameGateway {
 		data: { isPlaying: false },
 	  });
     if (username) {
-      console.log('User disconnected:', username);
+      console.log('User disconnected game:', username);
     }
+	await this.prisma.user.update({
+		where: { id: username },
+		data: { isOnline: false },
+	});
     this.queue.remove(client);
     if (this.inGame.includes(username)) {
       // quando un utente si disconnette, se è in una stanza, la stanza viene eliminata e si invia un messaggio a tutti i giocatori dentro la stanza

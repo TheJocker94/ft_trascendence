@@ -4,9 +4,9 @@
       <div v-if="currentUser.userId===profile?.id">
         <div class="flex justify-center items-center">
           <div class="avatar indicator mx-auto">
-            <span v-if="profile.isOnline && !profile.isPlaying" class="indicator-item indicator-bottom indicator-start badge bg-green-600">Online</span>
-            <span v-else-if="profile.isPlaying" class="indicator-item indicator-bottom indicator-start badge bg-purple-500">Playing</span>
-            <span v-else-if="!profile.isOnline" class="indicator-item indicator-bottom indicator-start badge bg-red-500">Offline</span>
+			<span v-if="profile.isPlaying" class="indicator-item indicator-bottom indicator-start badge bg-purple-500">Playing</span>
+            <span v-else="profile.isOnline && !profile.isPlaying" class="indicator-item indicator-bottom indicator-start badge bg-green-600">Online</span>
+            <!-- <span v-else-if="!profile.isOnline" class="indicator-item indicator-bottom indicator-start badge bg-red-500">Offline</span> -->
             <div class="indicator-item indicator-bottom">
               <button @click="triggerImageUpload" class="text-white-800 bg-gray-500 hover:bg-gray-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">
                 <i class="fa-solid fa-upload"></i>
