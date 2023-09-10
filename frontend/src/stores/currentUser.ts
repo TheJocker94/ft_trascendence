@@ -22,6 +22,8 @@ export const useCurrentUserStore = defineStore('currentUser', {
     // Game info
     roomId: '',
     playerNo: 0,
+    username1: '',
+    username2: '',
     // friendLists: {
     //   friends: [],
     //   pendings: [],
@@ -66,11 +68,15 @@ export const useCurrentUserStore = defineStore('currentUser', {
         if (axios.isAxiosError(e)) return e.response?.data;
       }
     },
-    initGame(roomId: string, playerNo: number) {
+    initGame(roomId: string, playerNo: number, username1: string, username2: string) {
       if (roomId)
         this.roomId = roomId;
       if (playerNo)
         this.playerNo = playerNo;
+      if (username1)
+        this.username1 = username1;
+      if (username2)
+        this.username2 = username2;
     },
     setStore(user: IUser, avatar: string, /*friendLists: IFriendLists*/) {
       this.userId = user.id;

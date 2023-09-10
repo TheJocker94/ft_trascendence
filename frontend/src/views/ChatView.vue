@@ -222,7 +222,7 @@ socket.on('messageFromServer', (idChannel) => {
   });
 })
 onMounted(async () => {
-  await userStore.value.initStore(null, null, null);
+  await userStore.value.initStore(null, null);
   const username = userStore.value.username;
   socket.auth = { username };
   socket.connect();

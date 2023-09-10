@@ -308,7 +308,7 @@ const createGame = () => {
 socketGame.on('playerInviteNo', function (data) {
     console.log("Game Created! ID room is: " + data.room)
     console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player);
+    userStore.value.initGame(data.room, data.player, data.username1, data.username2);
 });
 
 socketGame.on('startingInviteGame', function (data) {

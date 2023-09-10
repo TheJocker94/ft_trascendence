@@ -15,7 +15,7 @@ const leaveQ = ref(false);
 const goGame = ref(false);
 // On Loading the page
 onMounted(async () => {
-  await userStore.value.initStore(null, null, null);
+  await userStore.value.initStore(null, null);
   socketGame.auth = { token: authStore.value.token }
   console.log("Token is ", socketGame.auth)
   // socketGame.auth = { username: userStore.value.username };
@@ -111,14 +111,18 @@ socketGame.on('gameCreated', function (data) {
   socketGame.on('playerNo', function (data) {
     console.log("Game Created! ID room is: " + data.room)
     console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player);
+    console.log('Da playerno Username 1: ' + data.username1);
+    console.log('Da playerno Username 2: ' + data.username2);
+    userStore.value.initGame(data.room, data.player, data.username1, data.username2);
   });
   
   socketGame.on('startingGame', function (data) {
-    console.log("Game Created! ID room is: " + data)
+    console.log("Game Created! ID room is: " + data.roomId)
     goGame.value = true;
     leaveQ.value = false;
     press.value = true;
+    console.log('Username 1: ' + userStore.value.username1);
+    console.log('Username 2: ' + userStore.value.username2);
     //alert("Game Created! ID is: "+ JSON.stringify(data));
   });
 
@@ -126,14 +130,14 @@ socketGame.on('gameCreated', function (data) {
 
 <template>
   <div class="flex flex-col items-center justify-center mt-45">
-	  <div v-if="!press" class="flex flex-col items-center">
+    <div v-if="!press" class="flex flex-col items-center">
       <button @click="createGame(), press = true" class="btn btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-3 mt-4">Create Game</button>
       <!-- <button @click="joinGame()" class="btn  btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">Join Game</button> -->
     </div>
     <div v-if="leaveQ" class="flex flex-col items-center">
-	  <button class="btn no-animation btn-accent btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-3 mt-4">Searching for a player
+    <button class="btn no-animation btn-accent btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-3 mt-4">Searching for a player
         <span class="loading loading-spinner loading-lg"></span>
-	  </button>
+    </button>
       <button @click="exitQueue(), leaveQ = false, press = false" class="btn  btn-neutral btn-xs sm:btn-sm md:btn-md lg:btn-lg mb-4 mt-4">Leave Matchmaking</button>
       <!-- <button @click="joinGame()" class="btn  btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">Join Game</button> -->
     </div>

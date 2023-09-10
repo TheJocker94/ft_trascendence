@@ -12,18 +12,22 @@ export default class EndScene extends Scene {
 	private flag!: boolean;
 	private waitText!: Phaser.GameObjects.Text;
 	private endgame!: Phaser.GameObjects.Text;
-    
+    private winnerName!: string;
     constructor () {
         super({ key: 'EndScene' })
     }
     
 	init (data: { score1: number, score2: number, winner: string}) {
-		if (data.winner == 'Player 1')
+		if (data.winner == 'Player 1'){
 			this.flag = true;
-		else
+			this.winnerName = userStore.value.username1;
+		}
+		else{
+			this.winnerName = userStore.value.username2;
 			this.flag = false;
+		}
         this.add.image(400, 300, 'matrix')
-        this.add.text(400, 250, `${data.winner} wins!`, { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff', fontStyle: 'bold italic' }).setOrigin(0.5)
+        this.add.text(400, 250, `${this.winnerName} won!`, { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff', fontStyle: 'bold italic' }).setOrigin(0.5)
         this.waitText = this.add.text(400, 350, 'Press SPACE to restart', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff', fontStyle: 'bold italic' }).setOrigin(0.5)
         this.endgame = this.add.text(400, 450, 'Press ESC to exit', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff', fontStyle: 'bold italic' }).setOrigin(0.5)
     }

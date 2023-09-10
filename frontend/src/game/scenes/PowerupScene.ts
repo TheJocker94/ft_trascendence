@@ -31,6 +31,8 @@ export default class PowerupScene extends Scene {
   private score2!: number;
   private scoreText1!: Phaser.GameObjects.Text;
   private scoreText2!: Phaser.GameObjects.Text;
+  private user1!: Phaser.GameObjects.Text;
+  private user2!: Phaser.GameObjects.Text;
   private pauseText!: Phaser.GameObjects.Text;
   private ballSound!: Phaser.Sound.BaseSound;
   private thud!: Phaser.Sound.BaseSound;
@@ -143,6 +145,10 @@ export default class PowerupScene extends Scene {
     // Score text
     this.scoreText1 = this.add.text(this.scale.width / 2 - 75, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
     this.scoreText2 = this.add.text(this.scale.width / 2 + 50, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
+    this.user1 = this.add.text(this.scale.width / 4 , 16, userStore.value.username1.substring(0, 10), { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
+    this.user2 = this.add.text(this.scale.width / 4 * 3, 16, userStore.value.username2.substring(0, 10), { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
+    this.user1.setOrigin(0.5, 0);
+    this.user2.setOrigin(0.5, 0);
     // Pause text
 		this.pauseText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Waiting for the other player', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' }).setOrigin(0.5)
 		this.pauseText.setDepth(1);

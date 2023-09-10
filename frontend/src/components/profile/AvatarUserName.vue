@@ -95,7 +95,7 @@ onMounted(async () => {
     //     localStorage.setItem('socketId', socketGame.id);
     // }); 
 	
-	await userStore.value.initStore(null, null, null);
+	await userStore.value.initStore(null, null);
 	socketGame.auth = { token: authStore.value.token };
 	// console.log("whhhhhhhhhhhhhhhhat ", authStore.value.token);
 	socketGame.connect();
@@ -180,10 +180,9 @@ const createGame = () => {
 socketGame.on('playerInviteNo', function (data) {
     // console.log("Game Created! ID room is: " + data.room)
     // console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player);
-});
+    userStore.value.initGame(data.room, data.player, data.username1, data.username2);});
 
-socketGame.on('startingInviteGame', function (data) {
+socketGame.on('startingInviteGame', function () {
     // console.log("Game Created! ID room is: " + data)
 	console.log("maaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaan");
     goGame.value = true;
@@ -213,10 +212,10 @@ const usernameDisplay = computed(() => isOwnProfile.value ? currentUser.value.us
 // const friendsButton = ref(true)
 async function updateName() {
   if (!newUsername.value.trim()) {
-	  errorMessage.value = 'Username cannot be empty';
+    errorMessage.value = 'Username cannot be empty';
     return;
   } else {
-	  errorMessage.value = '';
+    errorMessage.value = '';
   }
   await currentUser.value.updateUser(newUsername.value);
   isChangingUsername.value = false;
@@ -290,9 +289,9 @@ async function friendRequest(userId: string) {
 
 async function gameInvite(userId: string) {
   try {
-	  await GameInviteService.sendGameInvite(userId);
-	  // Update the state after the API call
-	  friendStore.value.updatePendings(currentUser.value.userId);
+    await GameInviteService.sendGameInvite(userId);
+    // Update the state after the API call
+    friendStore.value.updatePendings(currentUser.value.userId);
     friendStore.value.updateFriends();
     friendStore.value.updateSent(currentUser.value.userId);
 		updateReactiveGameInviteChecks();

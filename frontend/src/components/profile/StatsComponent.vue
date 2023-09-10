@@ -23,7 +23,8 @@
 			</div>
 	</div>
 	<div v-if="userStore.userId === props.idProfile" >
-        <h1 class="text-center text-orange-900 my-3">Match History</h1>
+		<!-- text style bold tailwind -->
+        <h1 class="text-center  text-white  my-3">Match History</h1>
 	<div class="overflow-x-auto">
     <table class="table table-sm">
     <!-- head -->

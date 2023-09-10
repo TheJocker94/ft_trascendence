@@ -28,7 +28,7 @@ socketGame.on('playerDisconnected', data => {
 
 onMounted(async () => {
 	console.log("wtfffff");
-	await userStore.value.initStore(null, null, null);
+	await userStore.value.initStore(null, null);
 	if (authStore.value.isLoggedIn){
 		socketGame.auth = { token: authStore.value.token }
 		socketGame.connect();
