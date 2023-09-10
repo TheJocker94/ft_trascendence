@@ -6,12 +6,13 @@ import{
   MessageBody,
 } from '@nestjs/websockets';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { ChannelType, UserRole, UserStatus } from '@prisma/client';
 import { ClassTransformOptions,plainToClass } from 'class-transformer';
-import { Cron, CronExpression, Timeout } from '@nestjs/schedule';
+import { Cron, CronExpression, SchedulerRegistry, Timeout } from '@nestjs/schedule';
 import { time } from 'console';
+import { UserService } from 'src/user/user.service';
 
 @WebSocketGateway({
   namespace: '/chat',
@@ -25,7 +26,7 @@ import { time } from 'console';
 })
 @Injectable()
 export class ChatGateway {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private userService: UserService, private schedulerRegistry: SchedulerRegistry) {}
   @WebSocketServer()
   server: Server;
   users = 0;
@@ -61,6 +62,28 @@ export class ChatGateway {
     return users;
   }
 
+  @SubscribeMessage('isBanFluid')
+  async handleIsBanFluid(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    const bannedUser = await this.prisma.channelMembership.findFirst({
+      where: {
+        userId: data.uId,
+        channelId: data.chId,
+        status: UserStatus.BANNED,
+      }
+    })
+    if (bannedUser) {
+      console.log('User is banned');
+      client.emit('isBanFluidRet', true);
+      return;
+    }
+    else {
+      client.emit('isBanFluid', false);
+    }
+  }
+
   @SubscribeMessage('checkIfBan')
   async handleCheckIfBan(
     @ConnectedSocket() client: Socket,
@@ -68,20 +91,105 @@ export class ChatGateway {
   ): Promise<void> {
     const bannedUser = await this.prisma.channelMembership.findFirst({
       where: {
-        userId: data.sender,
-        channelId: data.id,
+        userId: data.uId,
+        channelId: data.chId,
         status: UserStatus.BANNED,
       }
     })
     if (bannedUser) {      
-      client.emit('isBanChan', data.sender, data.id, true);  
+      client.emit('isBanChan', data.uId, data.chId, true);  
       console.log('User is banned');    
     }
     else {
-      client.emit('isBanChan', data.sender, data.id, false);
+      client.emit('isBanChan', data.uId, data.chId, false);
       console.log('User is not banned');
     }
   }
+
+  @SubscribeMessage('checkIfMute')
+  async handleCheckIfMute(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    const mutedUser = await this.prisma.channelMembership.findFirst({
+      where: {
+        userId: data.uId,
+        channelId: data.chId,
+        status: UserStatus.MUTED,
+      }
+    })
+    if (mutedUser) {
+      console.log('User is muted');
+      client.emit('isMuteChan', true);
+    }
+    else {
+      client.emit('isMuteChan', false);
+      console.log('User is not muted');
+    }
+  }
+
+  @SubscribeMessage('checkIfAdmin')
+  async handleCheckIfAdmin(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    const adminUser = await this.prisma.channelMembership.findFirst({
+      where: {
+        userId: data.uId,
+        channelId: data.chId,
+        role: UserRole.ADMIN,
+      }
+    })
+    if (adminUser) {
+      console.log('User is admin');
+      client.emit('isAdminChan', true);
+    }
+    else {
+      client.emit('isAdminChan', false);
+      console.log('User is not admin');
+    }
+  }
+
+  @SubscribeMessage('setAdmin')
+  async handleSetAdmin(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    await this.prisma.channelMembership.update({
+      where: {
+        userId_channelId: {
+          userId: data.uId,
+          channelId: data.chId,
+        }
+      },
+      data: {
+        role: UserRole.ADMIN,
+      }
+    })
+    this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
+    this.handleCheckIfAdmin(client, data);
+  }
+  @SubscribeMessage('unSetAdmin')
+  async handleUnSetAdmin(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    await this.prisma.channelMembership.update({
+      where: {
+        userId_channelId: {
+          userId: data.uId,
+          channelId: data.chId,
+        }
+      },
+      data: {
+        role: UserRole.MEMBER,
+      }
+    })
+    this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
+    this.handleCheckIfAdmin(client, data);
+  }
+
+
 
   // text: msg.value, id: currentChannelId.value, sender: userStore.value.userId
   @SubscribeMessage('messageToServer')
@@ -89,6 +197,17 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): Promise<void> {
+    const isUserBanned = await this.prisma.channelMembership.findFirst({
+      where: {
+        userId: data.sender,
+        channelId: data.id,
+        }
+        })
+    if (isUserBanned.status === UserStatus.BANNED || isUserBanned.status === UserStatus.MUTED) {
+      console.log('User is banned or muted');
+      client.emit('userIsMuted', data.sender);
+      return;
+    }
     await this.prisma.message.create({
       data: {
         content: data.text,
@@ -185,6 +304,7 @@ export class ChatGateway {
       @ConnectedSocket() client: Socket,
       @MessageBody() data: any,
     ): Promise<void> {
+      
       const channel = await this.prisma.channel.findUnique({ 
         where: {id: data.id},
         include: {
@@ -284,22 +404,33 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): Promise<void> {
+    // cerca se gia kickato
+    const kickedUser = await this.prisma.channelMembership.findFirst({
+      where: {
+        userId: data.uId,
+        channelId: data.chId,
+      }
+    })
+    if (!kickedUser || kickedUser.role === UserRole.OWNER) {
+    this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
+      return;
+    }
     // elimino tutti i messaggi dell'utente
     await this.prisma.message.deleteMany({
       where: {
-        senderId: data.userId,
-        channelId: data.channelId,
+        senderId: data.uId,
+        channelId: data.chId,
       }
     })
     await this.prisma.channelMembership.delete({
       where: {
         userId_channelId: {
-          userId: data.userId,
-          channelId: data.channelId,
+          userId: data.uId,
+          channelId: data.chId,
         }
       }
     })
-    this.server.to(data.channelId).emit('gettingSingleChannel', data.channelId);
+    this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
   }
 
   @SubscribeMessage('banChannel')
@@ -318,7 +449,7 @@ export class ChatGateway {
         status: UserStatus.BANNED,
       }
     })
-    this.server.to(data.chId).emit('gettingSingleChannel', data.channelId);
+    this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
   }
 
 
@@ -330,35 +461,66 @@ export class ChatGateway {
     await this.prisma.channelMembership.update({
       where: {
         userId_channelId: {
-          userId: data.userId,
-          channelId: data.channelId,
+          userId: data.uId,
+          channelId: data.chId,
         }
       },
       data: {
         status: UserStatus.ACTIVE,
       }
     })
-    this.server.to(data.channelId).emit('gettingSingleChannel', data.channelId);
+    this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
+    
   }
 
-  @SubscribeMessage('muteChannel')
-  async handleMuteChannel(
+  @SubscribeMessage('muteUser')
+  async handleMuteUser(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): Promise<void> {
     await this.prisma.channelMembership.update({
       where: {
         userId_channelId: {
-          userId: data.userId,
-          channelId: data.channelId,
+          userId: data.uId,
+          channelId: data.chId,
         }
       },
       data: {
         status: UserStatus.MUTED,
-        muteEndTime: data.muteEndTime,
       }
-    })
-    this.server.to(data.channelId).emit('gettingSingleChannel', data.channelId);
+    });
+    // Chiamare la funzione addTimeout con i parametri appropriati
+    this.addTimeout(data.uId, data.time, data.chId);
+    this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
+  }
+
+  addTimeout(name: string, milliseconds: number, channelId: string) {
+    const timeout = setTimeout(() => {
+      console.log(`Timeout ${name} executing after (${milliseconds})!`);
+      this.smuteUserFromChannel(name, channelId);
+    }, milliseconds);    
+    
+    this.schedulerRegistry.addTimeout(name, timeout);
+  }
+
+  @SubscribeMessage('checkIfPassword')
+  async handleCheckIfPassword(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    const channel = await this.prisma.channel.findUnique({
+      where: {
+        id: data.id,
+      },
+    });
+    if (channel.password === '' || channel.password === null) {
+      console.log('Channel is not password protected');
+      client.emit('isPassOn', false);
+    }
+    else {
+      console.log('Channel is password protected');
+      client.emit('isPassOn', true);
+    }
   }
 
   @SubscribeMessage('joinChannel')
@@ -379,16 +541,25 @@ export class ChatGateway {
       client.emit('userIsBanned', data.id);
       return;
     }
-    if (data.password === '') {
+    const canale = await this.prisma.channel.findUnique({
+      where: {
+        id: data.id,
+      },
+    });
+
+    if (canale.password === '' || canale.password === null) {
       try {
         await this.prisma.channelMembership.create({
           data: { userId: data.sender, channelId: data.id, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
       })
+      client.join(data.id);
+      console.log('Ho joinato nel backend' + data.id);
+      this.server.to(data.id).emit('gettingSingleChannel', data.id);
     }
       catch (error) {
         console.error('Error creating channel:', error);
       }}
-      else {
+    else if(canale.password === data.password) {
         try {
         await this.prisma.channelMembership.create({
           data: { userId: data.sender, channelId: data.id, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
@@ -397,10 +568,14 @@ export class ChatGateway {
         catch (error) {
           console.error('Error creating channel:', error);
         }
-      } 
-    client.join(data.id);
-    console.log('Ho joinato nel backend' + data.id);
-    this.server.to(data.id).emit('gettingSingleChannel', data.id);
+        client.join(data.id);
+        console.log('Ho joinato nel backend' + data.id);
+        this.server.to(data.id).emit('gettingSingleChannel', data.id);
+      }
+    else {
+      console.log('Password is wrong');
+      this.handleCheckIfPassword(client, data);
+    }
   }
 
   @SubscribeMessage('createGroup')
@@ -418,7 +593,7 @@ export class ChatGateway {
       return;
     }
 	// const channel = new Channel(1, 'PUBLIC', data.sender, data.text);
-    if (data.password === '') {
+    if (data.password === '' || data.password === null) {
       try {
         const newChannel = await this.prisma.channel.create({
           data: { type: data.type, name: data.text},
@@ -446,12 +621,7 @@ export class ChatGateway {
     }
     this.server.emit('updateChannelList');
   }
-
-  addTimeout(name: string, milliseconds: number, channelId: string) {
-    const callback = () => {
-      this.smuteUserFromChannel(name, channelId);
-    };
-  }
+ 
   
 
   async smuteUserFromChannel(userId: string, channelId: string){

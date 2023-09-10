@@ -117,9 +117,12 @@ socket.on('gettingSingleChannel', (data: any) => {
 
 socket.on ('isUserInChannel', (channelIn: boolean | string) => {
     if (channelIn === 'BANNED')
-        alert('You are banned from this channel');
+      chat.value.setifBanned(true);
     else
+    {
       chat.value.setFlagImIn(channelIn as boolean);
+      chat.value.setifBanned(false);
+    }
     console.log('Valore di flagImIn Dopo: ' + channelIn);
 })
 import { useChatStore } from "@/stores/chat";
@@ -209,7 +212,7 @@ socket.on('channelAlreadyExists', (text) => {
 })
 
 socket.on('messageFromServer', (idChannel) => {
-  socket.emit('getChannel', { id: idChannel });
+  socket.emit('getChannel', { id: idChannel, sender: userStore.value.userId });
   nextTick(() => {
       setTimeout(() => {
           if (lastMessage.value) {
