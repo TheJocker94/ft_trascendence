@@ -4,14 +4,16 @@
         <div class="avatar-group -space-x-1 flex justify-center items-center">
           <!-- Loop through the first 10 friends -->
           <div class="avatar" v-for="friend in profileFriend!.slice(0, 10)" :key="friend.id">
-            <div :class="['object-cover rounded-full h-12 w-12 mx-auto m-1 p-1 border-4', !friend.isOnline ? 'border-red-500' : friend.isPlaying ? 'border-purple-500' : 'border-green-600']">
+            <div :class="['object-cover rounded-full h-12 w-12 mx-auto m-1 p-1 border-4 relative', !friend.isOnline ? 'border-red-500' : friend.isPlaying ? 'border-purple-500' : 'border-green-600']">
                 <router-link
     :to="{
         name: 'profile',
         params: { userid: friend.id },
     }"
     >
-    <img :src="friend.profilePicture" :alt="friend.username" />
+    <div class="h-full w-full overflow-hidden rounded-full">
+      <img class="h-full w-full object-cover" :src="friend.profilePicture" :alt="friend.username" />
+    </div>
         
     </router-link> 
             </div>

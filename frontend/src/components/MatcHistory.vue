@@ -1,7 +1,7 @@
 <template>
     <div>
         <h1 class="text-center">Match History</h1>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto w-3/4 mx-auto bg-purple-900">
   <table class="table">
     <!-- head -->
     <thead>
