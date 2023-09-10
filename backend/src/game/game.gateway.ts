@@ -310,30 +310,43 @@ export class GameGateway {
   }
 
   @SubscribeMessage('leaveRoom')
-  handleLeaveRoom(
+  async handleLeaveRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
-  ): void {
+  ): Promise<void> {
     console.log('Leave room received is ', data);
     // client.leave(data);
+	await this.prisma.user.update({
+		where: { id: client.data.userId },
+		data: { isPlaying: false },
+	  });
     this.queue.remove(client);
     this.inGame = this.inGame.filter((user) => user !== client.data.userId);
     // this.server.to(data.room).emit('playerLeft', data);
     // this.Rooms = this.Rooms.filter((room) => room.roomId !== data.room);
   }
+
   @SubscribeMessage('exitGame')
-  handleExitGame(
+  async handleExitGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: string,
-  ): void {
+  ): Promise<void> {
     console.log('Exit game received');
     this.server.to(data).emit('playerDisconnected', data);
+	await this.prisma.user.update({
+		where: { id: client.data.userId },
+		data: { isPlaying: false },
+	  });
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     console.log('Client disconnected:', client.id);
     // You can access the attached username if needed
     const username = client.data.userId;
+	await this.prisma.user.update({
+		where: { id: username },
+		data: { isPlaying: false },
+	  });
     if (username) {
       console.log('User disconnected:', username);
     }
@@ -412,6 +425,14 @@ export class GameGateway {
       ]);
       playersSockets[0].emit('playerNo', { player: 1, room: gameId });
       playersSockets[1].emit('playerNo', { player: 2, room: gameId });
+	  await this.prisma.user.update({
+        where: { id: playersSockets[0].data.userId },
+        data: { isPlaying: true },
+      });
+      await this.prisma.user.update({
+        where: { id: playersSockets[1].data.userId },
+        data: { isPlaying: true },
+      });
       playersSockets[0].join(gameId);
       playersSockets[1].join(gameId);
       this.server.to(gameId).emit('startingGame', this.Rooms[parseInt(gameId)]);
