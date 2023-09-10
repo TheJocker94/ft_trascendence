@@ -22,18 +22,84 @@
 			
 			</div>
 	</div>
+	<div v-if="userStore.userId === props.idProfile" >
+        <h1 class="text-center text-orange-900 my-3">Match History</h1>
+    </div>
+	<div class="overflow-x-auto">
+    <table class="table table-sm">
+    <!-- head -->
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Mode</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+      <!-- row 1 -->
+      <tr v-for="(match, index) in MatcHistory" :key="index" :class="[match.winnerUsername === userStore.username ? 'bg-green-700' : 'bg-red-700']">
+        <td>
+          <div class="flex items-center">
+			<div v-if="match.user2Id.id !== userStore.userId">
+				<div class="avatar">
+					<div class="mask mask-squircle w-12 h-12">
+					<img :src="match.user2Id.profilePicture" alt="Avatar Tailwind CSS Component" />
+					</div>
+				</div>
+				<div>
+					<div class="font-bold">{{ match.user2Id.username }}</div>
+				</div>
+			</div>
+			<div v-if="match.user1Id.id !== userStore.userId">
+				<div class="avatar">
+					<div class="mask mask-squircle w-12 h-12">
+					<img :src="match.user1Id.profilePicture" alt="Avatar Tailwind CSS Component" />
+					</div>
+				</div>
+				<div>
+					<div class="font-bold">{{ match.user1Id.username }}</div>
+				</div>
+			</div>
+          </div>
+        </td>
+        <td>
+          {{ match.mode }}
+          <br/>
+          <span class="badge badge-ghost badge-sm">{{ match.score }}</span>
+        </td>
+        <td v-if="match.winnerUsername === userStore.username" >Win</td>
+        <td v-else >Lose</td>
+      </tr>
+      </tbody>    
+    </table>
+	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import {onMounted, ref, watchEffect } from 'vue';
 import UserService from '@/services/UserService';
+import { useCurrentUserStore } from '@/stores/currentUser';
 import type { IUser } from '@/models/IUser';
+import type { IMatchHistory } from '@/models/IUser';
 
 const props = defineProps({
   idProfile: String,
 });
-
+const userStore = ref(useCurrentUserStore());
 const profile = ref<IUser>();
+const MatcHistory = ref<IMatchHistory[]>([] as IMatchHistory[])
+const getMatchHistory = async () => {
+   MatcHistory.value = await UserService.getMatchHistory();
+// For every match in the match history, we want to get only the matches where the user is involved
+//
+//	
+//
+	MatcHistory.value = MatcHistory.value.filter(match => match.user1Id.id == userStore.value.userId || match.user2Id.id == userStore.value.userId);
+    console.log('MatcHistory',MatcHistory.value);
+}
+onMounted(() => {
+    getMatchHistory();
+});
 
 async function fetchUsers() {
   profile.value = await UserService.getUserById(props.idProfile!);

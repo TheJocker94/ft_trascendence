@@ -1,5 +1,7 @@
+import { User } from '@prisma/client';
 import { Expose } from 'class-transformer';
 import { IsString, IsOptional, IsBoolean, IsNumber, IsEmail, IsArray } from 'class-validator';
+import { FriendsDto } from './userSocial.dto';
 
 export class userListDto {
 
@@ -43,4 +45,27 @@ export class userListDto {
     @IsBoolean()
     @IsOptional()
     isPlaying?: boolean;
+}
+
+
+export class matchHistoryDto{
+    @Expose()
+    @IsString()
+    user1Id: FriendsDto;
+
+    @Expose()
+    @IsString()
+    user2Id: FriendsDto;
+
+    @Expose()
+    @IsString()
+    winnerUsername: string;
+
+    @Expose()
+    @IsNumber()
+    score: number;
+
+    @Expose()
+    @IsString()
+    mode: string;
 }

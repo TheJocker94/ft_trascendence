@@ -251,7 +251,7 @@ export default class PlayScene extends Scene {
       this.ballUpdate()
     }
 
-    socketGame.on('updateScoreServer', (data: { score1: number, score2: number, room: string}) => {
+    socketGame.on('updateScoreServer', (data: { score1: number, score2: number, room: string, }) => {
       if (data.room === userStore.value.roomId) {
         if ( this.score1 !== data.score1)
         {
@@ -328,7 +328,7 @@ export default class PlayScene extends Scene {
     socketGame.emit('ballUpdate', { x: this.ball.x, y: this.ball.y, velX: this.ball.body!.velocity.x, velY: this.ball.body!.velocity.y, room: userStore.value.roomId });
   }
   updateScore(score1: number, score2: number) {
-    socketGame.emit('updateScore', { score1: score1, score2: score2, room: userStore.value.roomId});
+    socketGame.emit('updateScore', { score1: score1, score2: score2, room: userStore.value.roomId, mode: 'CLASSIC'});
   }
   stopSound() {
     this.lee1.stop();

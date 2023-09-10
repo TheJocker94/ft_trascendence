@@ -6,100 +6,40 @@
     <!-- head -->
     <thead>
       <tr>
-        <th>User</th>
+        <th>Users</th>
         <th>Mode</th>
-        <th>Result</th>
-        <th></th>
+        <th>Winner</th>
       </tr>
     </thead>
     <tbody>
       <!-- row 1 -->
-      <tr>
+      <tr v-for="(match, index) in MatcHistory" :key="index">
         <td>
           <div class="flex items-center space-x-3">
             <div class="avatar">
               <div class="mask mask-squircle w-12 h-12">
-                <img src="/tailwind-css-component-profile-2@56w.png" alt="Avatar Tailwind CSS Component" />
+                <img :src="match.user2Id.profilePicture" alt="Avatar Tailwind CSS Component" />
               </div>
             </div>
             <div>
-              <div class="font-bold">Hart Hagerty</div>
-              <div class="text-sm opacity-50">United States</div>
+              <div class="font-bold">{{match.user2Id.username}}</div>
             </div>
-          </div>
-        </td>
-        <td>
-          Zemlak, Daniel and Leannon
-          <br/>
-          <span class="badge badge-ghost badge-sm">Desktop Support Technician</span>
-        </td>
-        <td>Purple</td>
-        
-      </tr>
-      <!-- row 2 -->
-      <tr class="bg-green-700">
-        <td>
-          <div class="flex items-center space-x-3">
             <div class="avatar">
               <div class="mask mask-squircle w-12 h-12">
-                <img src="/tailwind-css-component-profile-3@56w.png" alt="Avatar Tailwind CSS Component" />
+                <img :src="match.user1Id.profilePicture" alt="Avatar Tailwind CSS Component" />
               </div>
             </div>
             <div>
-              <div class="font-bold">Brice Swyre</div>
-              <div class="text-sm opacity-50">China</div>
+              <div class="font-bold">{{match.user1Id.username}}</div>
             </div>
           </div>
         </td>
         <td>
-          Standard Mode
+          {{ match.mode }}
           <br/>
-          <span class="badge badge-ghost badge-sm ">5 : 3</span>
+          <span class="badge badge-ghost badge-sm">{{ match.score }}</span>
         </td>
-        <td>Win</td>
-      </tr>
-      <!-- row 3 -->
-      <tr class="bg-red-700">
-        <td>
-          <div class="flex items-center space-x-3">
-            <div class="avatar">
-              <div class="mask mask-squircle w-12 h-12">
-                <img src="/tailwind-css-component-profile-4@56w.png" alt="Avatar Tailwind CSS Component" />
-              </div>
-            </div>
-            <div>
-              <div class="font-bold">Mimmo Esposito</div>
-            </div>
-          </div>
-        </td>
-        <td>
-          Power-up Mode
-          <br/>
-          <span class="badge badge-ghost badge-sm">1 : 5</span>
-        </td>
-        <td>Loss</td>
-      </tr>
-      <!-- row 4 -->
-      <tr>
-        <td>
-          <div class="flex items-center space-x-3">
-            <div class="avatar">
-              <div class="mask mask-squircle w-12 h-12">
-                <img src="/tailwind-css-component-profile-5@56w.png" alt="Avatar Tailwind CSS Component" />
-              </div>
-            </div>
-            <div>
-              <div class="font-bold">Yancy Tear</div>
-              <div class="text-sm opacity-50">Brazil</div>
-            </div>
-          </div>
-        </td>
-        <td>
-          Wyman-Ledner
-          <br/>
-          <span class="badge badge-ghost badge-sm">Community Outreach Specialist</span>
-        </td>
-        <td>Indigo</td>
+        <td>{{match.winnerUsername}}</td>
       </tr>
     </tbody>    
   </table>
@@ -108,8 +48,17 @@
 </template>
 
 <script setup lang="ts">
-
-
+import UserService from '@/services/UserService';
+import { onMounted, ref } from 'vue';
+import type { IMatchHistory } from '@/models/IUser';
+const MatcHistory = ref<IMatchHistory[]>([] as IMatchHistory[])
+const getMatchHistory = async () => {
+   MatcHistory.value = await UserService.getMatchHistory();
+    console.log('MatcHistory',MatcHistory.value);
+}
+onMounted(() => {
+    getMatchHistory();
+});
 </script>
 
 <style scoped>

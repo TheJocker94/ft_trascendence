@@ -73,6 +73,12 @@ export class UserController {
     return this.userService.getLeaderboard();
   }
 
+  @Get('matchHistory')
+  @HttpCode(HttpStatus.OK)
+  getMatchHistory(): Promise<any> {
+    return this.userService.getMatchHistory();
+  }
+
   @Post('add_friend')
   @HttpCode(HttpStatus.CREATED)
   async addFriend(
