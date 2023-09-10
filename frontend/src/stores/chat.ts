@@ -42,8 +42,31 @@ export const useChatStore = defineStore('chat', () => {
   const flagImIn = ref(false);
   const getFlagImIn = computed(() => flagImIn.value);
   const setFlagImIn = (val:boolean) => {flagImIn.value = val, console.log('flagImIn', flagImIn.value) };
+
+  const ifBanned = ref(false);
+  const getifBanned = computed(() => ifBanned.value);
+  const setifBanned = (val:boolean) => {ifBanned.value = val, console.log('ifBanned', ifBanned.value) };
+
+  const isActive = ref(false);
+  const getIsActive = computed(() => isActive.value);
+  const setIsActive = (val:boolean) => {isActive.value = val, console.log('isActive', isActive.value) };
+
+  const porcovar = ref(false);
+  const getporcovar = computed(() => porcovar.value);
+  const setporcovar = (val:boolean) => {porcovar.value = val, console.log('porcovar', porcovar.value) };
+
+const isPassOn = ref(false);
+const getIsPassOn = computed(() => isPassOn.value);
+const setIsPassOn = (val:boolean) => {isPassOn.value = val, console.log('isPassOn', isPassOn.value) };
+
+const insertedPass = ref('');
+const getInsertedPass = computed(() => insertedPass.value);
+const setInsertedPass = (val:string) => {insertedPass.value = val, console.log('insertedPass', insertedPass.value) };
+
   return { isGroupsActive, isFriendsActive, getFriend, getGroup, setFriend, setGroup, profileFriend, channelList, channelAll,
           activChatUsr, currentChannelId, setActivChatUsr, setCurrentChannelId, getActivChatUsr, getCurrentChannelId,
           getChannelList, setChannelList, getChannelAll, setChannelAll, setProfileFriend, getProfileFriend,
-          numDiv, getNumDiv, setNumDiv, chatDiv, getChatDiv, setChatDiv, flagImIn, getFlagImIn, setFlagImIn }
+          numDiv, getNumDiv, setNumDiv, chatDiv, getChatDiv, setChatDiv, flagImIn, getFlagImIn, setFlagImIn, 
+          ifBanned, getifBanned, setifBanned, isActive, getIsActive, setIsActive, porcovar, getporcovar, setporcovar,
+          isPassOn, getIsPassOn, setIsPassOn, insertedPass, getInsertedPass, setInsertedPass }
 })

@@ -38,17 +38,18 @@
                 <div v-for="(channel, index) in chat.getChannelList" :key="index"
                     :class="['entry', channel.active ? 'border-l-4 border-red-500' : '', 'cursor-pointer', 'transform', 'hover:scale-105', 'duration-300', 'transition-transform', 'bg-white', 'mb-4', 'rounded', 'p-4', 'flex', 'shadow-md']"
                     @click="toggleActiveGroup(index)">
-                    <div class="flex-1 px-2">
+                    <div  @click="checkPassera(channel.id)">
+                        <div class="flex-1 px-2">
                         <div class="truncate w-32">
                             <span class="text-gray-800">
                                 {{ channel.name }}
                             </span>
                         </div>
-                        <div v-if="channel.messages.length > 0" class="truncate w-32" ><small class="text-gray-600 ">{{
-                            channel.messages[channel.messages.length -
-                                1].content }}</small></div>
+                        <button @click="LeaveCh(userStore.userId, channel.id)" class="btn btn-ghost btn-xs">Lascia il Canale</button>                                                            
                     </div>
-                    <div class="flex-2 text-right">
+                    </div>
+                    
+                    <!-- <div class="flex-2 text-right">
                         <div><small class="text-gray-500">15 April</small></div>
                         <div>
                             <small
@@ -56,7 +57,7 @@
                                 23
                             </small>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -92,7 +93,17 @@ const changeChannel = (channelName: string, id: string) => {
   getChannel(id);
   chat.value.setActivChatUsr(channelName);
   socket.emit('isUserInCh', { sender: userStore.value.userId, id: id });
+  socket.emit('checkIfPassword', {id: id })
 };
+
+const LeaveCh = (id: any, channelId: any) => {   
+    socket.emit('kickChannel', { uId: id, chId: channelId })
+    console.log('uscito dal canale');
+}
+
+const checkPassera = (channelId: any) => {         
+    socket.emit('checkIfPassword', {id: channelId })
+}
 
 const changeDirect = (username: string) => {
     chat.value.setActivChatUsr(username);

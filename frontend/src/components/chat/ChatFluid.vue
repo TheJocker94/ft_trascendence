@@ -1,5 +1,5 @@
 <template>
-    <div v-if="chat.getFlagImIn" class="chat-area flex-1 flex flex-col">
+    <div v-if="chat.getFlagImIn && !chat.getifBanned" class="chat-area flex-1 flex flex-col">
         <div v-if='chat.getActivChatUsr !== ""' class="flex-3">
             <h2 class="text-xl py-1 mb-8 border-b-2 border-gray-200">Chatting with 
                 <b>{{chat.getActivChatUsr}}</b>
@@ -11,32 +11,120 @@
                 <div
                     :class="['message mb-4', chMes.sender.id !== userStore.userId ? 'flex' : 'flex me text-right']">
                     <div v-if="userStore.userId !== chMes.sender.id" class="flex-2">
-                        <div class="w-12 h-12 relative">
+                        <div class="w-36 h-12 relative">
                             <div class="dropdown dropdown-right">
-                                <div class="w-10 rounded-full">
-                                    <label onclick="my_modal_3.showModal()" tabindex="0" class="btn btn-ghost btn-circle avatar indicator">
+                                <div class="w-15 rounded-full" @click="checkFluidBan(chMes.sender.id, chat.getChannelAll.id), onClickMute(chMes.sender.id, chat.getChannelAll.id)" >
+                                    <label :onclick="'my_modal_3' + index + '.showModal()'" tabindex="0" class="btn btn-ghost btn-circle avatar indicator">
                                         <img class="w-12 h-12 rounded-full mx-auto" :src="chMes.sender.profilePicture" :alt=chMes.sender.username />
                                         <span class="absolute w-4 h-4 bg-gray-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
                                     </label>                                    
-                                        <dialog id="my_modal_3" class="modal">
+                                        <dialog :id="'my_modal_3' + index" class="modal">
                                             <div class="modal-box modal-box-3">
-                                                <h3 class="font-bold text-lg mb-3">User Info</h3>
-                                                <button class="btn btn-block custom-button-width">
-                                                    <router-link :to="{ name: 'profile', params: { userid: chMes.sender.id },}" class="dropdown-item">
-                                                            {{ chMes.sender.username }}
-                                                    </router-link>
-                                                </button>
-                                                <button class="btn btn-block custom-button-width">Invite</button>
-                                                <!--<button v-if="imAdmin()" @click="banUser(chMes.sender.id, channelAll?.id)" class="btn btn-block custom-button-width">Ban</button>
-                                                --><div v-if="imAdmin()" class="form-control">
-                                                    <label class="label cursor-pointer">
-                                                        <span class="label-text">Ban user:</span>
-                                                        <input type="checkbox" class="toggle toggle-error" :checked="isActive" @click="onToggleChange(chMes.sender.id, chMes)" />                                                    
-                                                    </label>
+                                            <div class="overflow-x-auto">
+                                                <table class="table">
+                                                    <!-- head -->
+                                                    <thead>
+                                                    <tr>                                                       
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <!-- row 1 -->
+                                                    <tr>
+                                                        <td>
+                                                            {{ chMes.sender.username }}                                                            
+                                                        </td>
+                                                        <th>
+                                                            <button class="btn btn-ghost btn-xs">
+                                                                <router-link :to="{ name: 'profile', params: { userid: chMes.sender.id },}" class="dropdown-item">
+                                                                    Dettagli Profilo
+                                                                </router-link>
+                                                        </button>
+                                                        </th>
+                                                    </tr>
+                                                    <!-- row 2 -->
+                                                    <tr>
+                                                        <td>
+                                                        Invita a Giocare:                                                    
+                                                        </td>                                                       
+                                                        <th>
+                                                        <button @click="gameInvite(chMes.sender.id)" class="btn btn-ghost btn-xs">Invita</button>
+                                                        </th>
+                                                    </tr>
+                                                    <!-- row 3 -->
+                                                    <tr v-if="imAdmin()">
+                                                      <td>
+                                                        Banna Utente:                                                       
+                                                        </td>                                                        
+                                                        <th>
+                                                            <div v-if="chat.getporcovar">
+                                                                <input  type="checkbox" class="toggle toggle-error" checked @click="onToggleChange(chMes.sender.id, chat.getChannelAll.id)" />                                                    
+                                                            </div>
+                                                            <div v-else>
+                                                                <input  type="checkbox" class="toggle toggle-error" @click="onToggleChange(chMes.sender.id, chat.getChannelAll.id)" />
+                                                            </div>
+                                                        </th>
+                                                    </tr>
+                                                    <!-- row 4 -->
+                                                    <tr v-if="imAdmin()">
+                                                        <td>
+                                                            Muta Utente:                                         
+                                                        </td>
+                                                        <td>
+                                                            <div v-if="hidder || hiddenMute">
+                                                                <select class="select w-full max-w-xs" disabled>
+                                                                    <option>Non muti un cazzo</option>
+                                                                </select>                                                            
+                                                            </div>
+                                                            <div v-else>
+                                                                <select class="select select-warning w-full max-w-xs" v-model="selectedValue">
+                                                                    <option value="5">5m</option>
+                                                                    <option value="10">10m</option>
+                                                                    <option value="15">15m</option>
+                                                                    <option value="30">30m</option>
+                                                                    <option value="60">1h</option>
+                                                                    <option value="120">2h</option>
+                                                                </select>
+                                                            </div>                                                          
+                                                        </td>
+                                                        <th>
+                                                            <div v-if="!hidder && !hiddenMute" @click="convertValue(selectedValue, chMes.sender.id, chat.getChannelAll.id)"><button class="btn btn-ghost btn-xs">MUTA!</button></div>                                                            
+                                                        </th>
+                                                    </tr>
+                                                    <!-- row 5 -->
+                                                    <tr v-if="imAdmin()">
+                                                        <td>
+                                                            Kick: 
+                                                        </td>
+                                                        <td>
+                                                            <button @click="kickCh(chMes.sender.id, chat.getChannelAll.id)" class="btn btn-ghost btn-xs">Kicka Utente</button>                                                            
+                                                        </td>
+                                                    </tr>
+                                                    <!-- row 6 -->
+                                                    <tr v-if="imAdmin()">
+                                                        <td>
+                                                            Promote: 
+                                                        </td>
+                                                        <td>
+                                                            <label class="swap swap-flip text-5xl">
+                                                                <!-- this hidden checkbox controls the state -->
+                                                                <input type="checkbox" />                                                            
+                                                                <div v-if="hiddenAdmin" @click="unSetAdmin(chMes.sender.id, chat.getChannelAll.id)" >🤖</div>
+                                                                <div v-else @click="setAdmin(chMes.sender.id, chat.getChannelAll.id)" >🫥</div>
+                                                            </label>
+                                                        </td>
+                                                    </tr>
+                                                    </tbody>
+                                                    
+                                                </table>
+                                                    <form method="dialog" class="modal-backdrop">
+                                                    <button>close</button>
+                                                    </form>
                                                 </div>
-                                                <button v-if="imAdmin()" class="btn btn-block custom-button-width">Kick</button>
-                                                <!-- <button v-if="imAdmin()" @click="muteUser(chMes.sender.id, chat.getChannelAll?.id)" class="btn btn-block custom-button-width">Mute</button>                                               -->
-                                                <button v-if="imAdmin()" class="btn btn-block custom-button-width">Mute</button>                                              
                                             </div>
                                             <form method="dialog" class="modal-backdrop">
                                                 <button>close</button>
@@ -111,22 +199,32 @@
             </div>
         </div>
     </div>
-    <div v-else-if="!chat.getFlagImIn" class="chat-area flex-1 flex flex-col">
+    <div v-else-if="!chat.getFlagImIn && !chat.getifBanned" class="chat-area flex-1 flex flex-col">
         <div v-if="chat.getGroup" class="messages flex-1 overflow-auto max-h-[700px]">
             <div class="alert">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>Non sei nel gruppo</span>
-                <div>
-                    <button @click="channelJoin()" class="btn btn-sm btn-primary">Joina ora!</button>
+                <div  v-if="chat.getIsPassOn" >
+                    <input v-model="chat.insertedPass" type="text" placeholder="Inserisci Password" class="input input-bordered w-full max-w-xs" />
+                </div><div>
+                    <button @click="channelJoin(chat.getInsertedPass)" class="btn btn-sm btn-primary">Joina ora!</button>
                 </div>
             </div>
         </div> 
     </div>
-    <div v-else class="chat-area flex-1 flex flex-col">
+    <div v-else-if="chat.getifBanned" class="chat-area flex-1 flex flex-col">
         <div v-if="chat.getGroup" class="messages flex-1 overflow-auto max-h-[700px]">
             <div class="alert">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>SEI BANNATO COGLIONE</span>
+            </div>
+        </div> 
+    </div> 
+    <div v-else class="chat-area flex-1 flex flex-col">
+        <div v-if="chat.getGroup" class="messages flex-1 overflow-auto max-h-[700px]">
+            <div class="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>SELEZIONA UN CANALE PER UNIRTI</span>
             </div>
         </div> 
     </div>
@@ -134,38 +232,140 @@
 
 <script setup lang="ts">
 import { useCurrentUserStore } from "@/stores/currentUser";
-import { socket } from '@/plugins/Socket.io';
-import { ref, type Ref } from "vue";
+import { socket, socketGame } from '@/plugins/Socket.io';
+import { ref, type Ref, watchEffect, watch } from "vue";
 import { nextTick } from 'vue';
 import { useChatStore } from "@/stores/chat";
+import { useAuthStore } from '@/stores/auth';
+import { onMounted } from 'vue'
+import { useGameInviteStore } from '@/stores/gameInvite';
+import GameInviteService from '@/services/GameInviteService';
+import { useFriendStore } from '@/stores/friend';
+import { useRouter } from 'vue-router';
+import type { IUser } from '@/models/IUser';
+import UserService from '@/services/UserService';
+import axios, { AxiosError } from 'axios';
+import type { IError } from '@/models/IError';
 
 const chat = ref(useChatStore());
 const userStore = ref(useCurrentUserStore());
 const msg = ref('');
 const lastMessage: Ref<HTMLDivElement | null> = ref(null);
-const isActive = ref(false);
+const hidder = ref(false);
+const hiddenMute = ref(false);
+const hiddenAdmin = ref(false);
+const selectedValue = ref('0');
 
-const onToggleChange = (id: any, channelId: any) => {    
-    console.log(id);
-    console.log(channelId);         
-  socket.emit('checkIfBan', { uId: id, chId: channelId })
+
+const kickCh = (id: any, channelId: any) => {   
+    socket.emit('kickChannel', { uId: id, chId: channelId })
+    console.log('kickato');
+}
+
+// converti valore di selectedvalue in millisecondi
+const convertValue = (selectedValue: string, userId: any, channelId: any) => {
+    let ret = 0;
+    if (selectedValue === '5')
+        ret = 15000;
+    else if (selectedValue === '10')
+        ret = 600000;
+    else if (selectedValue === '15')
+        ret =  900000;
+    else if (selectedValue === '30')
+        ret =  1800000;
+    else if (selectedValue === '60')
+        ret =  3600000;
+    else if (selectedValue === '120')
+        ret =  7200000;
+    else
+        ret =  0;
+    socket.emit('muteUser', { uId: userId, chId: channelId, time: ret })
+}
+
+const onToggleChange = (id: any, channelId: any) => {     
+    socket.emit('checkIfBan', { uId: id, chId: channelId })
 }
 
 socket.on('isBanChan', (id: any, channelId: any, bannato: boolean) => {
     if (bannato) 
     {
         socket.emit('unbanChannel', { uId: id, chId: channelId });
-        isActive.value = false;
+        chat.value.setIsActive(false);
+        hidder.value = false;
         console.log('unbannato');
     } 
     else 
     {
         socket.emit('banChannel', { uId: id, chId: channelId });
-        isActive.value = true;
+        chat.value.setIsActive(true);
+        hidder.value = true;
         console.log('bannato');
     }            
     console.log(bannato);
 });
+
+
+const onClickMute = (id: any, channelId: any) => {         
+    socket.emit('checkIfMute', { uId: id, chId: channelId })
+}
+
+socket.on('isPassOn', (pass: boolean) => {
+    if (pass) 
+    {
+        chat.value.setIsPassOn(true);
+        console.log('password');
+    } 
+    else 
+    {
+        chat.value.setIsPassOn(false);
+        console.log('no password');
+    }
+});
+
+socket.on('isMuteChan', (muted: boolean) => {
+    if (muted) 
+    {
+        hiddenMute.value = true;
+        console.log('mutato');
+    } 
+    else 
+    {
+        hiddenMute.value = false;
+        console.log('non mutato');
+    }
+});
+
+const setAdmin = (id: any, channelId: any) => {   
+    console.log('Il click funziona');      
+    socket.emit('setAdmin', { uId: id, chId: channelId })
+}
+const unSetAdmin = (id: any, channelId: any) => {     
+    console.log('Il click toglie funziona');        
+    socket.emit('unSetAdmin', { uId: id, chId: channelId })
+}
+
+socket.on('isAdminChan', (muted: boolean) => {
+    if (muted) 
+    {
+        hiddenAdmin.value = true;
+        console.log('Sono Admin');
+    } 
+    else 
+    {
+        hiddenAdmin.value = false;
+        console.log('Non sono Admin');
+    }
+});
+
+
+socket.on('isBanFluidRet', (bannato: boolean) => {
+    chat.value.setporcovar(bannato);
+});
+
+const checkFluidBan = (id: any, channelId: any) => {   
+    socket.emit('isBanFluid', { uId: id, chId: channelId })
+    console.log('ban fluidato: ', id);
+}
 
 // Function to format time
 const formattedTime = (date: any) => {
@@ -208,9 +408,9 @@ const imAdmin = () => {
         return false;
 }
 
-
-const channelJoin = () => {    
-    socket.emit('joinChannel', { id: chat.value.getChannelAll?.id, sender: userStore.value.userId });
+const channelJoin = (password: any) => {    
+    socket.emit('joinChannel', { id: chat.value.getChannelAll?.id, sender: userStore.value.userId, password: password });
+    console.log('joinato con password: ', password);
     console.log('joinato');
   }
 
@@ -218,19 +418,159 @@ const banUser = (bannedId: any, bannedChlId: any) => {
     socket.emit('banChannel', { uId: bannedId, chId: bannedChlId });
     console.log('bannato');
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // -------------------------------------- NIZZ --------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+const router = useRouter();
+const authStore = ref(useAuthStore());
+const press = ref(false);
+const leaveQ = ref(false);
+const goGame = ref(false);
+const isIdExistsInOtherGameInvites = ref(false);
+
+onMounted(async () => {
+    await userStore.value.initStore(null, null, null);
+	socketGame.auth = { token: authStore.value.token };
+	// console.log("whhhhhhhhhhhhhhhhat ", authStore.value.token);
+	socketGame.connect();
+	// This can be used for testing the connection
+	socketGame.on('connect', function() {
+    	console.log('Connected to the server. Socket ID:', socketGame.id);
+	});
+	socketGame.on('welcome', (data: any) => {
+		console.log(data);
+		console.log('nizz => Your id is: ' + data.player);
+		console.log("nizz => Game Created! ID room is: " + data.room)
+	});
+});
+
+const isBrowserMinimized = ref(false);
+const handleVisibilityChange = () => {
+  isBrowserMinimized.value = document.hidden;
+  if (isBrowserMinimized.value === true && userStore.value.roomId) {
+			socketGame.emit('pause', {room: userStore.value.roomId, player : userStore.value.playerNo});
+  }
+	else if (isBrowserMinimized.value === false && userStore.value.roomId)
+		socketGame.emit('unpause', {room: userStore.value.roomId, player : userStore.value.playerNo}); 
+};
+
+onMounted(() => {
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+});
+
+const teardown = () => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+};
+
+const currentUser = ref(useCurrentUserStore());
+const friendStore = ref(useFriendStore());
+const gameInviteStore = ref(useGameInviteStore());
+const isChangingUsername = ref(false);
+const newUsername = ref('');
+const errorMessage = ref('');
+
+const createGame = () => {
+	// console.log("create game");
+  socketGame.emit('joinGameInviteQueue');
+  leaveQ.value = true;
+}
+
+socketGame.on('playerInviteNo', function (data) {
+    // console.log("Game Created! ID room is: " + data.room)
+    // console.log('Your id is: ' + data.player);
+    userStore.value.initGame(data.room, data.player);
+});
+
+socketGame.on('startingInviteGame', function (data) {
+    // console.log("Game Created! ID room is: " + data)
+	console.log("maaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaan");
+    goGame.value = true;
+    leaveQ.value = false;
+    press.value = true;
+	router.push('/gameInvite');
+    //alert("Game Created! ID is: "+ JSON.stringify(data));
+});
+
+const props = defineProps({
+	idProfile: String,
+});
+
+const profile = ref<IUser>();
+
+async function fetchUsers() {
+  profile.value = await UserService.getUserById(props.idProfile!);
+// profile.value = userStore.value.$id;
+
+}
+
+watchEffect(async () => {
+  // Fetch the updated lists
+  await fetchUsers();
+  friendStore.value.friends;
+  friendStore.value.pending;
+  friendStore.value.sent;
+  friendStore.value.blocked;
+  gameInviteStore.value.sent;
+  updateReactiveGameInviteChecks();
+});
+
+watch(() => gameInviteStore.value.sent, () => {
+    updateReactiveGameInviteChecks();
+}, { deep: true });
+
+async function gameInvite(userId: string) {
+  try {
+	  await GameInviteService.sendGameInvite(userId);
+	  // Update the state after the API call
+	  friendStore.value.updatePendings(currentUser.value.userId);
+    friendStore.value.updateFriends();
+    friendStore.value.updateSent(currentUser.value.userId);
+		updateReactiveGameInviteChecks();
+		// console.log("game invite sent");
+		createGame();
+		// location.reload();
+  } catch (err) {
+    const e = err as AxiosError<IError>;
+		if (axios.isAxiosError(e)) return e.response?.data;
+	}
+}
+
+function updateReactiveGameInviteChecks() {
+	isIdExistsInOtherGameInvites.value = gameInviteStore.value.sent.some(game => game.id === props.idProfile);
+}
+
+// -------------------------------------- NIZZ --------------------------------------
 </script>
 
 
 
 <style scoped>
-.custom-button-width {
-  width: 100px; /* Sostituisci con la larghezza desiderata in pixel o con un'altra unità di misura */
-  display: block;
-  margin-bottom: 1%;
-}
 .modal-box-3
 {
-    width: 30%;
+    max-width: 60rem;
 }
 
 </style>
