@@ -335,9 +335,10 @@ export class ChatGateway {
       @ConnectedSocket() client: Socket,
       @MessageBody() data: any,
     ): Promise<void> {
+      let channel = null;
       if(data.chatId)
       {
-        const channel = await this.prisma.channel.findFirst({ 
+        channel = await this.prisma.channel.findFirst({ 
           where: {
             AND: [
               {type: ChannelType.DIRECT},
@@ -373,7 +374,7 @@ export class ChatGateway {
         });
         if(!channel)
         {
-          const channel = await this.prisma.channel.create({
+            channel = await this.prisma.channel.create({
             data: { type: ChannelType.DIRECT},
             })
             await this.prisma.channelMembership.create({
@@ -387,7 +388,7 @@ export class ChatGateway {
       }
       else
       {
-        const channel = await this.prisma.channel.findUnique({ 
+        channel = await this.prisma.channel.findUnique({ 
           where: {id: data.chId},
           include: {
             messages: {
@@ -656,7 +657,7 @@ export class ChatGateway {
           data: { userId: data.uId, channelId: data.chId, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
       })
       client.join(data.chId);
-      console.log('Ho joinato nel backend' + data.chId);
+      console.log('Ho joinato nel backend 1' + data.chId);
       this.handleGrouplList(client, data);
       this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
     }
@@ -671,7 +672,7 @@ export class ChatGateway {
           data: { userId: data.uId, channelId: data.chId, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
       })
       client.join(data.chId);
-      console.log('Ho joinato nel backend' + data.chId);
+      console.log('Ho joinato nel backend 2' + data.chId);
       this.handleGrouplList(client, data);
       this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
     }
@@ -688,7 +689,7 @@ export class ChatGateway {
           console.error('Error creating channel:', error);
         }
         client.join(data.chId);
-        console.log('Ho joinato nel backend' + data.chId);
+        console.log('Ho joinato nel backend 3' + data.chId);
         this.handleGrouplList(client, data);
         this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
       }
@@ -697,6 +698,21 @@ export class ChatGateway {
         this.handleCheckIfPassword(client, data);
       }
     //  this.handleGrouplList(client, data);
+  }
+
+
+  @SubscribeMessage('joinDirect')
+  async handleJoinDirect(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+
+    //CHECK IF BLOCKED TODO
+
+    client.join(data.chId);
+    console.log('Ho joinato nel backend diretto 4' + data.chId);
+   // this.handleGrouplList(client, data);
+    //this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
   }
 
   @SubscribeMessage('createGroup')

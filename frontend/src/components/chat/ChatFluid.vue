@@ -415,6 +415,8 @@ const convertValue = (selectedValue: string, userId: any, channelId: any) => {
     chat.value.setSelectedValue('0');
 }
 
+
+
 const onToggleChange = (id: any, channelId: any) => {     
     socket.emit('checkIfBan', { uId: id, chId: channelId })
 }
@@ -547,6 +549,7 @@ const sendMessage = () => {
 };
 
 const sendDirect = () => {
+    console.log("Name current channel: ", chat.value.getChannelAll?.id);
   if (/^[\s\n]*$/.test(msg.value))
       return;
   if (chat.value.getCurrentChannelId == '' || chat.value.getCurrentChannelId == null) {

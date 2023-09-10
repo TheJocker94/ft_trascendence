@@ -111,7 +111,14 @@ const channelJoin = (password: any, invited: boolean) => {
     console.log('joinato con password: ', password);
     console.log('joinato');
     chat.value.setInsertedPass('');
-  }
+}
+
+const   directJoin = () => {    
+    socket.emit('joinDirect', { chId: chat.value.getChannelAll?.id, uId: userStore.value.userId});
+    console.log('joinato direttamente');
+    chat.value.setInsertedPass('');
+}
+
 
 const getChannel = (id: string) => {
 	socket.emit('getChannel', { chId: id });
@@ -173,8 +180,7 @@ const toggleActiveFriend = (index: number) => {
         });
         changeDirect(chat.value.getProfileFriend[index].username, chat.value.getProfileFriend[index].id, userStore.value.userId);
     }
-
-
+    directJoin();
 };
 </script>
 

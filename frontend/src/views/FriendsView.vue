@@ -501,11 +501,7 @@ socket.on('messageFromServer', (idChannel) => {
     });
 })
 onMounted(async () => {
-<<<<<<< HEAD
-    await userStore.value.initStore(null, null);
-=======
     await userStore.value.initStore(null, null,);
->>>>>>> d3ef6925a1055775407dfbe93ba8a12dbb40c821
     const username = userStore.value.username;
     socket.auth = { username };
     socket.connect();
