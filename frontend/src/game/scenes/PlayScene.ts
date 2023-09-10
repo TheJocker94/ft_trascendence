@@ -187,8 +187,8 @@ export default class PlayScene extends Scene {
 
     // event listener movement
     socketGame.on('move', (data: { direction: string, player: number, room: string}) => {
-      console.log(data);
-      console.log("i am in game")
+    //   console.log(data);
+    //   console.log("i am in game")
       if (data.room === userStore.value.roomId) {
         if (data.player === 1){
           if (data.direction === 'up')

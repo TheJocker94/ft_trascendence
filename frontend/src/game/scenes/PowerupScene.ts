@@ -250,7 +250,7 @@ export default class PowerupScene extends Scene {
 			boomX = data.x;
 			boomY = data.y;
       this.powerup = true;
-      console.log("power do it", data)
+    //   console.log("power do it", data)
       if (data.room === userStore.value.roomId) {
         if (data.player === 1) {
           this.boombaby();
@@ -297,16 +297,16 @@ export default class PowerupScene extends Scene {
           this.ball.setData('onPaddlePlayer1', true);
           this.ball.setData('onpowerplayer2', false);
           this.ball.setData('onpowerplayer1', true); 
-          console.log('onpowerplayer1', this.ball.getData('onpowerplayer1'));
-          console.log('onpowerplayer2', this.ball.getData('onpowerplayer2'));
+        //   console.log('onpowerplayer1', this.ball.getData('onpowerplayer1'));
+        //   console.log('onpowerplayer2', this.ball.getData('onpowerplayer2'));
           this.randomPlayer();
         }
         else if (data.player === 2)
           this.ball.setData('onPaddlePlayer2', true);
           this.ball.setData('onpowerplayer1', false);
           this.ball.setData('onpowerplayer2', true); 
-          console.log('onpowerplayer1', this.ball.getData('onpowerplayer1'));
-          console.log('onpowerplayer2', this.ball.getData('onpowerplayer2'));
+        //   console.log('onpowerplayer1', this.ball.getData('onpowerplayer1'));
+        //   console.log('onpowerplayer2', this.ball.getData('onpowerplayer2'));
           this.randomEnemy();
       }
     })
@@ -411,8 +411,8 @@ export default class PowerupScene extends Scene {
     }
 
   emitPowerup(){
-    console.log("emit powerup 2 is", this.ball.getData('onpowerplayer2'));
-    console.log("emit powerup 1 is", this.ball.getData('onpowerplayer1'));
+    // console.log("emit powerup 2 is", this.ball.getData('onpowerplayer2'));
+    // console.log("emit powerup 1 is", this.ball.getData('onpowerplayer1'));
       if (this.ball.getData('onpowerplayer2')=== true) {
         if (this.ball.body!.velocity.x > 0)
           socketGame.emit('powerdoit', {player: 1, room: userStore.value.roomId, x: this.ballpower.x, y: this.ballpower.y});
@@ -460,8 +460,8 @@ export default class PowerupScene extends Scene {
   }
 
   boombaby() {
-		console.log("me boomx is", boomX);
-		console.log("me boomy is", boomY);
+		// console.log("me boomx is", boomX);
+		// console.log("me boomy is", boomY);
     this.thud.play();
     this.explosion.setPosition(boomX, boomY).setVisible(true).play('explode');
     this.ballpower.setPosition(-100, this.scale.height + 100);

@@ -80,7 +80,7 @@ const handleImageChange = async () => {
       };
       reader.readAsDataURL(file);
       if (currentUser.value.userId)
-        await currentUser.value.initStore(null, null, null);
+        await currentUser.value.initStore(null, null);
     }
   }
 };

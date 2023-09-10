@@ -158,9 +158,9 @@ export default class PlayScene extends Scene {
   }
   
   update () {
-	console.log(this.ball.body!.velocity.x);
+	// console.log(this.ball.body!.velocity.x);
 	if (this.ball.body!.velocity.x > 900 || this.ball.body!.velocity.x < -900) {
-		console.log("am i here bitch");
+		// console.log("am i here bitch");
 		if (this.ball.body!.velocity.x > 0)
 		this.ball.body!.velocity.x = 900;
 		else

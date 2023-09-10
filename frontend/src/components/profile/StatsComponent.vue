@@ -96,7 +96,7 @@ const getMatchHistory = async () => {
 //	
 //
 	MatcHistory.value = MatcHistory.value.filter(match => match.user1Id.id == userStore.value.userId || match.user2Id.id == userStore.value.userId);
-    console.log('MatcHistory',MatcHistory.value);
+    // console.log('MatcHistory',MatcHistory.value);
 }
 onMounted(() => {
     getMatchHistory();

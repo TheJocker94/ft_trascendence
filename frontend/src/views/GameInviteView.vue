@@ -16,7 +16,7 @@ const authStore = ref(useAuthStore());
 
 
 socketGame.on('playerDisconnected', data => {
-  console.log('playerDisconnected: ' + data);
+//   console.log('playerDisconnected: ' + data);
   socketGame.emit('leaveRoom', userStore.value.roomId);
   router.push({ name: 'home' });
   //alert("Game Created! ID is: "+ JSON.stringify(data));
@@ -27,13 +27,13 @@ socketGame.on('playerDisconnected', data => {
 // });
 
 onMounted(async () => {
-	console.log("wtfffff");
+	// console.log("wtfffff");
 	await userStore.value.initStore(null, null);
 	if (authStore.value.isLoggedIn){
 		socketGame.auth = { token: authStore.value.token }
 		socketGame.connect();
 		socketGame.on('welcome', (data: any) => {
-			console.log(data);
+			// console.log(data);
 		});
 	}
 });
@@ -62,11 +62,11 @@ onUnmounted(() => {
   socketGame.off('playerInvitedDisconnected');
   socketGame.off('playerInviteNo');
   socketGame.off('startingInviteGame');
-	socketGame.off('playerdDisconnected');
+  socketGame.off('playerdDisconnected');
   socketGame.off('playerNo');
   socketGame.off('startingGame');
-	socketGame.off('pauseServer');
-	socketGame.off('unpauseServer');
+  socketGame.off('pauseServer');
+  socketGame.off('unpauseServer');
   socketGame.offAny();
   socketGame.off('restartServer');
   socketGame.off('gameCreated');

@@ -93,10 +93,6 @@ class AuthService {
     return http.post('/auth/logout');
   }
 
-//   getCloseTab() {
-// 	return http.post('/auth/closetab');
-//   }
-
   deleteAccount() {
     return http.delete('/users');
   }

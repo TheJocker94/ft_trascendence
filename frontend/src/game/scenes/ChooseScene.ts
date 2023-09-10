@@ -4,8 +4,8 @@ import { useCurrentUserStore } from '@/stores/currentUser';
 import { ref } from 'vue';
 
 const userStore = ref(useCurrentUserStore());
-console.log(userStore.value.roomId);
-console.log(userStore.value.playerNo);
+// console.log(userStore.value.roomId);
+// console.log(userStore.value.playerNo);
 export default class ChooseScene extends Scene {
 	private lefthand!: Phaser.GameObjects.Image;
 	private righthand!: Phaser.GameObjects.Image;
@@ -25,7 +25,7 @@ export default class ChooseScene extends Scene {
 		this.lefthand = this.add.image(200, 350, 'lefthand').setScale(0.5);
 		this.lefthand.setInteractive();
 		this.lefthand.on('pointerdown', () => {
-			console.log('lefthand clicked!');
+			// console.log('lefthand clicked!');
 			this.chooseSound.stop();
             socketGame.emit('choice', "standard")
 			// this.scene.start('PlayScene');
@@ -34,7 +34,7 @@ export default class ChooseScene extends Scene {
 		this.righthand = this.add.image(600, 350, 'righthand').setScale(0.5);
 		this.righthand.setInteractive();
 		this.righthand.on('pointerdown', () => {
-			console.log('righthand clicked!')
+			// console.log('righthand clicked!')
 			this.chooseSound.stop();
             socketGame.emit('choice', "powerup")
 			// this.scene.start('PowerupScene');

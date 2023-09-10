@@ -84,9 +84,9 @@ function isError(obj: any): obj is IError {
 }
 
 async function onSubmit2fa() {
-  console.log("2fa");
+//   console.log("2fa");
     const e = await auth.value.signInLocal2fa(credentials.twofaCode, credentials.email, isEmail.value);
-    console.log("email", credentials.email, ":", isEmail.value);
+    // console.log("email", credentials.email, ":", isEmail.value);
     credentials.twofaCode = "";
     if (isError(e)) {
       alert(e.message);
@@ -97,7 +97,7 @@ async function onSubmit2fa() {
 
 async function onSubmit()
 {
-	console.log("Sommettiti");
+	// console.log("Sommettiti");
 	let email: string | null = credentials.email;
   
 	// Check if the provided input is a username and not an email
@@ -107,7 +107,7 @@ async function onSubmit()
   else {
     isEmail.value = true;
   }
-	console.log("pass", credentials.password);
+	// console.log("pass", credentials.password);
 
 	const e = await auth.value.signInLocal(email, credentials.password, isEmail.value);
   if (typeof e === 'boolean'){

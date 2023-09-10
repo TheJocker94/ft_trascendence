@@ -465,7 +465,7 @@ const createGroup = () => {
         console.log('no 2')
         return;
     }
-    console.log('sto creando il gruppo da frontend')
+    // console.log('sto creando il gruppo da frontend')
     myButton.value!.click();
     socket.emit('createGroup', { text: credentials.name, sender: userStore.value.userId, type: credentials.type, password: credentials.password });
     credentials.name = '';
@@ -511,7 +511,7 @@ onMounted(async () => {
         }
     });
     socket.on('welcome', (message: string) => {
-        console.log(message);
+        // console.log(message);
     });
 });
 onUnmounted(() => {

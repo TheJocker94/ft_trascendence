@@ -183,7 +183,7 @@ export class UserService {
       dtoMatch.winnerUsername = winner;
       dtoMatches.push(dtoMatch);
     }
-    console.log('LISTA PARTITE:   ', dtoMatches);
+    // console.log('LISTA PARTITE:   ', dtoMatches);
     return dtoMatches;
   }
 
@@ -464,14 +464,7 @@ export class UserService {
   	//* ---------------------------------- nizz ---------------------------------- */
 
 	  async inviteGame(senderId: string, receiverId: string): Promise<any> {
-		// if (senderId === receiverId) {
-		// 	throw new BadRequestException('You cannot send a friend request to yourself.');
-		// }
-	
-		// if (await this.areUsersFriends(senderId, receiverId)) {
-		//   throw new BadRequestException('Friendship already exists or is pending.');
-		// }
-	
+
 		await this.prisma.gameinvite.create({
 		  data: {
 			senderId: senderId,
@@ -491,26 +484,13 @@ export class UserService {
 		  }
 		});
 	
-			//! what kind of controls do we need here?
-			// if (!gameship) {
-		//   throw new BadRequestException('No pending friend request found.');
-		// }
-	
-		// if (gameship.senderId !== receiverId) {
-		//   throw new BadRequestException('You cannot accept a friend request that you sent.');
-		// }
-	
-		// if (await this.isUserBlocked(senderId, receiverId) || await this.isUserBlocked(receiverId, senderId)) {
-		//   throw new BadRequestException('Friend request cannot be accepted as one user has blocked the other.');
-		// }
-	
 		await this.prisma.gameinvite.update({
 		  where: { id: gameship.id },
 		  data: { status: 'ACCEPTED' }
 		});
-		}
+	  }
 	
-		async getReceivedGameInviteRequests(userId: string): Promise<InviteFriendsDto[]> {
+	  async getReceivedGameInviteRequests(userId: string): Promise<InviteFriendsDto[]> {
 		const friendships = await this.prisma.gameinvite.findMany({
 		  where: {
 			receiverId: userId,
@@ -523,7 +503,7 @@ export class UserService {
 				username: true,
 				profilePicture: true,
 				isOnline: true,
-        isPlaying: true
+        		isPlaying: true
 			  }
 			}
 		  }
@@ -533,7 +513,7 @@ export class UserService {
 		return friendRequests;
 	  }
 	
-		async getSentGameInvite(userId: string): Promise<InviteFriendsDto[]> {
+	  async getSentGameInvite(userId: string): Promise<InviteFriendsDto[]> {
 		const friendship = await this.prisma.gameinvite.findMany({
 		  where: {
 			senderId: userId,
@@ -556,7 +536,7 @@ export class UserService {
 		return friends;
 	  }
 	
-		async getFriendsInvited(userId: string): Promise<InviteFriendsDto[]> {
+	  async getFriendsInvited(userId: string): Promise<InviteFriendsDto[]> {
 		const friendships = await this.prisma.gameinvite.findMany({
 		  where: {
 			OR: [
@@ -596,7 +576,7 @@ export class UserService {
 		return friends;
 	  }
 	
-		async removeInvited(senderId: string, receiverId: string): Promise<void> {
+	  async removeInvited(senderId: string, receiverId: string): Promise<void> {
 		await this.prisma.gameinvite.deleteMany({
 		  where: {
 			OR: [

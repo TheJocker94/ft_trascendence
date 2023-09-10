@@ -21,6 +21,18 @@ onBeforeMount( async () => {
   if (userStore.value.userId)
     await userStore.value.initStore(null, null);
 });
+onBeforeUnmount(() => {
+
+  socketGame.offAny();
+  socketGame.off('playerDisconnected');
+  socketGame.off('restartServer');
+  socketGame.off('gameCreated');
+  socketGame.off('playerNo');
+  socketGame.off('startingGame');
+  socketGame.off('joinQueue');
+  // socketGame.off('leaveRoom');
+  socketGame.off('disconnect');
+});
 
 </script>
 
