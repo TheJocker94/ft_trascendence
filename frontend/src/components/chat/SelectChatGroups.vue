@@ -133,7 +133,7 @@ const createGroup = () => {
   }
   console.log('sto creando il gruppo da frontend')
   myButton.value!.click();
-  socket.emit('createGroup', { text: credentials.name, sender: userStore.value.userId, type: credentials.type, password: credentials.password });
+  socket.emit('createGroup', { text: credentials.name, uId: userStore.value.userId, type: credentials.type, password: credentials.password });
   credentials.name = '';
   credentials.type = '';
   credentials.password = '';

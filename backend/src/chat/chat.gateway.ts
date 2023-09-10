@@ -168,6 +168,7 @@ export class ChatGateway {
     })
     this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
     this.handleCheckIfAdmin(client, data);
+    this.handleGrouplList(client, data);
   }
   @SubscribeMessage('unSetAdmin')
   async handleUnSetAdmin(
@@ -187,6 +188,7 @@ export class ChatGateway {
     })
     this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
     this.handleCheckIfAdmin(client, data);
+    this.handleGrouplList(client, data);
   }
 
 
@@ -199,29 +201,53 @@ export class ChatGateway {
   ): Promise<void> {
     const isUserBanned = await this.prisma.channelMembership.findFirst({
       where: {
-        userId: data.sender,
-        channelId: data.id,
+        userId: data.uId,
+        channelId: data.chId,
         }
         })
     if (isUserBanned.status === UserStatus.BANNED || isUserBanned.status === UserStatus.MUTED) {
       console.log('User is banned or muted');
-      client.emit('userIsMuted', data.sender);
+      client.emit('userIsMuted', data.uId);
       return;
     }
     await this.prisma.message.create({
       data: {
         content: data.text,
-        senderId: data.sender,
-        channelId: data.id,
+        senderId: data.uId,
+        channelId: data.chId,
       }
     })
-    this.server.to(data.id).emit('messageFromServer', data.id);
+    this.server.to(data.chId).emit('messageFromServer', data.chId);
 
 	const channel = await this.prisma.channel.findUnique({ 
-		where: {id: data.id}});
+		where: {id: data.chId}});
 	channel.notInRoom.forEach(async member => {
 		await this.prisma.channelMembership.update({
-			where: { userId_channelId: { userId: member, channelId: data.id } },
+			where: { userId_channelId: { userId: member, channelId: data.chId } },
+			data: { notRead: { increment: 1 } },
+		});
+	});
+  }
+
+  @SubscribeMessage('messageToDirect')
+  async handleDirectMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    await this.prisma.message.create({
+      data: {
+        content: data.text,
+        senderId: data.mioId,
+        channelId: data.chId,
+      }
+    })
+    this.server.to(data.chId).emit('messageFromDirect', data);
+
+	const channel = await this.prisma.channel.findUnique({ 
+		where: {id: data.chId}});
+	channel.notInRoom.forEach(async member => {
+		await this.prisma.channelMembership.update({
+			where: { userId_channelId: { userId: member, channelId: data.chId } },
 			data: { notRead: { increment: 1 } },
 		});
 	});
@@ -263,6 +289,7 @@ export class ChatGateway {
           name: channel.name,
           messages: channel.messages,
           type: channel.type,
+          members: channel.members,
           notInRoom: channel.notInRoom,
         }
       });
@@ -274,8 +301,8 @@ export class ChatGateway {
       //check banned users
     const bannedUser = await this.prisma.channelMembership.findFirst({
       where: {
-        userId: data.sender,
-        channelId: data.id,
+        userId: data.uId,
+        channelId: data.chId,
         status: UserStatus.BANNED,
       }
     })
@@ -286,8 +313,8 @@ export class ChatGateway {
     }
       const channelMembership = await this.prisma.channelMembership.findFirst({
         where: { 
-          userId: data.sender,
-          channelId: data.id,
+          userId: data.uId,
+          channelId: data.chId,
         },
       });
       if (channelMembership) {
@@ -304,36 +331,88 @@ export class ChatGateway {
       @ConnectedSocket() client: Socket,
       @MessageBody() data: any,
     ): Promise<void> {
-      
-      const channel = await this.prisma.channel.findUnique({ 
-        where: {id: data.id},
-        include: {
-          messages: {
-            select: {
-              content: true,
-              time: true,
-              read: true,
-              sender: {
-                select: {
-                  id: true,
-                  username: true,
-                  profilePicture: true,
-                  isOnline: true,
+      if(data.chatId)
+      {
+        const channel = await this.prisma.channel.findFirst({ 
+          where: {
+            AND: [
+              {type: ChannelType.DIRECT},
+              {members: {some: {userId: data.chatId}}},
+              {members: {some: {userId: data.mioId}}}
+            ]
+          },
+          include: {
+            messages: {
+              select: {
+                content: true,
+                time: true,
+                read: true,
+                sender: {
+                  select: {
+                    id: true,
+                    username: true,
+                    profilePicture: true,
+                    isOnline: true,
+                    }
                   }
                 }
-              }
-            },
-            members: {
-              select: {
-                userId: true,
-                role: true,
-                status: true,
-                muteEndTime: true
+              },
+              members: {
+                select: {
+                  userId: true,
+                  role: true,
+                  status: true,
+                  muteEndTime: true
+                }
               }
             }
-          }
-      });
-      client.emit('singleChannelServer', channel);
+        });
+        if(!channel)
+        {
+          const channel = await this.prisma.channel.create({
+            data: { type: ChannelType.DIRECT},
+            })
+            await this.prisma.channelMembership.create({
+              data: { userId: data.chatId, channelId: channel.id, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
+            })
+            await this.prisma.channelMembership.create({
+              data: { userId: data.mioId, channelId: channel.id, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
+            })
+        }
+        client.emit('singleChannelServer', channel);
+      }
+      else
+      {
+        const channel = await this.prisma.channel.findUnique({ 
+          where: {id: data.chId},
+          include: {
+            messages: {
+              select: {
+                content: true,
+                time: true,
+                read: true,
+                sender: {
+                  select: {
+                    id: true,
+                    username: true,
+                    profilePicture: true,
+                    isOnline: true,
+                    }
+                  }
+                }
+              },
+              members: {
+                select: {
+                  userId: true,
+                  role: true,
+                  status: true,
+                  muteEndTime: true
+                }
+              }
+            }
+        });
+        client.emit('singleChannelServer', channel);
+      }
     }
 
   @SubscribeMessage('enterRoom')
@@ -342,26 +421,26 @@ export class ChatGateway {
 	@MessageBody() data: any,
   ): Promise<void> {
 	const channel = await this.prisma.channel.findUnique({ 
-	  where: {id: data.id}});
+	  where: {id: data.chId}});
 	client.leave(data.currentChannelId);
-	client.join(data.id);
+	client.join(data.chId);
 	
 	const newNotInRoom: string[] = [];
 	for (let i = 0; i < channel.notInRoom.length; i++) {
-			  if (channel.notInRoom[i] !== data.sender) {
+			  if (channel.notInRoom[i] !== data.uId) {
 				newNotInRoom.push(channel.notInRoom[i]);
 			  }
 			}
 	await this.prisma.channel.update({
 		where: {
-			id: data.id,
+			id: data.chId,
 		},
 		data: {
 			notInRoom: newNotInRoom,
 		},
 	})
 	await this.prisma.channelMembership.update({
-		where: { userId_channelId: { userId: data.sender, channelId: data.id } },
+		where: { userId_channelId: { userId: data.uId, channelId: data.chId } },
 		data: { notRead: 0 },
 	});
 	if (data.currentChannelId !== '') {
@@ -371,7 +450,7 @@ export class ChatGateway {
 	  	},
 	  	data: {
 	  	  notInRoom: {
-	  		push: data.sender,
+	  		push: data.uId,
 	  	  },
 	  	},
 	    })
@@ -413,15 +492,9 @@ export class ChatGateway {
     })
     if (!kickedUser || kickedUser.role === UserRole.OWNER) {
     this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
+    this.handleGrouplList(client, data);
       return;
     }
-    // elimino tutti i messaggi dell'utente
-    await this.prisma.message.deleteMany({
-      where: {
-        senderId: data.uId,
-        channelId: data.chId,
-      }
-    })
     await this.prisma.channelMembership.delete({
       where: {
         userId_channelId: {
@@ -431,6 +504,7 @@ export class ChatGateway {
       }
     })
     this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
+    this.handleGrouplList(client, data);
   }
 
   @SubscribeMessage('banChannel')
@@ -450,6 +524,7 @@ export class ChatGateway {
       }
     })
     this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
+    this.handleGrouplList(client, data);
   }
 
 
@@ -470,7 +545,7 @@ export class ChatGateway {
       }
     })
     this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
-    
+    this.handleGrouplList(client, data);
   }
 
   @SubscribeMessage('muteUser')
@@ -492,6 +567,7 @@ export class ChatGateway {
     // Chiamare la funzione addTimeout con i parametri appropriati
     this.addTimeout(data.uId, data.time, data.chId);
     this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
+    this.handleGrouplList(client, data);
   }
 
   addTimeout(name: string, milliseconds: number, channelId: string) {
@@ -510,7 +586,7 @@ export class ChatGateway {
   ): Promise<void> {
     const channel = await this.prisma.channel.findUnique({
       where: {
-        id: data.id,
+        id: data.chId,
       },
     });
     if (channel.password === '' || channel.password === null) {
@@ -523,6 +599,26 @@ export class ChatGateway {
     }
   }
 
+  @SubscribeMessage('checkIfPrivate')
+  async handleCheckIfPrivate(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    const channel = await this.prisma.channel.findUnique({
+      where: {
+        id: data.chId,
+      },
+    });
+    if (channel.type === ChannelType.PRIVATE) {
+      console.log('Channel is private');
+      client.emit('isPrivOn', true);
+    }
+    else {
+      console.log('Channel is not private');
+      client.emit('isPrivOn', false);
+    }
+  }
+
   @SubscribeMessage('joinChannel')
   async handleJoinChannel(
     @ConnectedSocket() client: Socket,
@@ -531,30 +627,49 @@ export class ChatGateway {
     //check banned users
     const bannedUser = await this.prisma.channelMembership.findFirst({
       where: {
-        userId: data.sender,
-        channelId: data.id,
+        userId: data.uId,
+        channelId: data.chId,
         status: UserStatus.BANNED,
       }
     })
     if (bannedUser) {
       console.log('User is banned');
-      client.emit('userIsBanned', data.id);
+      client.emit('userIsBanned', data.chId);
       return;
     }
     const canale = await this.prisma.channel.findUnique({
       where: {
-        id: data.id,
+        id: data.chId,
       },
     });
-
+    if (canale.type === ChannelType.PRIVATE && data.invited === false) {
+      console.log('Channel is private');
+      return;
+    }
+    if (canale.type === ChannelType.PRIVATE && data.invited === true) {
+      try {
+        await this.prisma.channelMembership.create({
+          data: { userId: data.uId, channelId: data.chId, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
+      })
+      client.join(data.chId);
+      console.log('Ho joinato nel backend' + data.chId);
+      this.handleGrouplList(client, data);
+      this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
+    }
+      catch (error) {
+        console.error('Error creating channel:', error);
+      }
+      return;
+    }
     if (canale.password === '' || canale.password === null) {
       try {
         await this.prisma.channelMembership.create({
-          data: { userId: data.sender, channelId: data.id, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
+          data: { userId: data.uId, channelId: data.chId, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
       })
-      client.join(data.id);
-      console.log('Ho joinato nel backend' + data.id);
-      this.server.to(data.id).emit('gettingSingleChannel', data.id);
+      client.join(data.chId);
+      console.log('Ho joinato nel backend' + data.chId);
+      this.handleGrouplList(client, data);
+      this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
     }
       catch (error) {
         console.error('Error creating channel:', error);
@@ -562,20 +677,22 @@ export class ChatGateway {
     else if(canale.password === data.password) {
         try {
         await this.prisma.channelMembership.create({
-          data: { userId: data.sender, channelId: data.id, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
+          data: { userId: data.uId, channelId: data.chId, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
         })
       }
         catch (error) {
           console.error('Error creating channel:', error);
         }
-        client.join(data.id);
-        console.log('Ho joinato nel backend' + data.id);
-        this.server.to(data.id).emit('gettingSingleChannel', data.id);
+        client.join(data.chId);
+        console.log('Ho joinato nel backend' + data.chId);
+        this.handleGrouplList(client, data);
+        this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
       }
-    else {
-      console.log('Password is wrong');
-      this.handleCheckIfPassword(client, data);
-    }
+      else {
+        console.log('Password is wrong');
+        this.handleCheckIfPassword(client, data);
+      }
+    //  this.handleGrouplList(client, data);
   }
 
   @SubscribeMessage('createGroup')
@@ -599,7 +716,7 @@ export class ChatGateway {
           data: { type: data.type, name: data.text},
         })
         await this.prisma.channelMembership.create({
-          data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
+          data: { userId: data.uId, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
         })
       }
       catch (error) {
@@ -612,7 +729,7 @@ export class ChatGateway {
           data: { type: data.type, name: data.text, password: data.password},
         })
         await this.prisma.channelMembership.create({
-          data: { userId: data.sender, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
+          data: { userId: data.uId, channelId: newChannel.id, role: UserRole.OWNER, status: UserStatus.ACTIVE}
         })
       }
       catch (error) {

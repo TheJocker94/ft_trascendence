@@ -1,6 +1,8 @@
 import { EChat, type IChannel, type ISingleCh } from '@/models/IChat';
+import { useCurrentUserStore } from './currentUser';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { bool } from 'yup';
 
 export const useChatStore = defineStore('chat', () => {
   const isGroupsActive = ref(false)
@@ -19,7 +21,7 @@ export const useChatStore = defineStore('chat', () => {
   const getChannelList = computed(() => channelList.value);
   const setChannelList = (val:IChannel[]) => { channelList.value = val }
   // Single channel
-  const channelAll = ref<ISingleCh>();
+  const channelAll = ref<ISingleCh>() || undefined;
   const getChannelAll = computed(() => channelAll.value);
   const setChannelAll = (val:ISingleCh) => { channelAll.value = val }
   // Active chat user and channel name
@@ -63,10 +65,36 @@ const insertedPass = ref('');
 const getInsertedPass = computed(() => insertedPass.value);
 const setInsertedPass = (val:string) => {insertedPass.value = val, console.log('insertedPass', insertedPass.value) };
 
+const selectedValue = ref('5');
+const getSelectedValue = computed(() => selectedValue.value);
+const setSelectedValue = (val:string) => {selectedValue.value = val, console.log('selectedValue', selectedValue.value) };
+
+const ifPrivate = ref(false);
+const getIfPrivate = computed(() => ifPrivate.value);
+const setIfPrivate = (val:boolean) => {ifPrivate.value = val, console.log('ifPrivate', ifPrivate.value) };
+
+// const imAdmin = computed() => {
+//   const userStore = ref(useCurrentUserStore());
+//   const ret = getChannelAll.value?.members.find(member => member.userId === userStore.value.userId);
+//   if (ret?.role === 'ADMIN' || ret?.role === 'OWNER')
+//       return true;
+//   else
+//       return false;
+// }
+// const checkAdmin =  computed(() => {
+//   const userStore = ref(useCurrentUserStore());
+//   const ret = getChannelAll.value?.members.find(member => member.userId === userStore.value.userId);
+//   if (ret?.role === 'ADMIN' || ret?.role === 'OWNER')
+//       return true;
+//   else
+//       return false;
+// })
+// const imAdmin =  ref(checkAdmin.value);
   return { isGroupsActive, isFriendsActive, getFriend, getGroup, setFriend, setGroup, profileFriend, channelList, channelAll,
           activChatUsr, currentChannelId, setActivChatUsr, setCurrentChannelId, getActivChatUsr, getCurrentChannelId,
           getChannelList, setChannelList, getChannelAll, setChannelAll, setProfileFriend, getProfileFriend,
           numDiv, getNumDiv, setNumDiv, chatDiv, getChatDiv, setChatDiv, flagImIn, getFlagImIn, setFlagImIn, 
           ifBanned, getifBanned, setifBanned, isActive, getIsActive, setIsActive, porcovar, getporcovar, setporcovar,
-          isPassOn, getIsPassOn, setIsPassOn, insertedPass, getInsertedPass, setInsertedPass }
+          isPassOn, getIsPassOn, setIsPassOn, insertedPass, getInsertedPass, setInsertedPass,
+          selectedValue, getSelectedValue, setSelectedValue, ifPrivate, getIfPrivate, setIfPrivate}
 })

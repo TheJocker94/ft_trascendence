@@ -55,7 +55,7 @@ model matchHistory {
 model Channel {
   id        String                 @id @default(uuid()) @unique
   type      ChannelType            // PRIVATE o PUBLIC o DIRECT
-  name      String?                // se sono GROUP ho un nome del canale
+  name      String?   @unique             // se sono GROUP ho un nome del canale
   password  String?
   members   ChannelMembership[]    // membri del canale
   messages  Message[]
