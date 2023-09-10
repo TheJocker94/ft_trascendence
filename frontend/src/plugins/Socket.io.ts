@@ -15,13 +15,13 @@ const socketGame = io(URLgame, { autoConnect: false });
 
 socketGame.onAny((event, ...args) => {
   if (event !== "move") {
-  console.log(event, args);
+//   console.log(event, args);
   }
 });
 
 socket.onAny((event, ...args) => {
   if (event !== "groupListServer") {
-  console.log(event, args);
+//   console.log(event, args);
   }
 });
 

@@ -101,7 +101,7 @@ const ret = channel.members.find(member => member.userId === userStore.value.use
 // Props
 
 // functions
-console.log('Sucami il cazzo');
+// console.log('Sucami il cazzo');
 console.log('Channel list is daje: ',chat.value.getChannelList);
 console.log('Friend is daje: ',chat.value.getFriend);
 console.log('Current group is daje: ',chat.value.getGroup);

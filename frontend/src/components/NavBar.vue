@@ -254,7 +254,7 @@ const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
 const gamerStore = ref(useGameInviteStore());
 onMounted(async () => {
-	await userStore.value.initStore(null, null, null);
+	await userStore.value.initStore(null, null);
 	if (authStore.value.isLoggedIn){
     socketGame.auth = { token: authStore.value.token }
   socketGame.connect();
@@ -271,6 +271,7 @@ onMounted(async () => {
 // 	}
 // });
 
+
 const isBrowserMinimized = ref(false);
 const handleVisibilityChange = () => {
   isBrowserMinimized.value = document.hidden;
@@ -283,33 +284,35 @@ const handleVisibilityChange = () => {
 
 onMounted(() => {
   document.addEventListener('visibilitychange', handleVisibilityChange);
+//   document.addEventListener('beforeunload', handleBeforeUnload);
 });
 
 
 const teardown = () => {
   document.removeEventListener('visibilitychange', handleVisibilityChange);
+//   document.removeEventListener('beforeunload', handleBeforeUnload);
 };
 
 // On leaving the page
 onUnmounted(() => {
-	teardown();
+  teardown();
   socketGame.disconnect();
 })
 
 const createGame = () => {
-	console.log("create game")
+//   console.log("create game")
   socketGame.emit('joinGameInviteQueue');
   leaveQ.value = true;
 }
 
 socketGame.on('playerInviteNo', function (data) {
-    console.log("Game Created! ID room is: " + data.room)
-    console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player);
+    // console.log("Game Created! ID room is: " + data.room)
+    // console.log('Your id is: ' + data.player);
+    userStore.value.initGame(data.room, data.player, data.username1, data.username2);
 });
 
 socketGame.on('startingInviteGame', function (data) {
-    console.log("Game Created! ID room is: " + data)
+    // console.log("Game Created! ID room is: " + data)
     goGame.value = true;
 		gameInviteStore.value.renderer = true;
     leaveQ.value = false;

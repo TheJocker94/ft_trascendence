@@ -38,7 +38,6 @@ class AuthService {
   //   });
   // }
 
-  
   // 42
   signInFortyTwo(params: string) {
     return http.get<ISignedIn>(`/auth/42/signin${params}`, {
@@ -93,6 +92,7 @@ class AuthService {
   logout() {
     return http.post('/auth/logout');
   }
+
   deleteAccount() {
     return http.delete('/users');
   }

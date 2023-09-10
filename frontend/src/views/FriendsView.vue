@@ -465,7 +465,7 @@ const createGroup = () => {
         console.log('no 2')
         return;
     }
-    console.log('sto creando il gruppo da frontend')
+    // console.log('sto creando il gruppo da frontend')
     myButton.value!.click();
     socket.emit('createGroup', { text: credentials.name, sender: userStore.value.userId, type: credentials.type, password: credentials.password });
     credentials.name = '';
@@ -501,7 +501,11 @@ socket.on('messageFromServer', (idChannel) => {
     });
 })
 onMounted(async () => {
+<<<<<<< HEAD
     await userStore.value.initStore(null, null);
+=======
+    await userStore.value.initStore(null, null,);
+>>>>>>> d3ef6925a1055775407dfbe93ba8a12dbb40c821
     const username = userStore.value.username;
     socket.auth = { username };
     socket.connect();
@@ -511,7 +515,7 @@ onMounted(async () => {
         }
     });
     socket.on('welcome', (message: string) => {
-        console.log(message);
+        // console.log(message);
     });
 });
 onUnmounted(() => {

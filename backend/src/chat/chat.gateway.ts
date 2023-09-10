@@ -31,7 +31,7 @@ export class ChatGateway {
   server: Server;
   users = 0;
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     console.log('Client connected:', client.id);
     const username = client.handshake.auth.username;
     const message = `Welcome to the chat, ${username}`;
@@ -45,7 +45,11 @@ export class ChatGateway {
 
     client['username'] = username;
 
-    console.log('User connected:', username);
+    console.log('User connected chat:', username);
+	await this.prisma.user.update({
+		where: { username: username },
+		data: { isOnline: true },
+	});
   }
   
   getConnectedUsers(): { userID: string; username: string }[] {
@@ -756,13 +760,17 @@ export class ChatGateway {
       this.server.to(channelId).emit('gettingSingleChannel', channelId);
     }
   
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     console.log('Client disconnected:', client.id);
     // You can access the attached username if needed
     const username = client['username'];
     if (username) {
-      console.log('User disconnected:', username);
+      console.log('User disconnected chat: ', username);
     }
+	await this.prisma.user.update({
+		where: { username: username },
+		data: { isOnline: false },
+	});
   }
 }
 

@@ -36,14 +36,19 @@ export class GameGateway {
   private inviteQueue: GameInviteQueue = new GameInviteQueue(); //* nizz
   private inGame: string[] = [];
   //interface room
-  private Rooms: IRoom[] = [];
+  private Rooms: IRoom[] = [] as IRoom[];
   private usersConnected: string[] = [];
 
-  handleConnection(client: Socket) {
+  async handleConnection(client: Socket) {
     console.log('Client game connected:', client.id);
     const parseId = this.queue.parseJwt(client.handshake.auth.token);
     const userId = parseId.id;
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
     client.data.userId = userId;
+    client.data.username = user.username;
     if (!userId) {
       // Close the connection if no userId is provided
       client.disconnect();
@@ -54,8 +59,12 @@ export class GameGateway {
     client.emit('welcome', message);
     // Attach the userId to the socket for future use
     this.usersConnected.push(userId);
-    console.log('User connected:', userId);
+    console.log('User connected game:', userId);
     console.log('Users in server are ', this.usersConnected);
+	await this.prisma.user.update({
+		where: { id: userId },
+		data: { isOnline: true },
+	});
   }
 
   //* ------------------------------- nizz start ------------------------------- */
@@ -251,11 +260,11 @@ export class GameGateway {
       let winner: string;
       let loser: string;
       if (data.score1 === 5) {
-        winner = this.Rooms[parseInt(data.room)].players[1].username;
-        loser = this.Rooms[parseInt(data.room)].players[0].username;
+        winner = this.Rooms[parseInt(data.room)].players[1].userId;
+        loser = this.Rooms[parseInt(data.room)].players[0].userId;
       } else if (data.score2 === 5) {
-        winner = this.Rooms[parseInt(data.room)].players[0].username;
-        loser = this.Rooms[parseInt(data.room)].players[1].username;
+        winner = this.Rooms[parseInt(data.room)].players[0].userId;
+        loser = this.Rooms[parseInt(data.room)].players[1].userId;
       }
       let modeGame = null;
       if  (data.mode === 'POWERUP')
@@ -264,8 +273,8 @@ export class GameGateway {
         modeGame = MatchMode.CLASSIC
       console.log('Mode game is ', modeGame);
       const matchplayed = await this.gameService.createHistory({
-        user1Id: this.Rooms[parseInt(data.room)].players[0].username,
-        user2Id: this.Rooms[parseInt(data.room)].players[1].username,
+        user1Id: this.Rooms[parseInt(data.room)].players[0].userId,
+        user2Id: this.Rooms[parseInt(data.room)].players[1].userId,
         winnerId: winner,
         score: data.score1 + '-' + data.score2,
         mode: modeGame,
@@ -289,20 +298,20 @@ export class GameGateway {
       });
 
       const player1 = await this.prisma.user.findUnique({
-        where: { id: this.Rooms[parseInt(data.room)].players[0].username },
+        where: { id: this.Rooms[parseInt(data.room)].players[0].userId },
       });
       const player2 = await this.prisma.user.findUnique({
-        where: { id: this.Rooms[parseInt(data.room)].players[1].username },
+        where: { id: this.Rooms[parseInt(data.room)].players[1].userId },
       });
       const winrate1 = (player1.Wins / player1.Played) * 100;
       const winrate2 = (player2.Wins / player2.Played) * 100;
 
       await this.prisma.user.update({
-        where: { id: this.Rooms[parseInt(data.room)].players[0].username },
+        where: { id: this.Rooms[parseInt(data.room)].players[0].userId },
         data: { winrate: winrate1 },
       });
       await this.prisma.user.update({
-        where: { id: this.Rooms[parseInt(data.room)].players[1].username },
+        where: { id: this.Rooms[parseInt(data.room)].players[1].userId },
         data: { winrate: winrate2 },
       });
     }
@@ -310,42 +319,59 @@ export class GameGateway {
   }
 
   @SubscribeMessage('leaveRoom')
-  handleLeaveRoom(
+  async handleLeaveRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
-  ): void {
+  ): Promise<void> {
     console.log('Leave room received is ', data);
     // client.leave(data);
+	await this.prisma.user.update({
+		where: { id: client.data.userId },
+		data: { isPlaying: false },
+	  });
     this.queue.remove(client);
     this.inGame = this.inGame.filter((user) => user !== client.data.userId);
     // this.server.to(data.room).emit('playerLeft', data);
     // this.Rooms = this.Rooms.filter((room) => room.roomId !== data.room);
   }
+
   @SubscribeMessage('exitGame')
-  handleExitGame(
+  async handleExitGame(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: string,
-  ): void {
+  ): Promise<void> {
     console.log('Exit game received');
     this.server.to(data).emit('playerDisconnected', data);
+	await this.prisma.user.update({
+		where: { id: client.data.userId },
+		data: { isPlaying: false },
+	  });
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     console.log('Client disconnected:', client.id);
     // You can access the attached username if needed
-    const username = client.data.userId;
-    if (username) {
-      console.log('User disconnected:', username);
+    const userId = client.data.userId;
+	await this.prisma.user.update({
+		where: { id: userId },
+		data: { isPlaying: false },
+	  });
+    if (userId) {
+      console.log('User disconnected game:', userId);
     }
+	await this.prisma.user.update({
+		where: { id: userId },
+		data: { isOnline: false },
+	});
     this.queue.remove(client);
-    if (this.inGame.includes(username)) {
+    if (this.inGame.includes(userId)) {
       // quando un utente si disconnette, se è in una stanza, la stanza viene eliminata e si invia un messaggio a tutti i giocatori dentro la stanza
       // gli utenti nella stanza vengono rimossi dalla lista degli utenti queue e inGame
       // parti dall'ulyima stanza creata nel cercare gli utenti
-      this.inGame = this.inGame.filter((user) => user !== username);
+      this.inGame = this.inGame.filter((user) => user !== userId);
 
       const room = this.Rooms.reverse().find((room) =>
-        room.players.find((player) => player.username === username),
+        room.players.find((player) => player.userId === userId),
       );
       if (room) {
         this.server
@@ -363,7 +389,7 @@ export class GameGateway {
     //   }
     // }
     this.usersConnected = this.usersConnected.filter(
-      (user) => user !== username,
+      (user) => user !== userId,
     );
     console.log('Users connected are ', this.usersConnected);
   }
@@ -383,17 +409,14 @@ export class GameGateway {
 		  playersSockets = this.inviteQueue.pop2();
 		  this.inGame.push(playersSockets[0].data.userId);
 		  this.inGame.push(playersSockets[1].data.userId);
-		  const gameId = await this.createGame([
-				playersSockets[0].data.userId,
-				playersSockets[1].data.userId,
-		  ]);
-		  playersSockets[0].emit('playerInviteNo', { player: 1, room: gameId });
-		  playersSockets[1].emit('playerInviteNo', { player: 2, room: gameId });
-		  playersSockets[0].join(gameId);
-		  playersSockets[1].join(gameId);
-		  this.server.to(gameId).emit('startingInviteGame', this.Rooms[parseInt(gameId)]);
-				this.Rooms[parseInt(gameId)].players[0].minimized = false;
-				this.Rooms[parseInt(gameId)].players[1].minimized = false;
+		  const gameId = await this.createGame(playersSockets);
+		  playersSockets[0].emit('playerInviteNo', { player: 1, room: gameId.roomId.toString(), username1: gameId.players[0].username, username2: gameId.players[1].username });
+		  playersSockets[1].emit('playerInviteNo', { player: 2, room: gameId.roomId.toString(), username1: gameId.players[0].username, username2: gameId.players[1].username });
+		  playersSockets[0].join(gameId.roomId.toString());
+		  playersSockets[1].join(gameId.roomId.toString());
+		  this.server.to(gameId.roomId.toString()).emit('startingInviteGame', this.Rooms[parseInt(gameId.roomId.toString())]);
+				this.Rooms[parseInt(gameId.roomId.toString())].players[0].minimized = false;
+				this.Rooms[parseInt(gameId.roomId.toString())].players[1].minimized = false;
 		}
 	}
 	
@@ -406,35 +429,43 @@ export class GameGateway {
       playersSockets = this.queue.pop2();
       this.inGame.push(playersSockets[0].data.userId);
       this.inGame.push(playersSockets[1].data.userId);
-      const gameId = await this.createGame([
-        playersSockets[0].data.userId,
-        playersSockets[1].data.userId,
-      ]);
-      playersSockets[0].emit('playerNo', { player: 1, room: gameId });
-      playersSockets[1].emit('playerNo', { player: 2, room: gameId });
-      playersSockets[0].join(gameId);
-      playersSockets[1].join(gameId);
-      this.server.to(gameId).emit('startingGame', this.Rooms[parseInt(gameId)]);
-      this.Rooms[parseInt(gameId)].players[0].minimized = false;
-      this.Rooms[parseInt(gameId)].players[1].minimized = false;
-      this.Rooms[parseInt(gameId)].players[0].minimized = false;
-      this.Rooms[parseInt(gameId)].players[1].minimized = false;
+      const gameId = await this.createGame(playersSockets);
+      console.log('Game id is ', gameId.players);
+      playersSockets[0].emit('playerNo', { player: 1, room: gameId.roomId.toString(), username1: gameId.players[0].username, username2: gameId.players[1].username });
+      playersSockets[1].emit('playerNo', { player: 2, room: gameId.roomId.toString(), username1: gameId.players[0].username, username2: gameId.players[1].username });
+	  await this.prisma.user.update({
+        where: { id: playersSockets[0].data.userId },
+        data: { isPlaying: true },
+      });
+      await this.prisma.user.update({
+        where: { id: playersSockets[1].data.userId },
+        data: { isPlaying: true },
+      });
+      playersSockets[0].join(gameId.roomId.toString());
+      playersSockets[1].join(gameId.roomId.toString());
+      this.server.to(gameId.roomId.toString()).emit('startingGame', this.Rooms[parseInt(gameId.roomId.toString())]);
+      this.Rooms[parseInt(gameId.roomId.toString())].players[0].minimized = false;
+      this.Rooms[parseInt(gameId.roomId.toString())].players[1].minimized = false;
+    //   this.Rooms[parseInt(gameId)].players[0].minimized = false;
+    //   this.Rooms[parseInt(gameId)].players[1].minimized = false;
       // playersSockets[0].emit('matchFound', gameId);
       // playersSockets[1].emit('matchFound', gameId);
     }
   }
 
-  private async createGame(userIds: string[]) {
+  private async createGame(userIds: Socket[]) {
     const room: IRoom = {
       roomId: this.Rooms.length,
       players: [
         {
-          username: userIds[0],
+          userId: userIds[0].data.userId,
+          username: userIds[0].data.username,
           playerNo: 1,
           minimized: false,
         },
         {
-          username: userIds[1],
+          userId: userIds[1].data.userId,
+          username: userIds[1].data.username,
           playerNo: 2,
           minimized: false,
         },
@@ -444,7 +475,7 @@ export class GameGateway {
     };
     this.Rooms.push(room);
     this.Rooms[room.roomId].players[0].minimized = true;
-    this.Rooms[room.roomId].players[0].minimized = true;
-    return room.roomId.toString();
+    this.Rooms[room.roomId].players[1].minimized = true;
+    return room;
   }
 }

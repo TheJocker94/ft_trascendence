@@ -7,6 +7,7 @@ import FriendsView from '../views/FriendsView.vue'
 import UserProfile from '../views/UserProfile.vue';
 import ChatView from '../views/ChatView.vue'
 import GameInviteView from '../views/GameInviteView.vue'
+import GameInvView from '../views/GameInvView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,15 @@ const router = createRouter({
 		component: GameInviteView,
 		meta: {
 		  title: 'gameInvite',
+		  requiresAuth: true
+		},
+	},
+	{
+		path: '/gameInv',
+		name: 'gameInv',
+		component: GameInvView,
+		meta: {
+		  title: 'gameInv',
 		  requiresAuth: true
 		},
 	},

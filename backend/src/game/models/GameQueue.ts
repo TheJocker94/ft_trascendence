@@ -1,3 +1,4 @@
+import { PreconditionFailedException } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
 export class GameQueue {
@@ -9,8 +10,13 @@ export class GameQueue {
 
   public add(socket: Socket): void {
     if (this.queue.includes(socket)) return;
-    if (this.queue.includes(socket.data.id)) return;
-    this.queue.push(socket);
+	for (let i = 0; i < this.queue.length; i++) {
+		if (this.queue[i].data.userId == socket.data.userId) {
+			console.log("User already in queue");
+			return ;
+		}
+	}
+	this.queue.push(socket);
   }
 
   public remove(socket: Socket): void {

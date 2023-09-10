@@ -23,8 +23,8 @@
 			</div>
 	</div>
 	<div v-if="userStore.userId === props.idProfile" >
-        <h1 class="text-center text-orange-900 my-3">Match History</h1>
-    </div>
+		<!-- text style bold tailwind -->
+        <h1 class="text-center  text-white  my-3">Match History</h1>
 	<div class="overflow-x-auto">
     <table class="table table-sm">
     <!-- head -->
@@ -73,6 +73,7 @@
       </tbody>    
     </table>
 	</div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -95,7 +96,7 @@ const getMatchHistory = async () => {
 //	
 //
 	MatcHistory.value = MatcHistory.value.filter(match => match.user1Id.id == userStore.value.userId || match.user2Id.id == userStore.value.userId);
-    console.log('MatcHistory',MatcHistory.value);
+    // console.log('MatcHistory',MatcHistory.value);
 }
 onMounted(() => {
     getMatchHistory();

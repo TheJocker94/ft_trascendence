@@ -1,4 +1,5 @@
 export interface IPlayer {
+  userId: string;
   username: string;
   playerNo: number;
   //   minimized default false

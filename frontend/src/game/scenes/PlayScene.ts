@@ -44,6 +44,8 @@ export default class PlayScene extends Scene {
   private score2!: number;
   private scoreText1!: Phaser.GameObjects.Text;
   private scoreText2!: Phaser.GameObjects.Text;
+  private user1!: Phaser.GameObjects.Text;
+  private user2!: Phaser.GameObjects.Text;
   private ballSound!: Phaser.Sound.BaseSound;
   private soundtrack!: Phaser.Sound.BaseSound;
   private emitter!: Phaser.GameObjects.Particles.ParticleEmitter;
@@ -133,6 +135,10 @@ export default class PlayScene extends Scene {
     // Score text
     this.scoreText1 = this.add.text(this.scale.width / 2 - 75, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
     this.scoreText2 = this.add.text(this.scale.width / 2 + 50, 16, '0', { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
+    this.user1 = this.add.text(this.scale.width / 4 , 16, userStore.value.username1.substring(0, 10), { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
+    this.user2 = this.add.text(this.scale.width / 4 * 3, 16, userStore.value.username2.substring(0, 10), { stroke: '#000000', strokeThickness: 4, fontSize: '32px', fontFamily: 'Arial', color: '#ffffff' })
+    this.user1.setOrigin(0.5, 0);
+    this.user2.setOrigin(0.5, 0); 
     // audio
     this.ballSound = this.sound.add('pong');
     this.lee1 = this.sound.add('lee1');
@@ -181,8 +187,8 @@ export default class PlayScene extends Scene {
 
     // event listener movement
     socketGame.on('move', (data: { direction: string, player: number, room: string}) => {
-      console.log(data);
-      console.log("i am in game")
+    //   console.log(data);
+    //   console.log("i am in game")
       if (data.room === userStore.value.roomId) {
         if (data.player === 1){
           if (data.direction === 'up')

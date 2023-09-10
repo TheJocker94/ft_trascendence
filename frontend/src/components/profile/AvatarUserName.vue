@@ -27,7 +27,8 @@
 			<div v-if="!isIdExistsInOtherBlocked && !isIdExistsInOtherPending && !isIdExistsInOtherFriends && !isIdExistsInOtherSent" @click="friendRequest(props.idProfile!)" class="my-auto text-white-800 bg-gray-500 hover:bg-gray-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">Add Friend</div>
 			<div v-if="!isIdExistsInOtherBlocked" @click="friendBlock()" class="my-auto text-white-800 bg-red-500 hover:bg-red-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">Block</div>
 			<div v-else-if="isIdExistsInOtherBlocked" @click="unblockFunction()" class="my-auto text-white-800 bg-green-500 hover:bg-green-600 hover:cursor-pointer hover:text-white rounded-3xl py-2 px-4 mx-2">UnBlock</div>
-			<div v-if="!isIdExistsInOtherGameInvites" @click="gameInvite(props.idProfile!)" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Invite</div>
+			<!-- <div v-if="!isIdExistsInOtherGameInvites" @click="gameInvite(props.idProfile!)" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Invite</div> -->
+			<div @click="gameInvite(props.idProfile!)" class="my-auto text-white-800 py-1 px-4 border-2 border-white-500 hover:bg-white-500 hover:cursor-pointer hover:text-white rounded-3xl mx-2">Invite</div>
 		</div>
 	</div>
 	<!-- <div v-if="goGame">
@@ -95,7 +96,8 @@ onMounted(async () => {
     //     localStorage.setItem('socketId', socketGame.id);
     // }); 
 	
-	await userStore.value.initStore(null, null, null);
+	await userStore.value.initStore(null, null);
+	await userStore.value.initStore(null, null);
 	socketGame.auth = { token: authStore.value.token };
 	// console.log("whhhhhhhhhhhhhhhhat ", authStore.value.token);
 	socketGame.connect();
@@ -180,12 +182,10 @@ const createGame = () => {
 socketGame.on('playerInviteNo', function (data) {
     // console.log("Game Created! ID room is: " + data.room)
     // console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player);
-});
+    userStore.value.initGame(data.room, data.player, data.username1, data.username2);});
 
-socketGame.on('startingInviteGame', function (data) {
+socketGame.on('startingInviteGame', function () {
     // console.log("Game Created! ID room is: " + data)
-	console.log("maaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaan");
     goGame.value = true;
     leaveQ.value = false;
     press.value = true;
@@ -213,10 +213,10 @@ const usernameDisplay = computed(() => isOwnProfile.value ? currentUser.value.us
 // const friendsButton = ref(true)
 async function updateName() {
   if (!newUsername.value.trim()) {
-	  errorMessage.value = 'Username cannot be empty';
+    errorMessage.value = 'Username cannot be empty';
     return;
   } else {
-	  errorMessage.value = '';
+    errorMessage.value = '';
   }
   await currentUser.value.updateUser(newUsername.value);
   isChangingUsername.value = false;
@@ -280,8 +280,8 @@ async function friendRequest(userId: string) {
     friendStore.value.updateFriends();
     friendStore.value.updateSent(currentUser.value.userId);
     friendStore.value.updateBlocked();
-		updateReactiveChecks();
-		location.reload();
+	updateReactiveChecks();
+	location.reload();
 } catch (err) {
     const e = err as AxiosError<IError>;
     if (axios.isAxiosError(e)) return e.response?.data;
@@ -290,15 +290,15 @@ async function friendRequest(userId: string) {
 
 async function gameInvite(userId: string) {
   try {
-	  await GameInviteService.sendGameInvite(userId);
-	  // Update the state after the API call
-	  friendStore.value.updatePendings(currentUser.value.userId);
-    friendStore.value.updateFriends();
-    friendStore.value.updateSent(currentUser.value.userId);
-		updateReactiveGameInviteChecks();
-		// console.log("game invite sent");
-		createGame();
-		// location.reload();
+	await GameInviteService.sendGameInvite(userId);
+	// Update the state after the API call
+	gameInviteStore.value.updatePendings(currentUser.value.userId);
+    gameInviteStore.value.updateFriends();
+    gameInviteStore.value.updateSent(currentUser.value.userId);
+	updateReactiveGameInviteChecks();
+	// console.log("game invite sent");
+	createGame();
+	// location.reload();
   } catch (err) {
     const e = err as AxiosError<IError>;
 		if (axios.isAxiosError(e)) return e.response?.data;
@@ -345,44 +345,6 @@ function updateReactiveChecks() {
     isIdExistsInOtherSent.value = friendStore.value.sent.some(friend => friend.id === props.idProfile);
     isIdExistsInOtherBlocked.value = friendStore.value.blocked.some(friend => friend.id === props.idProfile);
 }
-
-// const isIdExistsInOtherFriends = computed(() => {
-//   const result = friendStore.value.friends.some(friend => friend.id === props.idProfile);
-//   console.log("result of friend: ", result);
-//   return 7result;
-// });
-
-// const isIdExistsInOtherPending = computed(() => {
-//   const result = friendStore.value.pending.some(friend => friend.id === props.idProfile);
-//   console.log("result of pending: ", result);
-//   return result;
-// });
-
-// const isIdExistsInOtherSent = computed(() => {
-//   const result = friendStore.value.sent.some(friend => friend.id === props.idProfile);
-//   console.log("result of sent: ", result);
-//   return result;
-// });
-
-// const isIdExistsInOtherBlocked = computed(() => {
-//   // Ensure that the blocked list is updated and re-evaluated
-//   return friendStore.value.blocked.some(friend => friend.id === props.idProfile);
-// });
-
-// async function updateAll() {
-	// 	isIdExistsInOtherBlocked();
-// 	isIdExistsInOtherSent();
-// 	isIdExistsInOtherPending();
-// 	isIdExistsInOtherFriends();
-
-// watch(goGame, (newValue: boolean) => {
-// 	if (newValue) {
-// 		console.log("avataruser gogame");
-// 		router.push('/gameInvite');
-// 	}
-// });
-
-// }
 
 </script>
 

@@ -4,7 +4,7 @@ import NavBar from './components/NavBar.vue';
 // import { useLoginStore } from './stores/login';
 import { useAuthStore } from './stores/auth';
 import { useCurrentUserStore } from './stores/currentUser';
-import { ref, onBeforeMount } from 'vue';
+import { ref, onBeforeMount, onBeforeUnmount } from 'vue';
 // import { socketNoti } from './plugins/Socket.io';
 import { socketGame } from './plugins/Socket.io';
 
@@ -19,8 +19,21 @@ if (authStore.value.isLoggedIn){
 }
 onBeforeMount( async () => {
   if (userStore.value.userId)
-    await userStore.value.initStore(null, null, null);
+    await userStore.value.initStore(null, null);
 });
+onBeforeUnmount(() => {
+
+  socketGame.offAny();
+  socketGame.off('playerDisconnected');
+  socketGame.off('restartServer');
+  socketGame.off('gameCreated');
+  socketGame.off('playerNo');
+  socketGame.off('startingGame');
+  socketGame.off('joinQueue');
+  // socketGame.off('leaveRoom');
+  socketGame.off('disconnect');
+});
+
 </script>
 
 <template>

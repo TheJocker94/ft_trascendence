@@ -21,10 +21,10 @@ export const useGameInviteStore = defineStore('game', {
     async initStore(userId: string | null) {
       try {
         const friend = await GameInviteService.getGameInviteList();
-				const pending = await GameInviteService.getGameInvitesRequests(userId!);
-				const sent = await GameInviteService.getGameInvite(userId!);
-				this.setStore(friend, pending, sent);
-			} catch (err) {
+		const pending = await GameInviteService.getGameInvitesRequests(userId!);
+		const sent = await GameInviteService.getGameInvite(userId!);
+		this.setStore(friend, pending, sent);
+	  } catch (err) {
         const e = err as AxiosError<IError>;
         if (axios.isAxiosError(e)) return e.response?.data;
       }
@@ -34,9 +34,9 @@ export const useGameInviteStore = defineStore('game', {
       this.friends = friend;
       this.pending = pending;
 			this.sent = sent;
-			console.log("friends ", this.friends);
-			console.log("pending ", this.pending);
-			console.log("sent ", this.sent);
+			// console.log("friends ", this.friends);
+			// console.log("pending ", this.pending);
+			// console.log("sent ", this.sent);
 		},
 		
     async updateFriends() {
@@ -47,8 +47,8 @@ export const useGameInviteStore = defineStore('game', {
 			this.pending = await GameInviteService.getGameInvitesRequests(userId!);
     },
 		
-		async updateSent(userId: string) {
-			this.pending = await GameInviteService.getGameInvite(userId!);
-		},
+	async updateSent(userId: string) {
+		this.pending = await GameInviteService.getGameInvite(userId!);
+	},
   },
 });

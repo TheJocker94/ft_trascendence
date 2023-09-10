@@ -627,7 +627,7 @@ onMounted(async () => {
 	socketGame.connect();
 	// This can be used for testing the connection
 	socketGame.on('connect', function() {
-    	console.log('Connected to the server. Socket ID:', socketGame.id);
+        console.log('Connected to the server. Socket ID:', socketGame.id);
 	});
 	socketGame.on('welcome', (data: any) => {
 		console.log(data);
@@ -670,8 +670,7 @@ const createGame = () => {
 socketGame.on('playerInviteNo', function (data) {
     // console.log("Game Created! ID room is: " + data.room)
     // console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player);
-});
+    userStore.value.initGame(data.room, data.player, data.username1, data.username2);});
 
 socketGame.on('startingInviteGame', function (data) {
     // console.log("Game Created! ID room is: " + data)
@@ -712,9 +711,9 @@ watch(() => gameInviteStore.value.sent, () => {
 
 async function gameInvite(userId: string) {
   try {
-	  await GameInviteService.sendGameInvite(userId);
-	  // Update the state after the API call
-	  friendStore.value.updatePendings(currentUser.value.userId);
+        await GameInviteService.sendGameInvite(userId);
+        // Update the state after the API call
+        friendStore.value.updatePendings(currentUser.value.userId);
     friendStore.value.updateFriends();
     friendStore.value.updateSent(currentUser.value.userId);
 		updateReactiveGameInviteChecks();
