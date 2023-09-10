@@ -111,8 +111,8 @@ import SelectChatGroups from "@/components/chat/SelectChatGroups.vue";
 
 socket.on('gettingSingleChannel', (data: any) => {
   console.log('userstore valore: ' + userStore.value.userId);
-  console.log('channelID in getSingle: ' + data.id);
-    socket.emit('isUserInCh', { sender: userStore.value.userId, id: data.id });
+  console.log('channelID in getSingle: ' + data);
+    socket.emit('isUserInCh', { uId: userStore.value.userId, chId: data });
   })
 
 socket.on ('isUserInChannel', (channelIn: boolean | string) => {
@@ -183,18 +183,9 @@ const getChannelList = () => {
   socket.emit('channelList');
 };
 
-//TODO
-// const getChannel = (id: string) => {
-// 	socket.emit('getChannel', { id: id });
-// 	if (id === chat.value.getCurrentChannelId) {
-// 		return;
-// 	}
-//   chat.value.setCurrentChannelId(id);
-// 	socket.emit('enterRoom', { id: id, currentChannelId: chat.value.getCurrentChannelId, sender: userStore.value.userId});
-// };
-
 socket.on('singleChannelServer', (channel: ISingleCh) => {
   console.log(channel);
+  console.log('DOVE CAZZO SIAMO');
   chat.value.setChannelAll(channel);
 });
 
@@ -212,7 +203,7 @@ socket.on('channelAlreadyExists', (text) => {
 })
 
 socket.on('messageFromServer', (idChannel) => {
-  socket.emit('getChannel', { id: idChannel, sender: userStore.value.userId });
+  socket.emit('getChannel', { chId: idChannel, uId: userStore.value.userId });
   nextTick(() => {
       setTimeout(() => {
           if (lastMessage.value) {
@@ -221,6 +212,29 @@ socket.on('messageFromServer', (idChannel) => {
       }, 80);
   });
 })
+
+const getChat = (username: string, id: string, mioId: string) => {
+	socket.emit('getChannel', {username: username, chatId: id, mioId: mioId });
+	if (id === chat.value.getCurrentChannelId) {
+		return;
+	}
+  chat.value.setCurrentChannelId(id);
+};
+
+
+socket.on('messageFromDirect', (data) => {
+  console.log('DATA IN FROM DIRECT: ', data);
+  socket.emit('getChannel', { chId: data.chId, mioId: data.mioId, chatId: data.chatId });
+  getChat(data.username, data.chatId, data.mioId);
+  nextTick(() => {
+      setTimeout(() => {
+          if (lastMessage.value) {
+              lastMessage.value.scrollIntoView();
+          }
+      }, 80);
+  });
+})
+
 onMounted(async () => {
   await userStore.value.initStore(null, null);
   const username = userStore.value.username;

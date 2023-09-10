@@ -9,7 +9,7 @@ import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
 // import { IFriendLists } from '@/models/IFriendLists';
 import { useLocalStorage, } from '@vueuse/core';
-import { useGameInviteStore } from './gameInvite';
+import { useGameStore } from './gameInvite';
 
 export const useCurrentUserStore = defineStore('currentUser', {
 	state: () => ({
@@ -18,7 +18,7 @@ export const useCurrentUserStore = defineStore('currentUser', {
     email: '',
     avatar: '',
     friendStore: useFriendStore(),
-	gameInviteStore: useGameInviteStore(),
+	gameInviteStore: useGameStore(),
     // Game info
     roomId: '',
     playerNo: 0,

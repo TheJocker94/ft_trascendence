@@ -15,6 +15,7 @@ import {
   BlockedUserResponseDto,
   FriendsDto,
   InviteFriendsDto,
+  InvitedProfileDto,
   userUpdateImageDto,
   userUpdateMailDto,
   userUpdateNameDto,
@@ -464,127 +465,116 @@ export class UserService {
   	//* ---------------------------------- nizz ---------------------------------- */
 
 	  async inviteGame(senderId: string, receiverId: string): Promise<any> {
-
-		await this.prisma.gameinvite.create({
-		  data: {
-			senderId: senderId,
-			receiverId: receiverId,
-			status: 'PENDING'
-		  }
-		});
+      await this.prisma.gameinvite.create({
+        data: {
+          senderId: senderId,
+          receiverId: receiverId,
+          status: 'PENDING'
+        }
+      });
 	  }
 	
+    //questa e' quando accetti la richiesta di gioco
 	  async acceptInviteGameRequest(senderId: string, receiverId: string): Promise<void> {
-		const gameship = await this.prisma.gameinvite.findFirst({
-		  where: {
-			OR: [
-			  { senderId: senderId, receiverId: receiverId, status: 'PENDING' },
-			  { senderId: receiverId, receiverId: senderId, status: 'PENDING' }
-			]
-		  }
-		});
-	
-		await this.prisma.gameinvite.update({
-		  where: { id: gameship.id },
-		  data: { status: 'ACCEPTED' }
-		});
+      const gameship = await this.prisma.gameinvite.findFirst({
+        where: {
+          OR: [
+            { senderId: senderId, receiverId: receiverId, status: 'PENDING' },
+            { senderId: receiverId, receiverId: senderId, status: 'PENDING' }
+        ]
+        }
+      });
+      
+      await this.prisma.gameinvite.update({
+        where: { id: gameship.id },
+        data: { status: 'ACCEPTED' }
+      });
 	  }
 	
-	  async getReceivedGameInviteRequests(userId: string): Promise<InviteFriendsDto[]> {
-		const friendships = await this.prisma.gameinvite.findMany({
-		  where: {
-			receiverId: userId,
-			status: 'PENDING'
-		  },
-		  include: {
-			sender: {
-			  select: {
-				id: true,
-				username: true,
-				profilePicture: true,
-				isOnline: true,
-        		isPlaying: true
-			  }
-			}
-		  }
-		});
-	
-		const friendRequests = friendships.map(friendship => friendship.sender);
-		return friendRequests;
+    // questo e' il waiting, chi ha inviato la richiesta (sender)
+	  async getWaitingGame(userId: string): Promise<any[]> {
+      const gameships = await this.prisma.gameinvite.findMany({
+        where: {
+          receiverId: userId,
+          status: 'PENDING'
+          },
+        include: {
+          sender: {
+            select: {
+              id: true,
+              username: true,
+              profilePicture: true,
+              isOnline: true,
+              isPlaying: true
+          }
+        }
+        }
+      });
+      
+      return gameships;
 	  }
 	
-	  async getSentGameInvite(userId: string): Promise<InviteFriendsDto[]> {
-		const friendship = await this.prisma.gameinvite.findMany({
+    // questo e' il thinking, chi ha ricevuto la richiesta (receiver)
+	  async getThinkingGame(userId: string): Promise<any[]> {
+		const gameships = await this.prisma.gameinvite.findMany({
 		  where: {
-			senderId: userId,
-			status: 'PENDING'
-		  },
-		  include: {
-			receiver: {
-			  select: {
-				id: true,
-				username: true,
-				profilePicture: true,
-				isOnline: true,
-        isPlaying: true
-			  }
-			}
-		  }
-		});
-	
-		const friends = friendship.map(friendship => friendship.receiver);
-		return friends;
+        senderId: userId,
+        status: 'PENDING'
+      },
+      include: {
+        receiver: {
+          select: {
+            id: true,
+            username: true,
+            profilePicture: true,
+            isOnline: true,
+            isPlaying: true
+          }
+        }
+		    }
+		  });
+
+      return gameships;
 	  }
 	
-	  async getFriendsInvited(userId: string): Promise<InviteFriendsDto[]> {
-		const friendships = await this.prisma.gameinvite.findMany({
-		  where: {
-			OR: [
-			  { senderId: userId, status: 'ACCEPTED' },
-			  { receiverId: userId, status: 'ACCEPTED' }
-			]
-		  },
-		  include: {
-			sender: {
-			  select: {
-				id: true,
-				username: true,
-				profilePicture: true,
-				isOnline: true,
-        isPlaying: true
-			  }
-			},
-			receiver: {
-			  select: {
-				id: true,
-				username: true,
-				profilePicture: true,
-				isOnline: true,
-        isPlaying: true
-			  }
-			}
-		  }
-		});
-	
-		const friends = friendships.map(friendship => {
-		  if (friendship.senderId === userId) {
-			return friendship.receiver;
-		  } else {
-			return friendship.sender;
-		  }
-		});
-		return friends;
+	  async getAccepted(userId: string): Promise<any[]> {
+      const gameships = await this.prisma.gameinvite.findMany({
+        where: {
+        OR: [
+          { senderId: userId, status: 'ACCEPTED' },
+          { receiverId: userId, status: 'ACCEPTED' }
+        ]
+        },
+        include: {
+        sender: {
+          select: {
+          id: true,
+          username: true,
+          profilePicture: true,
+          isOnline: true,
+          isPlaying: true
+          }
+        },
+        receiver: {
+          select: {
+          id: true,
+          username: true,
+          profilePicture: true,
+          isOnline: true,
+          isPlaying: true
+          }
+        }
+        }
+      });
+      return gameships;
 	  }
 	
-	  async removeInvited(senderId: string, receiverId: string): Promise<void> {
-		await this.prisma.gameinvite.deleteMany({
-		  where: {
-			OR: [
-			  { senderId: senderId, receiverId: receiverId },
-			  { senderId: receiverId, receiverId: senderId }
-			]
-		  }
-		});
+	  async removeInvited(inviteId: string): Promise<void> {
+      await this.prisma.gameinvite.deleteMany({
+        where: {
+          id: inviteId
+        }
+      });
 	  }
 }
 

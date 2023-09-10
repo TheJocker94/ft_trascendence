@@ -6,7 +6,7 @@ export class AddFriendDto {
     friendId: string;
 }
 
-export class InviteFriendGameDto {
+export class InviteGameDto {
     @IsNotEmpty()
     @IsString()
     gameId: string;
@@ -22,6 +22,15 @@ export class FriendsDto {
 
 export class InviteFriendsDto {
 	id: string;
+	username: string;
+	profilePicture: string;
+	isOnline: boolean;
+    isPlaying: boolean;
+}
+
+export class InvitedProfileDto {
+	gameId: string;
+    id: string;
 	username: string;
 	profilePicture: string;
 	isOnline: boolean;

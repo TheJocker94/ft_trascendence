@@ -5,6 +5,130 @@
                 <b>{{chat.getActivChatUsr}}</b>
             </h2>
         </div>
+
+        <!-- Inizio DirectChat -->
+        <div v-if="chat.getFriend && chat.getChannelAll != undefined" class="messages flex-1 overflow-auto max-h-[700px]">
+            <div v-for="(chMes, index) in chat.getChannelAll?.messages" :key="index">
+                <div
+                    :class="['message mb-4', chMes.sender.id !== userStore.userId ? 'flex' : 'flex me text-right']">
+                    <div v-if="userStore.userId !== chMes.sender.id" class="flex-2">
+                        <div class="w-36 h-12 relative">
+                            <div class="dropdown dropdown-right">
+                                <div class="w-15 rounded-full" @click="checkFluidBan(chMes.sender.id, chat.getChannelAll.id), onClickMute(chMes.sender.id, chat.getChannelAll.id)" >
+                                    <label :onclick="'my_modal_3' + index + '.showModal()'" tabindex="0" class="btn btn-ghost btn-circle avatar indicator">
+                                        <img class="w-12 h-12 rounded-full mx-auto" :src="chMes.sender.profilePicture" :alt=chMes.sender.username />
+                                        <span class="absolute w-4 h-4 bg-gray-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
+                                    </label>                                    
+                                        <dialog :id="'my_modal_3' + index" class="modal">
+                                            <div class="modal-box modal-box-3">
+                                            <div class="overflow-x-auto">
+                                                <table class="table">
+                                                    <!-- head -->
+                                                    <thead>
+                                                    <tr>                                                       
+                                                        <th></th>
+                                                        <th></th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <!-- row 1 -->
+                                                    <tr>
+                                                        <td>
+                                                            {{ chMes.sender.username }}                                                            
+                                                        </td>
+                                                        <th>
+                                                            <button class="btn btn-ghost btn-xs">
+                                                                <router-link :to="{ name: 'profile', params: { userid: chMes.sender.id },}" class="dropdown-item">
+                                                                    Dettagli Profilo
+                                                                </router-link>
+                                                        </button>
+                                                        </th>
+                                                    </tr>
+                                                    <!-- row 2 -->
+                                                    <tr>
+                                                        <td>
+                                                        Invita a Giocare:                                                    
+                                                        </td>                                                       
+                                                        <th>
+                                                        <button @click="gameInvite(chMes.sender.id)" class="btn btn-ghost btn-xs">Invita</button>
+                                                        </th>
+                                                    </tr>
+                                                    </tbody>
+                                                    
+                                                </table>
+                                                    <form method="dialog" class="modal-backdrop">
+                                                    <button>close</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            <form method="dialog" class="modal-backdrop">
+                                                <button>close</button>
+                                            </form>
+                                        </dialog>
+                                </div>   
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 px-2">
+                        <div :class="[chMes.sender.id !== userStore.userId ? 'bg-gray-300 text-gray-700' : 'bg-blue-600  text-white']"
+                            style="max-width: 60%; overflow-wrap: break-word; word-break: break-all; white-space: normal; border: 2px solid transparent; display: inline-block; padding: 0px 12px; border-radius: 25px;">
+                            <span>{{ chMes.content }}</span>
+                        </div>
+                        <div class="pl-4"><small class="text-gray-500">{{ formattedTime(chMes.time)
+                        }}</small></div>
+                    </div>
+                </div>
+            </div>
+            <div ref="lastMessage"></div>
+        </div>
+        <div v-if="chat.getFriend && chat.getChannelAll != undefined" class="flex-2 pt-4 pb-10">
+        <div class="write bg-white shadow flex rounded-lg">
+            <div class="flex-3 flex content-center items-center text-center p-4 pr-0">
+                <span class="block text-center text-gray-400 hover:text-gray-800">
+                    <svg fill="none" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"
+                        class="h-6 w-6">
+                        <path
+                            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                </span>
+            </div>
+            <div @keyup.enter="sendDirect" class="flex-1">
+                <textarea v-model="msg" name="message"
+                    class="w-full block outline-none py-4 px-4 bg-transparent" rows="1"
+                    placeholder="Type a message..." autofocus></textarea>
+            </div>
+            <div class="flex-2 w-32 p-2 flex content-center items-center">
+                <div class="flex-1 text-center">
+                    <span class="text-gray-400 hover:text-gray-800">
+                        <span class="inline-block align-text-bottom">
+                            <svg fill="none" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" stroke="currentColor" viewBox="0 0 24 24"
+                                class="w-6 h-6">
+                                <path
+                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13">
+                                </path>
+                            </svg>
+                        </span>
+                    </span>
+                </div>
+                <div class="flex-1">
+                    <button @click="sendDirect"
+                        class="bg-blue-400 w-10 h-10 rounded-full inline-block">
+                        <span class="inline-block align-text-bottom">
+                            <svg fill="none" stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"
+                                class="w-4 h-4 text-white">
+                                <path d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        </div>
+        <!-- Fine DirectChat -->
         <!-- Inizio GroupChat -->
         <div v-if="chat.getGroup && chat.getChannelAll != undefined" class="messages flex-1 overflow-auto max-h-[700px]">
             <div v-for="(chMes, index) in chat.getChannelAll?.messages" :key="index">
@@ -81,7 +205,7 @@
                                                                 </select>                                                            
                                                             </div>
                                                             <div v-else>
-                                                                <select class="select select-warning w-full max-w-xs" v-model="selectedValue">
+                                                                <select class="select select-warning w-full max-w-xs" v-model="chat.getSelectedValue">
                                                                     <option value="5">5m</option>
                                                                     <option value="10">10m</option>
                                                                     <option value="15">15m</option>
@@ -92,7 +216,7 @@
                                                             </div>                                                          
                                                         </td>
                                                         <th>
-                                                            <div v-if="!hidder && !hiddenMute" @click="convertValue(selectedValue, chMes.sender.id, chat.getChannelAll.id)"><button class="btn btn-ghost btn-xs">MUTA!</button></div>                                                            
+                                                            <div v-if="!hidder && !hiddenMute" @click="convertValue(chat.getSelectedValue, chMes.sender.id, chat.getChannelAll.id)"><button class="btn btn-ghost btn-xs">MUTA!</button></div>                                                            
                                                         </th>
                                                     </tr>
                                                     <!-- row 5 -->
@@ -113,7 +237,7 @@
                                                             <label class="swap swap-flip text-5xl">
                                                                 <!-- this hidden checkbox controls the state -->
                                                                 <input type="checkbox" />                                                            
-                                                                <div v-if="hiddenAdmin" @click="unSetAdmin(chMes.sender.id, chat.getChannelAll.id)" >🤖</div>
+                                                                <div v-if="hiddenAdmin" @click="unSetAdminF(chMes.sender.id, chat.getChannelAll.id)" >🤖</div>
                                                                 <div v-else @click="setAdmin(chMes.sender.id, chat.getChannelAll.id)" >🫥</div>
                                                             </label>
                                                         </td>
@@ -150,7 +274,7 @@
         <!-- Inizio Select Group/Direct -->
         
         <!-- Fine Select Group/Direct -->
-        <!-- Inizio Text area -->
+        <!-- Inizio Text area group -->
         <div v-if="chat.getGroup && chat.getChannelAll != undefined" class="flex-2 pt-4 pb-10">
             <div class="write bg-white shadow flex rounded-lg">
                 <div class="flex-3 flex content-center items-center text-center p-4 pr-0">
@@ -199,15 +323,16 @@
             </div>
         </div>
     </div>
-    <div v-else-if="!chat.getFlagImIn && !chat.getifBanned" class="chat-area flex-1 flex flex-col">
+    <div v-else-if="!chat.getFlagImIn && !chat.getifBanned && !chat.getIfPrivate" class="chat-area flex-1 flex flex-col">
         <div v-if="chat.getGroup" class="messages flex-1 overflow-auto max-h-[700px]">
             <div class="alert">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>Non sei nel gruppo</span>
                 <div  v-if="chat.getIsPassOn" >
                     <input v-model="chat.insertedPass" type="text" placeholder="Inserisci Password" class="input input-bordered w-full max-w-xs" />
-                </div><div>
-                    <button @click="channelJoin(chat.getInsertedPass)" class="btn btn-sm btn-primary">Joina ora!</button>
+                </div>
+                <div>
+                    <button @click="channelJoin(chat.getInsertedPass, false)" class="btn btn-sm btn-primary">Joina ora!</button>
                 </div>
             </div>
         </div> 
@@ -217,6 +342,14 @@
             <div class="alert">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 <span>SEI BANNATO COGLIONE</span>
+            </div>
+        </div> 
+    </div> 
+    <div v-else-if="chat.getIfPrivate && !chat.getFlagImIn" class="chat-area flex-1 flex flex-col">
+        <div v-if="chat.getGroup" class="messages flex-1 overflow-auto max-h-[700px]">
+            <div class="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>CANALE PRIVATO!</span>
             </div>
         </div> 
     </div> 
@@ -238,7 +371,7 @@ import { nextTick } from 'vue';
 import { useChatStore } from "@/stores/chat";
 import { useAuthStore } from '@/stores/auth';
 import { onMounted } from 'vue'
-import { useGameInviteStore } from '@/stores/gameInvite';
+import { useGameStore } from '@/stores/gameInvite';
 import GameInviteService from '@/services/GameInviteService';
 import { useFriendStore } from '@/stores/friend';
 import { useRouter } from 'vue-router';
@@ -254,7 +387,6 @@ const lastMessage: Ref<HTMLDivElement | null> = ref(null);
 const hidder = ref(false);
 const hiddenMute = ref(false);
 const hiddenAdmin = ref(false);
-const selectedValue = ref('0');
 
 
 const kickCh = (id: any, channelId: any) => {   
@@ -280,7 +412,10 @@ const convertValue = (selectedValue: string, userId: any, channelId: any) => {
     else
         ret =  0;
     socket.emit('muteUser', { uId: userId, chId: channelId, time: ret })
+    chat.value.setSelectedValue('0');
 }
+
+
 
 const onToggleChange = (id: any, channelId: any) => {     
     socket.emit('checkIfBan', { uId: id, chId: channelId })
@@ -322,6 +457,19 @@ socket.on('isPassOn', (pass: boolean) => {
     }
 });
 
+socket.on('isPrivOn', (priv: boolean) => {
+    if (priv) 
+    {
+        chat.value.setIfPrivate(true);
+        console.log('Priv chan Canale Privato');
+    } 
+    else 
+    {
+        chat.value.setIfPrivate(false);
+        console.log('Priv chan Canale non Privato');
+    }
+});
+
 socket.on('isMuteChan', (muted: boolean) => {
     if (muted) 
     {
@@ -339,7 +487,7 @@ const setAdmin = (id: any, channelId: any) => {
     console.log('Il click funziona');      
     socket.emit('setAdmin', { uId: id, chId: channelId })
 }
-const unSetAdmin = (id: any, channelId: any) => {     
+const unSetAdminF = (id: any, channelId: any) => {     
     console.log('Il click toglie funziona');        
     socket.emit('unSetAdmin', { uId: id, chId: channelId })
 }
@@ -389,7 +537,7 @@ const sendMessage = () => {
       alert('Select a channel or direct message to Rohho');
       return;
   }
-  socket.emit('messageToServer', { text: msg.value, id: chat.value.getCurrentChannelId, sender: userStore.value.userId });
+  socket.emit('messageToServer', { text: msg.value, chId: chat.value.getCurrentChannelId, uId: userStore.value.userId });
   msg.value = '';
   nextTick(() => {
       setTimeout(() => {
@@ -397,6 +545,29 @@ const sendMessage = () => {
               lastMessage.value.scrollIntoView();
           }
       }, 80);
+  });
+};
+
+const sendDirect = () => {
+    console.log("Name current channel: ", chat.value.getChannelAll?.id);
+  if (/^[\s\n]*$/.test(msg.value))
+      return;
+  if (chat.value.getCurrentChannelId == '' || chat.value.getCurrentChannelId == null) {
+      alert('Select a channel or direct message to Rohho');
+      return;
+  }
+socket.emit('messageToDirect', { text: msg.value, chatId: chat.value.getCurrentChannelId, mioId: userStore.value.userId, chId: chat.value.getChannelAll?.id});
+    console.log('DIRECT: messaggio inviato');
+    console.log('DIRECT: TEXT: ', msg.value);
+    console.log('DIRECT: CHID: ', chat.value.getCurrentChannelId);
+    console.log('DIRECT: UID: ', userStore.value.userId);
+    msg.value = '';
+    nextTick(() => {
+    setTimeout(() => {
+        if (lastMessage.value) {
+            lastMessage.value.scrollIntoView();
+        }
+    }, 80);
   });
 };
 
@@ -408,10 +579,11 @@ const imAdmin = () => {
         return false;
 }
 
-const channelJoin = (password: any) => {    
-    socket.emit('joinChannel', { id: chat.value.getChannelAll?.id, sender: userStore.value.userId, password: password });
+const channelJoin = (password: any, invited: boolean) => {    
+    socket.emit('joinChannel', { chId: chat.value.getChannelAll?.id, uId: userStore.value.userId, password: password, invited: invited });
     console.log('joinato con password: ', password);
     console.log('joinato');
+    chat.value.setInsertedPass('');
   }
 
 const banUser = (bannedId: any, bannedChlId: any) => {
@@ -487,7 +659,7 @@ const teardown = () => {
 
 const currentUser = ref(useCurrentUserStore());
 const friendStore = ref(useFriendStore());
-const gameInviteStore = ref(useGameInviteStore());
+const gameInviteStore = ref(useGameStore());
 const isChangingUsername = ref(false);
 const newUsername = ref('');
 const errorMessage = ref('');
@@ -501,7 +673,8 @@ const createGame = () => {
 socketGame.on('playerInviteNo', function (data) {
     // console.log("Game Created! ID room is: " + data.room)
     // console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player, data.username1, data.username2);});
+    userStore.value.initGame(data.room, data.player, data.username1, data.username2);
+});
 
 socketGame.on('startingInviteGame', function (data) {
     // console.log("Game Created! ID room is: " + data)
@@ -532,22 +705,18 @@ watchEffect(async () => {
   friendStore.value.pending;
   friendStore.value.sent;
   friendStore.value.blocked;
-  gameInviteStore.value.sent;
-  updateReactiveGameInviteChecks();
+  gameInviteStore.value.getWaiting;
+
 });
 
-watch(() => gameInviteStore.value.sent, () => {
-    updateReactiveGameInviteChecks();
-}, { deep: true });
 
 async function gameInvite(userId: string) {
   try {
-        await GameInviteService.sendGameInvite(userId);
-        // Update the state after the API call
-        friendStore.value.updatePendings(currentUser.value.userId);
+    await GameInviteService.sendGameInvite(userId);
+    // Update the state after the API call
+    friendStore.value.updatePendings(currentUser.value.userId);
     friendStore.value.updateFriends();
     friendStore.value.updateSent(currentUser.value.userId);
-		updateReactiveGameInviteChecks();
 		// console.log("game invite sent");
 		createGame();
 		// location.reload();
@@ -557,9 +726,6 @@ async function gameInvite(userId: string) {
 	}
 }
 
-function updateReactiveGameInviteChecks() {
-	isIdExistsInOtherGameInvites.value = gameInviteStore.value.sent.some(game => game.id === props.idProfile);
-}
 
 // -------------------------------------- NIZZ --------------------------------------
 </script>
