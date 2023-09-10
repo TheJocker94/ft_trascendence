@@ -536,7 +536,7 @@ export default class PowerupScene extends Scene {
   }
 
   updateScore(score1: number, score2: number) {
-    socketGame.emit('updateScore', { score1: score1, score2: score2, room: userStore.value.roomId});
+    socketGame.emit('updateScore', { score1: score1, score2: score2, room: userStore.value.roomId, mode: 'POWERUP'});
   }
   stopSound() {
     this.lee1.stop();

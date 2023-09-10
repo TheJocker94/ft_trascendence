@@ -20,6 +20,5 @@ export class historyDto {
     score: string;
 
     @IsNotEmpty()
-    @IsString()
     mode: MatchMode;
 }

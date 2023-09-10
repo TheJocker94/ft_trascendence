@@ -10,7 +10,7 @@ import {
   plainToClass,
 } from 'class-transformer';
 import { UserDto } from './dto/user.dto';
-import { userListDto } from './dto/userList.dto';
+import { matchHistoryDto, userListDto } from './dto/userList.dto';
 import {
   BlockedUserResponseDto,
   FriendsDto,
@@ -135,6 +135,56 @@ export class UserService {
     });
     const dtoUsers = plainToClass(UserDto, users, transformationOptions);
     return dtoUsers;
+  }
+
+
+  async getMatchHistory (): Promise<any> {
+
+    const matches = await this.prisma.matchHistory.findMany({
+      orderBy: {
+        createdAt: 'desc'
+      },
+    });
+
+    const dtoMatches: matchHistoryDto[] = [];
+    for(const match of matches) {
+      const user1 = await this.prisma.user.findUnique({
+        where: {
+          id: match.User1Id,
+        },
+        select: {
+          id: true,
+          username: true,
+          profilePicture: true,
+          isOnline: true,
+          isPlaying: true
+        }
+      });
+      const user2 = await this.prisma.user.findUnique({
+        where: {
+          id: match.User2Id,
+        },
+        select: {
+          id: true,
+          username: true,
+          profilePicture: true,
+          isOnline: true,
+          isPlaying: true
+        }
+      });
+      let winner;
+      if (user1.id === match.winner)
+        winner = user1.username;
+      else
+        winner = user2.username;
+      const dtoMatch = plainToClass(matchHistoryDto, match, transformationOptions);
+      dtoMatch.user1Id = user1;
+      dtoMatch.user2Id = user2;
+      dtoMatch.winnerUsername = winner;
+      dtoMatches.push(dtoMatch);
+    }
+    console.log('LISTA PARTITE:   ', dtoMatches);
+    return dtoMatches;
   }
 
   async addFriend(senderId: string, receiverId: string): Promise<any> {

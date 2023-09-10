@@ -48,6 +48,7 @@ model matchHistory {
   winner  String
   score   String
   mode    MatchMode
+  createdAt DateTime @default(now())
 }
 
 // ho fatto solo un tipo CHANNEL diviso in DIRECT: una chat privata tra 2, oppure PRIVATE: un canale vero privato, oppure PUBLIC: un canale pubblico con tanti membri

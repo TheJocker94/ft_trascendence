@@ -1,5 +1,5 @@
 import http from '@/http';
-import { type IUser } from '@/models/IUser';
+import { type IMatchHistory, type IUser } from '@/models/IUser';
 
 class UserService {
   async paginate(link: string) {
@@ -17,6 +17,10 @@ class UserService {
     return (response.data)
   }
 
+  async getMatchHistory() {
+    const response = await http.get<IMatchHistory[]>(`/user/matchHistory`);
+    return (response.data)
+  }
   // async getAvatarOfUser(userId: string): Promise<string> {
   //   const response = await http.get(`/user/${userId}/avatar`, { responseType: 'arraybuffer' });
 	// 	return formatImage(response.data);
