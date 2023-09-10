@@ -79,11 +79,11 @@
             <li class="dropdown-item">
               <button>
                 TwoFa
-                <div v-if="auth.twoFaEnabled" @click="auth.change2fa()">
+                <div v-if="auth.twoFaEnabled" @click="auth.change2fa(); console.log('we Mario, it\'s me ', auth.twoFaEnabled)">
                   <input type="checkbox" class="toggle toggle-sm toggle-success" checked />
 
                 </div>
-                <div v-else-if="!auth.twoFaEnabled" @click="auth.change2fa()">
+                <div v-else-if="!auth.twoFaEnabled" @click="auth.change2fa();console.log('we Mario, it\'s me ', auth.twoFaEnabled)">
                   <input class="toggle toggle-sm toggle-success "/>
                 </div>
               </button>
@@ -243,7 +243,6 @@ import { watch } from 'vue';
 const authStore = ref(useAuthStore());
 const friendStore = ref(useFriendStore());
 const gameInviteStore = ref(useGameInviteStore());
-// const gameInvite = ref(gameInviteStore.value.pending.length)
 
 const press = ref(false);
 const leaveQ = ref(false);
@@ -307,15 +306,9 @@ const createGame = () => {
 }
 
 socketGame.on('playerInviteNo', function (data) {
-<<<<<<< Updated upstream
-    console.log("Game Created! ID room is: " + data.room)
-    console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player, data.username1, data.username2);
-=======
     // console.log("Game Created! ID room is: " + data.room)
     // console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player);
->>>>>>> Stashed changes
+    userStore.value.initGame(data.room, data.player, data.username1, data.username2);
 });
 
 socketGame.on('startingInviteGame', function (data) {
@@ -395,7 +388,7 @@ const closeModal = () => {
 };
 
 const auth = ref(useAuthStore());
-// console.log("2fa", auth.value.twoFaEnabled);
+console.log("2fa", auth.value.twoFaEnabled);
 
 const router = useRouter();
 // console.log("UserStore",userStore.value.username);
