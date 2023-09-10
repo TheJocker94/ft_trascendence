@@ -54,7 +54,7 @@ import type { IUser } from '@/models/IUser';
 import { useFriendStore } from '@/stores/friend';
 import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
-import { useGameInviteStore } from '@/stores/gameInvite';
+import { useGameStore } from '@/stores/gameInvite';
 import GameInviteService from '@/services/GameInviteService';
 import { socket, socketGame } from '@/plugins/Socket.io';
 import { useAuthStore } from '@/stores/auth';
@@ -166,7 +166,7 @@ const teardown = () => {
 
 const currentUser = ref(useCurrentUserStore());
 const friendStore = ref(useFriendStore());
-const gameInviteStore = ref(useGameInviteStore());
+const gameInviteStore = ref(useGameStore());
 const isChangingUsername = ref(false);
 const newUsername = ref('');
 const errorMessage = ref('');
@@ -234,8 +234,6 @@ watchEffect(async () => {
   friendStore.value.pending;
   friendStore.value.sent;
   friendStore.value.blocked;
-  gameInviteStore.value.sent;
-  updateReactiveGameInviteChecks();
   updateReactiveChecks();
 });
 
@@ -267,9 +265,6 @@ watch(() => friendStore.value.blocked, () => {
     updateReactiveChecks();
 }, { deep: true });
 
-watch(() => gameInviteStore.value.sent, () => {
-    updateReactiveGameInviteChecks();
-}, { deep: true });
 
 
 async function friendRequest(userId: string) {
@@ -292,10 +287,7 @@ async function gameInvite(userId: string) {
   try {
 	await GameInviteService.sendGameInvite(userId);
 	// Update the state after the API call
-	gameInviteStore.value.updatePendings(currentUser.value.userId);
-    gameInviteStore.value.updateFriends();
-    gameInviteStore.value.updateSent(currentUser.value.userId);
-	updateReactiveGameInviteChecks();
+	gameInviteStore.value.initStore(currentUser.value.userId);
 	// console.log("game invite sent");
 	createGame();
 	// location.reload();
@@ -334,11 +326,6 @@ async function unblockFunction() {
     if (axios.isAxiosError(e)) return e.response?.data;
   }
 }
-
-function updateReactiveGameInviteChecks() {
-	isIdExistsInOtherGameInvites.value = gameInviteStore.value.sent.some(game => game.id === props.idProfile);
-}
-
 function updateReactiveChecks() {
     isIdExistsInOtherFriends.value = friendStore.value.friends.some(friend => friend.id === props.idProfile);
     isIdExistsInOtherPending.value = friendStore.value.pending.some(friend => friend.id === props.idProfile);

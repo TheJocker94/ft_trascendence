@@ -2,7 +2,7 @@
 import GamePong from '@/components/GamePong.vue'
 import MatcHistory from '@/components/MatcHistory.vue';
 import PhaserContainer from '@/components/PhaserContainer.vue'
-import { useGameInviteStore } from '@/stores/gameInvite'
+import { useGameStore } from '@/stores/gameInvite'
 import { socketGame } from '@/plugins/Socket.io';
 import { ref } from 'vue'
 import { onMounted, onUnmounted, nextTick } from 'vue'
@@ -89,7 +89,7 @@ onUnmounted(() => {
   socketGame.disconnect();
 })
 
-const gameStore = useGameInviteStore();
+const gameStore = ref(useGameStore());
 </script>
 
 <template>

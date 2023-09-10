@@ -24,7 +24,7 @@ import {
   userUpdateImageDto,
   userUpdateMailDto,
   userUpdateNameDto,
-  InviteFriendGameDto,
+  InviteGameDto,
 } from './dto';
 import { GetCurrUserId } from 'src/auth/common/decorators';
 
@@ -183,54 +183,54 @@ export class UserController {
   @Post('invite_to_play')
   @HttpCode(HttpStatus.CREATED)
   async inviteToPlay(
-    @Body() inviteFriendGameDto: InviteFriendGameDto,
+    @Body() InviteGameDto: InviteGameDto,
     @GetCurrUserId() senderId: string,
   ): Promise<any> {
-    const { gameId } = inviteFriendGameDto;
+    const { gameId } = InviteGameDto;
     await this.userService.inviteGame(senderId, gameId);
     return 'Invite to play request sent successfully!';
   }
 
   @Post('accept_game_invite')
   @HttpCode(HttpStatus.OK)
-  async acceptGameInvite(
-    @Body() dto: InviteFriendGameDto,
+  async acceptInviteGameRequest(
+    @Body() dto: InviteGameDto,
     @GetCurrUserId() userId: string,
   ): Promise<any> {
     await this.userService.acceptInviteGameRequest(userId, dto.gameId);
     return 'game invite request accepted!';
   }
 
-  @Get('received_game_invite')
+  @Get('waiting_game_invite')
   @HttpCode(HttpStatus.OK)
-  async receivedGameInvite(
+  async getWaitingGame(
     @GetCurrUserId() userId: string,
   ): Promise<InviteFriendsDto[]> {
-    return this.userService.getReceivedGameInviteRequests(userId);
+    return this.userService.getWaitingGame(userId);
   }
 
-  @Get('sent_game_invite')
+  @Get('thinking_game_invite')
   @HttpCode(HttpStatus.OK)
-  async getSentGameInvite(
+  async getThinkingGame(
     @GetCurrUserId() userId: string,
   ): Promise<InviteFriendsDto[]> {
-    return this.userService.getSentGameInvite(userId);
+    return this.userService.getThinkingGame(userId);
   }
 
-  @Get('friends_invited')
+  @Get('accepted_game_invite')
   @HttpCode(HttpStatus.OK)
-  async getFriendsInvited(@GetCurrUserId() userId: string): Promise<InviteFriendsDto[]> {
-    return this.userService.getFriendsInvited(userId);
+  async getAccepted(@GetCurrUserId() userId: string): Promise<any[]> {
+    return this.userService.getAccepted(userId);
   }
 
-  @Delete('remove_invite')
+  @Delete('remove_game_invite')
   @HttpCode(HttpStatus.NO_CONTENT)
   async removeInvited(
-    @Body() dto: InviteFriendGameDto,
+    @Body() dto: InviteGameDto,
     @GetCurrUserId() userId: string,
   ): Promise<any> {
-    await this.userService.removeInvited(userId, dto.gameId);
-    return 'Friend removed!';
+    await this.userService.removeInvited(dto.gameId);
+    return 'Game request removed!';
   }
 
   //* -------------------------------- end nizz -------------------------------- */

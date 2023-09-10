@@ -61,7 +61,7 @@
         <div class="dropdown dropdown-end">
           <label tabindex="0" class="btn btn-ghost btn-circle avatar indicator">
             
-			<span v-if="friendStore.pending.length + gameInviteStore.pending.length > 0" class="indicator-item indicator-start badge badge-secondary">{{friendStore.pending.length + gameInviteStore.pending.length}}</span>
+			<span v-if="friendStore.pending.length + gameInviteStore.getThinking.length > 0" class="indicator-item indicator-start badge badge-secondary">{{friendStore.pending.length + gameInviteStore.getThinking.length}}</span>
               <div class="w-10 rounded-full">
                 <img :src=userStore.avatar />
 
@@ -173,9 +173,9 @@
 						</div>
 						<!--//! down here -->
 						<div v-if="showGameRequest">
-							<div v-if="gameInviteStore.pending.length > 0">
+							<div v-if="gameInviteStore.getThinking.length > 0">
 								<ul>
-									<li v-for="invite in gameInviteStore.pending" :key="invite.id" class=" ">
+									<li v-for="invite in gameInviteStore.getThinking" :key="invite.id" class=" ">
 										<router-link :to="{ name: 'profile', params: { userid: invite.id } }" @click="closeModal"
 										class="btn btn-ghost btn-circle avatar">
 											<div class="w-6 rounded-full">
@@ -229,12 +229,10 @@ import FriendService from '@/services/FriendService';
 import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
 import GameInviteService from '@/services/GameInviteService';
-import { useGameInviteStore } from '@/stores/gameInvite';
+import { useGameStore} from '@/stores/gameInvite';
 // import { socketNoti } from '@/plugins/Socket.io';
 import { onMounted, onUnmounted } from 'vue'
-import PhaserContainer from '@/components/PhaserContainer.vue'
 import { socketGame } from '@/plugins/Socket.io';
-import { watch } from 'vue';
 
 // onBeforeRouteLeave(() => {
 //   closeAllDropdowns();
@@ -242,7 +240,7 @@ import { watch } from 'vue';
 // });
 const authStore = ref(useAuthStore());
 const friendStore = ref(useFriendStore());
-const gameInviteStore = ref(useGameInviteStore());
+const gameInviteStore = ref(useGameStore());
 
 const press = ref(false);
 const leaveQ = ref(false);
@@ -252,7 +250,6 @@ const showFriendRequest = ref(true);
 const showChannelInvite = ref(false);
 const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
-const gamerStore = ref(useGameInviteStore());
 onMounted(async () => {
 	await userStore.value.initStore(null, null);
 	if (authStore.value.isLoggedIn){
@@ -311,7 +308,7 @@ socketGame.on('playerInviteNo', function (data) {
     userStore.value.initGame(data.room, data.player, data.username1, data.username2);
 });
 
-socketGame.on('startingInviteGame', function (data) {
+socketGame.on('startingInviteGame', function () {
     // console.log("Game Created! ID room is: " + data)
     goGame.value = true;
 		gameInviteStore.value.renderer = true;
@@ -320,15 +317,6 @@ socketGame.on('startingInviteGame', function (data) {
 		router.push('/gameInvite');
     //alert("Game Created! ID is: "+ JSON.stringify(data));
 });
-
-const closeAllDropdowns = () => {
-  // Close all dropdowns
-  const dropdowns = document.querySelectorAll('.dropdown-content');
-  dropdowns.forEach(dropdown => {
-    dropdown.classList.remove('open'); // Assuming 'open' class makes the dropdown visible
-  });
-};
-
 
 async function acceptRequest(userId: string) {
 	try {
@@ -354,9 +342,8 @@ async function declineRequest(userId: string) {
 
 async function declineGameInviteRequest(userId: string) {
 	try {
-		await GameInviteService.endGameInvite(userId);
-		gameInviteStore.value.updatePendings(userStore.value.userId);
-		gameInviteStore.value.updateFriends();
+		await GameInviteService.deleteGameInvite(userId);
+		gameInviteStore.value.initStore(userStore.value.userId);
 	} catch (err) {
 		const e = err as AxiosError<IError>;
 		if (axios.isAxiosError(e)) return e.response?.data;
@@ -367,8 +354,7 @@ async function acceptGameInviteRequest(userId: string) {
 	try {
 		createGame();
 		await GameInviteService.acceptGameInvite(userId);
-		gameInviteStore.value.updatePendings(userStore.value.userId);
-		gameInviteStore.value.updateFriends();
+		gameInviteStore.value.initStore(userStore.value.userId);
 		declineGameInviteRequest(userId);
 	} catch (err) {
 		const e = err as AxiosError<IError>;

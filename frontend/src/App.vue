@@ -1,25 +1,42 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
 import NavBar from './components/NavBar.vue';
+import { useGameStore } from './stores/gameInvite';
 // import { useLoginStore } from './stores/login';
 import { useAuthStore } from './stores/auth';
 import { useCurrentUserStore } from './stores/currentUser';
-import { ref, onBeforeMount, onBeforeUnmount } from 'vue';
+import { ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
 // import { socketNoti } from './plugins/Socket.io';
 import { socketGame } from './plugins/Socket.io';
 
+const gameStore = ref(useGameStore());
 const authStore = ref(useAuthStore());
 const userStore = ref(useCurrentUserStore());
 if (authStore.value.isLoggedIn){
-	  socketGame.auth = { token: authStore.value.token }
+  socketGame.auth = { token: authStore.value.token }
   socketGame.connect();
   socketGame.on('welcome', (data: any) => {
 	console.log(data);
   });
 }
+
+onMounted(async () => {
+  setInterval(async () => {
+    if (userStore.value.userId)
+      await gameStore.value.initStore(userStore.value.userId)
+    console.log("init game store app");
+    console.log("Acceptd are ",gameStore.value.getAcceptef)
+    console.log("Waiting are ",gameStore.value.getWaiting)
+    console.log('Thinking are ',gameStore.value.getThinking)
+
+  }, 10000);
+});
+
 onBeforeMount( async () => {
   if (userStore.value.userId)
     await userStore.value.initStore(null, null);
+  // aggiornare init game store ogni 10 secondi
+  
 });
 onBeforeUnmount(() => {
 

@@ -123,10 +123,10 @@ model Friendship {
 model Gameinvite {
   id         String           @id @default(uuid())
   senderId   String
-  receiverId String
-  status     FriendshipStatus
-  receiver   User             @relation("game_Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
   sender     User             @relation("game_Sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User             @relation("game_Receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  status     GameinviteStatus
 
   @@unique([senderId, receiverId])
 }
@@ -134,6 +134,12 @@ model Gameinvite {
 enum FriendshipStatus {
   PENDING
   ACCEPTED
+}
+
+enum GameinviteStatus {
+  PENDING
+  ACCEPTED
+  OUTDATED
 }
 
 model BlockedUser {

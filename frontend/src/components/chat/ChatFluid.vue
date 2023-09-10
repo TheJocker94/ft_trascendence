@@ -371,7 +371,7 @@ import { nextTick } from 'vue';
 import { useChatStore } from "@/stores/chat";
 import { useAuthStore } from '@/stores/auth';
 import { onMounted } from 'vue'
-import { useGameInviteStore } from '@/stores/gameInvite';
+import { useGameStore } from '@/stores/gameInvite';
 import GameInviteService from '@/services/GameInviteService';
 import { useFriendStore } from '@/stores/friend';
 import { useRouter } from 'vue-router';
@@ -659,7 +659,7 @@ const teardown = () => {
 
 const currentUser = ref(useCurrentUserStore());
 const friendStore = ref(useFriendStore());
-const gameInviteStore = ref(useGameInviteStore());
+const gameInviteStore = ref(useGameStore());
 const isChangingUsername = ref(false);
 const newUsername = ref('');
 const errorMessage = ref('');
@@ -673,7 +673,8 @@ const createGame = () => {
 socketGame.on('playerInviteNo', function (data) {
     // console.log("Game Created! ID room is: " + data.room)
     // console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player, data.username1, data.username2);});
+    userStore.value.initGame(data.room, data.player, data.username1, data.username2);
+});
 
 socketGame.on('startingInviteGame', function (data) {
     // console.log("Game Created! ID room is: " + data)
@@ -704,22 +705,18 @@ watchEffect(async () => {
   friendStore.value.pending;
   friendStore.value.sent;
   friendStore.value.blocked;
-  gameInviteStore.value.sent;
-  updateReactiveGameInviteChecks();
+  gameInviteStore.value.getWaiting;
+
 });
 
-watch(() => gameInviteStore.value.sent, () => {
-    updateReactiveGameInviteChecks();
-}, { deep: true });
 
 async function gameInvite(userId: string) {
   try {
-        await GameInviteService.sendGameInvite(userId);
-        // Update the state after the API call
-        friendStore.value.updatePendings(currentUser.value.userId);
+    await GameInviteService.sendGameInvite(userId);
+    // Update the state after the API call
+    friendStore.value.updatePendings(currentUser.value.userId);
     friendStore.value.updateFriends();
     friendStore.value.updateSent(currentUser.value.userId);
-		updateReactiveGameInviteChecks();
 		// console.log("game invite sent");
 		createGame();
 		// location.reload();
@@ -729,9 +726,6 @@ async function gameInvite(userId: string) {
 	}
 }
 
-function updateReactiveGameInviteChecks() {
-	isIdExistsInOtherGameInvites.value = gameInviteStore.value.sent.some(game => game.id === props.idProfile);
-}
 
 // -------------------------------------- NIZZ --------------------------------------
 </script>

@@ -12,8 +12,9 @@ class GameInviteService {
     return await http.post(`/user/accept_game_invite`, { gameId });
   }
 
-	async getGameInvitesRequests(gameId: string) {
-			const response =  await http.get<IGInvite[]>(`/user/received_game_invite`, {
+//   async getGameInvitesRequests(gameId: string) {
+	async getWaitingGameInvite(gameId: string) {
+			const response =  await http.get<any[]>(`/user/waiting_game_invite`, {
 			data: {
 				gameId: gameId
 			}
@@ -21,8 +22,9 @@ class GameInviteService {
 		return response.data;
   }
 
-  async getGameInvite(gameId:string) {
-	const response =  await http.get<IGInvite[]>(`/user/sent_game_invite`, {
+//   async getGameInvite(gameId:string) {
+  async getThinkingGameInvite(gameId:string) {
+	const response =  await http.get<any[]>(`/user/thinking_game_invite`, {
 		data: {
 			gameId: gameId
       }
@@ -30,14 +32,16 @@ class GameInviteService {
 	return response.data;
   }
 
-  async getGameInviteList() {
-    const response =  await http.get<IGInvite[]>(`/user/friends_invited`, {
+//   async getGameInviteList() {
+  async getAcceptedGameInvite() {
+    const response =  await http.get<any[]>(`/user/accepted_game_invite`, {
 		});
 		return response.data;
   }
 
-  async endGameInvite(gameId:string) {
-    return await http.delete(`/user/remove_invite`, {
+//   async endGameInvite(gameId:string) {
+  async deleteGameInvite(gameId:string) {
+    return await http.delete(`/user/remove_game_invite`, {
       data: {
         gameId: gameId
       }
