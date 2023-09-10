@@ -97,52 +97,44 @@
         </div>
       </div>
       <div v-if="isModalOpen" class="modal-container" @click="closeModal">
-					<dialog @click.stop class="custom-modal modal-box bg-black-100 w-3/5 h-1/2 flex flex-col justify-between">
+					<dialog @click.stop class="custom-modal modal-box bg-black-500 w-1/3 h-2/5 flex flex-col justify-between">
 						<div class="flex justify-between mb-4">
-							<button  @click="showFriendRequest = true, showChannelInvite = false, showGameRequest = false" :class="{
-                'btn': true,
-                'py-1': true,
-                'px-4': true,
-                'border-2': true,
-                'border-white-500': true,
-                'hover:bg-white-500': true,
-                'hover:cursor-pointer': true,
-                'rounded-3xl': true,
-                'mx-2': true,
-                'text-white': !showFriendRequest,
-                'text-primary': showFriendRequest,
-              }">Friend Request</button>
-							<button  @click="showChannelInvite = true, showFriendRequest = false, showGameRequest = false" :class="{
-                'btn': true,
-                'py-1': true,
-                'px-4': true,
-                'border-2': true,
-                'border-white-500': true,
-                'hover:bg-white-500': true,
-                'hover:cursor-pointer': true,
-                'rounded-3xl': true,
-                'mx-2': true,
-                'text-white': !showChannelInvite,
-                'text-primary': showChannelInvite,
-              }">Join Channel</button>
-							<button  @click="showGameRequest = true, showFriendRequest = false, showChannelInvite = false" :class="{
-                'btn': true,
-                'py-1': true,
-                'px-4': true,
-                'border-2': true,
-                'border-white-500': true,
-                'hover:bg-white-500': true,
-                'hover:cursor-pointer': true,
-                'rounded-3xl': true,
-                'mx-2': true,
-                'text-white': !showGameRequest,
-                'text-primary': showGameRequest,
-              }">Join Game</button>
+							<button  @click="showFriendRequest = true, showGameRequest = false" :class="{
+									'btn': true,
+									'py-1': true,
+									'px-4': true,
+									'border-2': true,
+									'border-white-500': true,
+									'hover:bg-white-500': true,
+									'hover:cursor-pointer': true,
+									'rounded-3xl': true,
+									'mx-2': true,
+									'text-white': !showFriendRequest,
+									'text-primary': showFriendRequest,
+								}">Friend Request
+							</button>
+							<button  @click="showFriendRequest = false, showGameRequest = true" :class="{
+									'btn': true,
+									'py-1': true,
+									'px-4': true,
+									'border-2': true,
+									'border-white-500': true,
+									'hover:bg-white-500': true,
+									'hover:cursor-pointer': true,
+									'rounded-3xl': true,
+									'mx-2': true,
+									'text-white': !showGameRequest,
+									'text-primary': showGameRequest,
+								}">Join Game
+							</button>
 						</div>
 						<div v-if="showFriendRequest">
               <div v-if="friendStore.pending.length > 0">
                 <ul>
-                  <li v-for="friend in friendStore.pending" :key="friend.id" class=" ">
+                  <li v-for="friend in friendStore.pending" :key="friend.id" class="">
+
+
+
                     <router-link
                     :to="{
                       name: 'profile',
@@ -167,10 +159,7 @@
               <div v-else>
                 <p class=" text-center">No friend's requests</p>
               </div>
-						</div>
-						<div v-if="showChannelInvite">
-							<p class=" text-center">balh balhadifj ioawjekvds</p>
-						</div>
+			</div>
 						<!--//! down here -->
 						<div v-if="showGameRequest">
 							<div v-if="gameInviteStore.pending.length > 0">
@@ -249,7 +238,6 @@ const leaveQ = ref(false);
 const goGame = ref(false);
 
 const showFriendRequest = ref(true);
-const showChannelInvite = ref(false);
 const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
 const gamerStore = ref(useGameInviteStore());
@@ -423,7 +411,7 @@ const logout = () => {
   margin: 0; /* Reset margin */
   padding: 20px; /* Reset padding */
   box-sizing: border-box; /* Ensure padding and borders are included in the total width and height */
-  width: 60%; /* Set a specific width; adjust as needed */
+  width: 30%; /* Set a specific width; adjust as needed */
 }
 
 .placeholder {
