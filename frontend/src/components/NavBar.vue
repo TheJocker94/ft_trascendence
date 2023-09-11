@@ -23,7 +23,7 @@
                 Game
                 </RouterLink>
           </li>
-          <li><a  href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Hot girl near you</a></li>
+          <li><a  href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">Hot girl near you</a></li>
         </ul>
       </div>
       <RouterLink
@@ -51,7 +51,7 @@
                   Pong
                 </RouterLink>
           </li>
-          <li><a  href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Hot girl near you</a></li>
+          <li><a  href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">Hot girl near you</a></li>
         </ul>
       <!-- </div> -->
       
@@ -79,11 +79,11 @@
             <li class="dropdown-item">
               <button>
                 TwoFa
-                <div v-if="auth.twoFaEnabled" @click="auth.change2fa(); console.log('we Mario, it\'s me ', auth.twoFaEnabled)">
+                <div v-if="auth.twoFaEnabled" @click="auth.change2fa()">
                   <input type="checkbox" class="toggle toggle-sm toggle-success" checked />
 
                 </div>
-                <div v-else-if="!auth.twoFaEnabled" @click="auth.change2fa();console.log('we Mario, it\'s me ', auth.twoFaEnabled)">
+                <div v-else-if="!auth.twoFaEnabled" @click="auth.change2fa()">
                   <input class="toggle toggle-sm toggle-success "/>
                 </div>
               </button>
@@ -220,91 +220,26 @@ import type { IError } from '@/models/IError';
 import GameInviteService from '@/services/GameInviteService';
 import { useGameStore} from '@/stores/gameInvite';
 // import { socketNoti } from '@/plugins/Socket.io';
-import { onMounted, onUnmounted } from 'vue'
-import { socketGame } from '@/plugins/Socket.io';
+import { onMounted} from 'vue'
 
-// onBeforeRouteLeave(() => {
-//   closeAllDropdowns();
-//   return true; // Allow the route change to proceed
-// });
-const authStore = ref(useAuthStore());
 const friendStore = ref(useFriendStore());
 const gameInviteStore = ref(useGameStore());
-
-const press = ref(false);
 const leaveQ = ref(false);
-const goGame = ref(false);
+
 
 const showFriendRequest = ref(true);
 const showGameRequest = ref(false);
 const userStore = ref(useCurrentUserStore());
 onMounted(async () => {
 	await userStore.value.initStore(null, null);
-	if (authStore.value.isLoggedIn){
-    socketGame.auth = { token: authStore.value.token }
-  socketGame.connect();
-  socketGame.on('welcome', (data: any) => {
-	console.log(data);
-  });
-}
 });
 
-// watch(goGame, (newValue: boolean) => {
-// 	if (newValue) {
-// 		console.log("navbar gogame");
-// 		router.push('/gameInvite');
-// 	}
-// });
-
-
-const isBrowserMinimized = ref(false);
-const handleVisibilityChange = () => {
-  isBrowserMinimized.value = document.hidden;
-  if (isBrowserMinimized.value === true && userStore.value.roomId) {
-			socketGame.emit('pause', {room: userStore.value.roomId, player : userStore.value.playerNo});
-  }
-	else if (isBrowserMinimized.value === false && userStore.value.roomId)
-		socketGame.emit('unpause', {room: userStore.value.roomId, player : userStore.value.playerNo}); 
-};
-
-onMounted(() => {
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-//   document.addEventListener('beforeunload', handleBeforeUnload);
-});
-
-
-const teardown = () => {
-  document.removeEventListener('visibilitychange', handleVisibilityChange);
-//   document.removeEventListener('beforeunload', handleBeforeUnload);
-};
-
-// On leaving the page
-onUnmounted(() => {
-  teardown();
-  socketGame.disconnect();
-})
 
 const createGame = () => {
-//   console.log("create game")
-  socketGame.emit('joinGameInviteQueue');
+  console.log("create game")
   leaveQ.value = true;
 }
 
-socketGame.on('playerInviteNo', function (data) {
-    // console.log("Game Created! ID room is: " + data.room)
-    // console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player, data.username1, data.username2);
-});
-
-socketGame.on('startingInviteGame', function () {
-    // console.log("Game Created! ID room is: " + data)
-    goGame.value = true;
-		gameInviteStore.value.renderer = true;
-    leaveQ.value = false;
-    press.value = true;
-		router.push('/gameInvite');
-    //alert("Game Created! ID is: "+ JSON.stringify(data));
-});
 
 async function acceptRequest(userId: string) {
 	try {
@@ -362,10 +297,8 @@ const closeModal = () => {
 };
 
 const auth = ref(useAuthStore());
-console.log("2fa", auth.value.twoFaEnabled);
 
 const router = useRouter();
-// console.log("UserStore",userStore.value.username);
 const logout = () => {
   auth.value.logout();
   router.push({ name: 'home' });

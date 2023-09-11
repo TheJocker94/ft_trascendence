@@ -1,8 +1,8 @@
 <template>
 	<div v-if="user">
-	  <h1>{{ user.username }}</h1>
-	  <img :src="user.profilePicture" alt="User's profile picture" />
-	  <!-- Add other user details here -->
+    <h1>{{ user.username }}</h1>
+    <img :src="user.profilePicture" alt="User's profile picture" />
+    <!-- Add other user details here -->
 	</div>
   </template>
   
@@ -10,6 +10,7 @@
   import { ref, onMounted } from 'vue';
   import { useRoute } from 'vue-router';
   import UserService from '@/services/UserService';
+import AuthService from '@/services/AuthService';
   
   interface User {
 	username: string;
@@ -24,5 +25,6 @@
   
   onMounted(async () => {
 	user.value = await UserService.getUserById(userId);
+  AuthService.online();
   });
   </script>

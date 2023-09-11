@@ -82,12 +82,10 @@ const schema2fa = yup.object({
 });
 
 async function onSubmit2fa() {
-//   console.log("2fa");
     const e = await authStore.value.signInLocal2fa(credentials.twofaCode, credentials.email, true);
     credentials.twofaCode = "";
     if (isError(e)) {
       alert(e.message);
-      console.log("danger", e.message);
       return;
 	}
 }

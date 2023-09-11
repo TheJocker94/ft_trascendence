@@ -25,7 +25,7 @@
 	<div v-if="userStore.userId === props.idProfile" >
 		<!-- text style bold tailwind -->
         <h1 class="text-center  text-white  my-3">Match History</h1>
-	<div class="overflow-x-auto">
+	<div v-if="MatcHistory.length > 0" class="overflow-x-auto">
     <table class="table table-sm">
     <!-- head -->
       <thead>
@@ -73,6 +73,7 @@
       </tbody>    
     </table>
 	</div>
+	<div v-else class="text-center">No match played yet</div>
 </div>
 </template>
 

@@ -2,25 +2,23 @@
 import { RouterView } from 'vue-router'
 import NavBar from './components/NavBar.vue';
 import { useGameStore } from './stores/gameInvite';
-// import { useLoginStore } from './stores/login';
 import { useAuthStore } from './stores/auth';
 import { useCurrentUserStore } from './stores/currentUser';
-import { ref, onBeforeMount, onBeforeUnmount, onMounted } from 'vue';
-// import { socketNoti } from './plugins/Socket.io';
-import { socketGame } from './plugins/Socket.io';
+import { ref, onBeforeMount, onMounted} from 'vue';
+import AuthService from './services/AuthService';
 
 const gameStore = ref(useGameStore());
 const authStore = ref(useAuthStore());
 const userStore = ref(useCurrentUserStore());
-if (authStore.value.isLoggedIn){
-  socketGame.auth = { token: authStore.value.token }
-  socketGame.connect();
-  socketGame.on('welcome', (data: any) => {
-	console.log(data);
-  });
-}
+
+onBeforeMount( async () => {
+  if (userStore.value.userId)
+    await userStore.value.initStore(null, null);
+});
 
 onMounted(async () => {
+  window.addEventListener("beforeunload", unload);
+  AuthService.online();
   setInterval(async () => {
     if (userStore.value.userId)
       await gameStore.value.initStore(userStore.value.userId)
@@ -31,25 +29,14 @@ onMounted(async () => {
 
   }, 10000);
 });
+// Function to set offline the user
+function unload() {
+  console.log("unload");
+  AuthService.offline();
+}
 
-onBeforeMount( async () => {
-  if (userStore.value.userId)
-    await userStore.value.initStore(null, null);
-  // aggiornare init game store ogni 10 secondi
-  
-});
-onBeforeUnmount(() => {
 
-  socketGame.offAny();
-  socketGame.off('playerDisconnected');
-  socketGame.off('restartServer');
-  socketGame.off('gameCreated');
-  socketGame.off('playerNo');
-  socketGame.off('startingGame');
-  socketGame.off('joinQueue');
-  // socketGame.off('leaveRoom');
-  socketGame.off('disconnect');
-});
+
 
 </script>
 

@@ -17,8 +17,6 @@ const goGame = ref(false);
 onMounted(async () => {
   await userStore.value.initStore(null, null);
   socketGame.auth = { token: authStore.value.token }
-  console.log("Token is ", socketGame.auth)
-  // socketGame.auth = { username: userStore.value.username };
   socketGame.connect();
   socketGame.on('welcome', (data: any) => {
     console.log(data);
@@ -36,12 +34,6 @@ const handleVisibilityChange = () => {
 		socketGame.emit('unpause', {room: userStore.value.roomId, player : userStore.value.playerNo}); 
 };
 
-// socketGame.on('unpauseServer', data => {
-//   // console.log('restartServer: ' + data);
-//   socketGame.emit('unpause', {userStore.value.roomId});
-//   router.push({ name: 'home' });
-//   //alert("Game Created! ID is: "+ JSON.stringify(data));
-// });
 
 onMounted(() => {
   document.addEventListener('visibilitychange', handleVisibilityChange);

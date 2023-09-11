@@ -18,7 +18,6 @@ export class SendEmailService {
     }
 
     async sendVerificationCode(email: string, code: string): Promise<void> {
-        console.log('Sending verification code to email', email, ' code:', code);
         const mailOptions = {
             from: process.env.MAIL_EMAIL, // Your Outlook email
             to: email,
@@ -27,7 +26,6 @@ export class SendEmailService {
         };
         try {
             await this.transporter.sendMail(mailOptions);
-            console.log('Verification code email sent successfully');
         } catch (error) {
             console.error('Error sending verification code email:', error);
             throw new Error('Failed to send verification code email');

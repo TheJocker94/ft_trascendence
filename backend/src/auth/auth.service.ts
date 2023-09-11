@@ -100,14 +100,12 @@ export class AuthService {
     }
     if (user && user.emailVerificationCode === dto.verificationCode) {
       // Code is correct
-      console.log('verification code is correct');
       await this.prisma.user.update({
         where: { id: user.id },
         data: { emailVerificationCode: null },
       });
 
       const tokens = await this.getTokens(user.id, user.email);
-      console.log('tokens are being sent!', tokens);
       await this.updateRtHash(user.id, tokens.refreshToken);
       return tokens;
     }
@@ -134,7 +132,6 @@ export class AuthService {
       where: { id: user.id },
       data: { isOnline: true },
     });
-    console.log(profile);
 	if (user.is2faEnabled === true) {
 		const verificationCode = this.generateVerificationCode();
   

@@ -9,6 +9,7 @@ import { onMounted, onUnmounted, nextTick } from 'vue'
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
+import AuthService from '@/services/AuthService';
 
 const router = useRouter();
 const userStore = ref(useCurrentUserStore());
@@ -29,6 +30,7 @@ socketGame.on('playerDisconnected', data => {
 onMounted(async () => {
 	// console.log("wtfffff");
 	await userStore.value.initStore(null, null);
+  AuthService.online();
 	if (authStore.value.isLoggedIn){
 		socketGame.auth = { token: authStore.value.token }
 		socketGame.connect();

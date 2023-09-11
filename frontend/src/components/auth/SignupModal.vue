@@ -60,15 +60,10 @@ const schema = yup.object().shape({
 
 // Submit function
 async function onSubmit() {
-  console.log("Sommettiti")
-  console.log("email", credentials.email)
-  console.log("pass", credentials.password)
-  console.log("user", credentials.username)
   const e = await auth.value.signUpLocal(credentials.email, credentials.username, credentials.password);
   if (e)
   {
     alert(e.message)
-    console.log("danger", "failure", e.message);
     return;
   }
 }

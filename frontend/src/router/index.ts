@@ -34,8 +34,8 @@ const router = createRouter({
 		name: 'gameInvite',
 		component: GameInviteView,
 		meta: {
-		  title: 'gameInvite',
-		  requiresAuth: true
+      title: 'gameInvite',
+      requiresAuth: true
 		},
 	},
 	{
@@ -43,8 +43,8 @@ const router = createRouter({
 		name: 'gameInv',
 		component: GameInvView,
 		meta: {
-		  title: 'gameInv',
-		  requiresAuth: true
+      title: 'gameInv',
+      requiresAuth: true
 		},
 	},
     {
@@ -82,8 +82,7 @@ const router = createRouter({
     },
   ]
 })
-// const authStore = useAuthStore();
-// console.log(authStore.isLoggedIn)
+
 router.beforeEach((to, from, next) => {
   // Get the meta.title property from the destination route
   const title = to.meta.title || 'Transcendence'; // Use a default title if not specified

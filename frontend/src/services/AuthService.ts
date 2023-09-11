@@ -54,6 +54,14 @@ class AuthService {
   change2fa() {
     return http.post('/user/change2fa');
   }
+
+  online() {
+    return http.post('/user/online');
+  }
+
+  offline() {
+    return http.post('/user/offline');
+  }
   //   signInFortyTwo(params: string) {
   //   return http.get<ISignedIn>(`/auth/42/signin${params}`, {
   //     headers: {},

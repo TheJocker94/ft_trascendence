@@ -128,6 +128,7 @@ socket.on ('isUserInChannel', (channelIn: boolean | string) => {
     console.log('Valore di flagImIn Dopo: ' + channelIn);
 })
 import { useChatStore } from "@/stores/chat";
+import AuthService from "@/services/AuthService";
 import UserService from "@/services/UserService";
 // Gestione responsive
 const chat = ref(useChatStore());
@@ -246,6 +247,7 @@ socket.on('messageFromDirect', (data) => {
 
 onMounted(async () => {
   await userStore.value.initStore(null, null);
+  AuthService.online();
   const username = userStore.value.username;
   socket.auth = { username };
   socket.connect();

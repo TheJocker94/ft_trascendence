@@ -56,6 +56,33 @@ export class UserService {
     return userListDtos;
   }
 
+  async setOnlineStatus(userId: string, isOnline: boolean): Promise<void> {
+    
+    if (isOnline)
+    {
+      const user = await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          isOnline: isOnline,
+        },
+      });
+    }
+    else
+    {
+      const user = await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          isOnline: isOnline,
+          isPlaying: false
+        },
+      });
+    }
+  }
+
   async updateUsername(userData: userUpdateNameDto): Promise<UserDto> {
     const user = await this.prisma.user.findUnique({
       where: {
@@ -74,9 +101,6 @@ export class UserService {
           username: userData.newUsername,
         },
       });
-      if (!updatedUser) {
-        console.log('No user was updated for ID:', userData.id);
-      }
       const updatedtoUser = plainToClass(UserDto, updatedUser, transformationOptions);
       return updatedtoUser;
     } catch (error) {
@@ -103,9 +127,6 @@ export class UserService {
           email: userData.newEmail,
         },
       });
-      if (!updatedUser) {
-        console.log('No mail was updated for ID:', userData.id);
-      }
       const updatedtoUser = plainToClass(UserDto, updatedUser, transformationOptions);
       return updatedtoUser;
     } catch (error) {
@@ -124,7 +145,7 @@ export class UserService {
       },
     });
     const updatedtoUser = plainToClass(UserDto, updatedUser, transformationOptions);
-    console.log('Updated user:', updatedtoUser);
+
     return updatedtoUser;
   }
 
@@ -184,7 +205,6 @@ export class UserService {
       dtoMatch.winnerUsername = winner;
       dtoMatches.push(dtoMatch);
     }
-    // console.log('LISTA PARTITE:   ', dtoMatches);
     return dtoMatches;
   }
 
@@ -510,7 +530,6 @@ export class UserService {
         }
         }
       });
-      
       return gameships;
 	  }
 	

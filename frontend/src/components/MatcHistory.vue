@@ -1,7 +1,7 @@
 <template>
     <div>
         <h1 class="text-center">Match History</h1>
-        <div class="overflow-x-auto w-3/4 mx-auto bg-purple-900">
+        <div v-if="MatcHistory.length > 0" class="overflow-x-auto w-3/4 mx-auto bg-purple-900">
   <table class="table">
     <!-- head -->
     <thead>
@@ -44,6 +44,7 @@
     </tbody>    
   </table>
 </div>
+  <div v-else class="text-center">No match played yet</div>
     </div>
 </template>
 
@@ -54,7 +55,6 @@ import type { IMatchHistory } from '@/models/IUser';
 const MatcHistory = ref<IMatchHistory[]>([] as IMatchHistory[])
 const getMatchHistory = async () => {
    MatcHistory.value = await UserService.getMatchHistory();
-    console.log('MatcHistory',MatcHistory.value);
 }
 onMounted(() => {
     getMatchHistory();

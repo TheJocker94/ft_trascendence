@@ -46,9 +46,10 @@ export class GameGateway {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
-
-    client.data.userId = userId;
-    client.data.username = user.username;
+    if (user){
+      client.data.userId = userId;
+      client.data.username = user.username;
+    }
     if (!userId) {
       // Close the connection if no userId is provided
       client.disconnect();

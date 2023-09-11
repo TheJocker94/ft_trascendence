@@ -29,12 +29,18 @@ import StatsComponent from '@/components/profile/StatsComponent.vue';
 import SearchBar from '@/components/profile/SearchBar.vue';
 import FriendsPic from '@/components/profile/FriendsPic.vue';
 import BlockedPic from '@/components/profile/BlockedPic.vue';
-import { ref, watchEffect } from 'vue';
+import { onMounted, ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
+import AuthService from '@/services/AuthService';
 // import { useFriendStore } from '@/stores/friend';
 // import FriendService from '@/services/FriendService';
 // import type { IFriend } from '@/models/IFriendsLists'
 
+// se serve async onMounted( async ()=> { 
+onMounted( () => {
+  // console.log("wtfffff");
+  AuthService.online();
+});
 const route = useRoute();
 const userId = ref<string | string[]>();
 const currentUser = ref(useCurrentUserStore());

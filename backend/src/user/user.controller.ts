@@ -239,6 +239,24 @@ export class UserController {
     return 'Game request removed!';
   }
 
+  @Post('offline')
+  @HttpCode(HttpStatus.OK)
+  async setOffline(
+    @GetCurrUserId() userId: string,
+    ): Promise<void>{
+      this.userService.setOnlineStatus(userId, false);
+  }
+
+  @Post('online')
+  @HttpCode(HttpStatus.OK)
+  async setOnline(
+    @GetCurrUserId() userId: string,
+    ): Promise<void>{
+      this.userService.setOnlineStatus(userId, true);
+  }
+
+
+
   //* -------------------------------- end nizz -------------------------------- */
 
   @Get('/:userId')

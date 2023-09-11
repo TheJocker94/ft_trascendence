@@ -56,11 +56,9 @@ import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
 import { useGameStore } from '@/stores/gameInvite';
 import GameInviteService from '@/services/GameInviteService';
-import { socket, socketGame } from '@/plugins/Socket.io';
 import { useAuthStore } from '@/stores/auth';
-import { onMounted, onUnmounted } from 'vue'
-import PhaserContainer from '@/components/PhaserContainer.vue'
-import { onBeforeRouteLeave, useRouter } from 'vue-router';
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router';
 
 const authStore = ref(useAuthStore());
 const userStore = ref(useCurrentUserStore());
@@ -68,7 +66,6 @@ const isIdExistsInOtherFriends = ref(false);
 const isIdExistsInOtherPending = ref(false);
 const isIdExistsInOtherSent = ref(false);
 const isIdExistsInOtherBlocked = ref(false);
-const isIdExistsInOtherGameInvites = ref(false);
 const router = useRouter();
 
 const press = ref(false);
@@ -77,92 +74,10 @@ const goGame = ref(false);
 
 
 onMounted(async () => {
-	// await userStore.value.initStore(null, null, null);
-    
-    // // Check if there's an existing socket.id in localStorage
-    // const existingSocketId = localStorage.getItem('socketId');
-
-    // if (existingSocketId) {
-    //     socketGame.auth = { token: authStore.value.token, existingSocketId: existingSocketId };
-    // } else {
-    //     socketGame.auth = { token: authStore.value.token };
-    // }
-
-    // socketGame.connect();
-
-    // socketGame.on('connect', function() {
-    //     console.log('Connected to the server. Socket ID:', socketGame.id);
-    //     // Store the socket.id in localStorage
-    //     localStorage.setItem('socketId', socketGame.id);
-    // }); 
 	
 	await userStore.value.initStore(null, null);
 	await userStore.value.initStore(null, null);
-	socketGame.auth = { token: authStore.value.token };
-	// console.log("whhhhhhhhhhhhhhhhat ", authStore.value.token);
-	socketGame.connect();
-	// This can be used for testing the connection
-	socketGame.on('connect', function() {
-    console.log('Connected to the server. Socket ID:', socketGame.id);
-	});
-	socketGame.on('welcome', (data: any) => {
-		console.log(data);
-		console.log('nizz => Your id is: ' + data.player);
-		console.log("nizz => Game Created! ID room is: " + data.room)
-	});
 });
-
-const isBrowserMinimized = ref(false);
-const handleVisibilityChange = () => {
-  isBrowserMinimized.value = document.hidden;
-  if (isBrowserMinimized.value === true && userStore.value.roomId) {
-			socketGame.emit('pause', {room: userStore.value.roomId, player : userStore.value.playerNo});
-  }
-	else if (isBrowserMinimized.value === false && userStore.value.roomId)
-		socketGame.emit('unpause', {room: userStore.value.roomId, player : userStore.value.playerNo}); 
-};
-
-onMounted(() => {
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-});
-
-const teardown = () => {
-  document.removeEventListener('visibilitychange', handleVisibilityChange);
-};
-
-// On leaving the page
-// onUnmounted(() => {
-// 	teardown();
-// 	socketGame.off('pauseServer');
-// 	socketGame.off('unpauseServer');
-//   socketGame.offAny();
-//   socketGame.off('playerDisconnected');
-//   socketGame.off('restartServer');
-//   socketGame.off('gameCreated');
-//   socketGame.off('playerNo');
-//   socketGame.off('startingGame');
-//   socketGame.off('joinQueue');
-//   // socketGame.off('leaveRoom');
-//   socketGame.off('disconnect');
-//   socketGame.off('connect');
-//   socketGame.off('connect_error');
-//   socketGame.off('connect_timeout');
-//   socketGame.off('error');
-//   socketGame.off('choose');
-//   socketGame.off('move');
-//   socketGame.off('ballUpdateServer');
-//   socketGame.off('updateScoreServer');
-//   socketGame.off('powerupServer');
-//   socketGame.off('powerballUpdateServer');
-//   socketGame.off('powerdoitServer');
-//   socketGame.off('hitPaddleServer');
-//   socketGame.off('start');
-//   socketGame.disconnect();
-// })
-
-//! If there's a way to undo the friend request or if the friend request
-//! is accepted/rejected, you might want to clear the flag from the local storage.
-//! localStorage.removeItem(`friendRequestSentTo_${props.idProfile}`);
 
 const currentUser = ref(useCurrentUserStore());
 const friendStore = ref(useFriendStore());
@@ -171,27 +86,10 @@ const isChangingUsername = ref(false);
 const newUsername = ref('');
 const errorMessage = ref('');
 
-// an onUnmounted function should be created in order to turn off all the socketGame
 
 const createGame = () => {
-	// console.log("create game");
-  socketGame.emit('joinGameInviteQueue');
   leaveQ.value = true;
 }
-
-socketGame.on('playerInviteNo', function (data) {
-    // console.log("Game Created! ID room is: " + data.room)
-    // console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player, data.username1, data.username2);});
-
-socketGame.on('startingInviteGame', function () {
-    // console.log("Game Created! ID room is: " + data)
-    goGame.value = true;
-    leaveQ.value = false;
-    press.value = true;
-	router.push('/gameInvite');
-    //alert("Game Created! ID is: "+ JSON.stringify(data));
-});
 
 const props = defineProps({
 	idProfile: String,
@@ -237,15 +135,6 @@ watchEffect(async () => {
   updateReactiveChecks();
 });
 
-// watch(friendStore.value.blocked, () => {
-//   // Force re-evaluation of computed properties
-//   isIdExistsInOtherBlocked.value = friendStore.value.blocked.some(friend => friend.id === props.idProfile);
-// });
-
-// nextTick(() => {
-//   console.log(state.message); // Output: Hello, Vue 3!
-// });
-
 watch(() => friendStore.value.friends, () => {
     updateReactiveChecks();
 }, { deep: true });
@@ -288,7 +177,6 @@ async function gameInvite(userId: string) {
 	await GameInviteService.sendGameInvite(userId);
 	// Update the state after the API call
 	gameInviteStore.value.initStore(currentUser.value.userId);
-	// console.log("game invite sent");
 	createGame();
 	// location.reload();
   } catch (err) {

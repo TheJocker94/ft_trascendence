@@ -356,6 +356,7 @@ import { useCurrentUserStore } from "@/stores/currentUser";
 import type { IChannel, ISingleCh } from '@/models/IChat'
 import ChatFluid from "@/components/chat/ChatFluid.vue";
 import { nextTick } from 'vue';
+import AuthService from "@/services/AuthService";
 const isFriendsActive = ref(false);
 const showJoined = ref(false);
 const isGroupsActive = ref(false);
@@ -502,6 +503,7 @@ socket.on('messageFromServer', (idChannel) => {
 })
 onMounted(async () => {
     await userStore.value.initStore(null, null,);
+    AuthService.online();
     const username = userStore.value.username;
     socket.auth = { username };
     socket.connect();

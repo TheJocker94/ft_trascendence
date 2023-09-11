@@ -365,8 +365,8 @@
 
 <script setup lang="ts">
 import { useCurrentUserStore } from "@/stores/currentUser";
-import { socket, socketGame } from '@/plugins/Socket.io';
-import { ref, type Ref, watchEffect, watch } from "vue";
+import { socket } from '@/plugins/Socket.io';
+import { ref, type Ref, watchEffect } from "vue";
 import { nextTick } from 'vue';
 import { useChatStore } from "@/stores/chat";
 import { useAuthStore } from '@/stores/auth';
@@ -619,86 +619,22 @@ const banUser = (bannedId: any, bannedChlId: any) => {
 
 
   // -------------------------------------- NIZZ --------------------------------------
-
-
-
-
-
-
-
-
-
-
-
 const router = useRouter();
-const authStore = ref(useAuthStore());
-const press = ref(false);
 const leaveQ = ref(false);
-const goGame = ref(false);
-const isIdExistsInOtherGameInvites = ref(false);
 
 onMounted(async () => {
     await userStore.value.initStore(null, null);
-	socketGame.auth = { token: authStore.value.token };
-	// console.log("whhhhhhhhhhhhhhhhat ", authStore.value.token);
-	socketGame.connect();
-	// This can be used for testing the connection
-	socketGame.on('connect', function() {
-        console.log('Connected to the server. Socket ID:', socketGame.id);
-	});
-	socketGame.on('welcome', (data: any) => {
-		console.log(data);
-		console.log('nizz => Your id is: ' + data.player);
-		console.log("nizz => Game Created! ID room is: " + data.room)
-	});
 });
 
-const isBrowserMinimized = ref(false);
-const handleVisibilityChange = () => {
-  isBrowserMinimized.value = document.hidden;
-  if (isBrowserMinimized.value === true && userStore.value.roomId) {
-			socketGame.emit('pause', {room: userStore.value.roomId, player : userStore.value.playerNo});
-  }
-	else if (isBrowserMinimized.value === false && userStore.value.roomId)
-		socketGame.emit('unpause', {room: userStore.value.roomId, player : userStore.value.playerNo}); 
-};
-
-onMounted(() => {
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-});
-
-const teardown = () => {
-  document.removeEventListener('visibilitychange', handleVisibilityChange);
-};
 
 const currentUser = ref(useCurrentUserStore());
 const friendStore = ref(useFriendStore());
 const gameInviteStore = ref(useGameStore());
-const isChangingUsername = ref(false);
-const newUsername = ref('');
-const errorMessage = ref('');
 
 const createGame = () => {
 	// console.log("create game");
-  socketGame.emit('joinGameInviteQueue');
   leaveQ.value = true;
 }
-
-socketGame.on('playerInviteNo', function (data) {
-    // console.log("Game Created! ID room is: " + data.room)
-    // console.log('Your id is: ' + data.player);
-    userStore.value.initGame(data.room, data.player, data.username1, data.username2);
-});
-
-socketGame.on('startingInviteGame', function (data) {
-    // console.log("Game Created! ID room is: " + data)
-	console.log("maaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaan");
-    goGame.value = true;
-    leaveQ.value = false;
-    press.value = true;
-	router.push('/gameInvite');
-    //alert("Game Created! ID is: "+ JSON.stringify(data));
-});
 
 const props = defineProps({
 	idProfile: String,
@@ -739,7 +675,6 @@ async function gameInvite(userId: string) {
 		if (axios.isAxiosError(e)) return e.response?.data;
 	}
 }
-
 
 // -------------------------------------- NIZZ --------------------------------------
 </script>

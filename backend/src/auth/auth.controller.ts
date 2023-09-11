@@ -70,7 +70,6 @@ export class AuthController {
   @UseGuards(FortyTwoAuthGuard)
   @Get('42/signin')
   signin_42() {
-    console.log('42 API signin');
   }
 
   // auth.controller.ts
@@ -82,7 +81,6 @@ export class AuthController {
     const profile = request.user;
     
     const tokens = await this.authService.signin42(profile);
-    console.log('tokens', tokens);
     const script = `
         <script>
 		window.opener.postMessage(${JSON.stringify(tokens)}, '*');

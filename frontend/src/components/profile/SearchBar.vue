@@ -45,8 +45,6 @@ watchEffect(async () => {
   const pippo = await UserService.getUsers();
   list.value = pippo;
   const usernameIdArray: string[] = pippo.map(obj => `${obj.username}: ${obj.id}`);
-//   console.log(usernameIdArray);
-//   console.log("Current user", currentUser.value.avatar);
 });
 
   // search bar
@@ -64,7 +62,6 @@ const performSearch = () => {
   // This function is triggered when the input value changes
 };
 const navigateToUser = (userId: string) => {
-	// console.log("Id", userId);
 	router.push(`/users/${userId}`);
 };
 </script>
