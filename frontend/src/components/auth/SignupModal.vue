@@ -63,7 +63,7 @@ async function onSubmit() {
   const e = await auth.value.signUpLocal(credentials.email, credentials.username, credentials.password);
   if (e)
   {
-    alert(e.message)
+    // alert(e.message)
     return;
   }
 }

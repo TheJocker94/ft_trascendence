@@ -41,7 +41,7 @@ import nizz5 from '@/game/assets/suonisp/nizz5.mp3'
 const userStore = ref(useCurrentUserStore());
 // let start1 = false;
 // let start2 = false;
-let fullyLoaded = false;
+let fullyLoaded = 0;
 let players = 0;
 export default class BootScene extends Scene {
   constructor () {
@@ -147,7 +147,7 @@ export default class BootScene extends Scene {
       loadingText.destroy();
       percentText.destroy();
       assetText.destroy();
-      fullyLoaded = true;
+      fullyLoaded++;
       socketGame.emit('ready', { player: userStore.value.playerNo ,room:userStore.value.roomId})
       console.log('All assets loaded');
   });
@@ -160,16 +160,16 @@ create () {
     socketGame.on('start', (playerNo) => {
         console.log('start', playerNo)
         players++;
-        if (players === 2 && fullyLoaded){
+        this.add.image(400, 300, 'matrix')
+        this.add.text(400, 150, 'Waiting for both players ...', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffffff', fontFamily: 'Arial' }).setOrigin(0.5)
+        if (players === 2 && fullyLoaded === 2){
             socketGame.off('start');
             console.log('start game with both players')
             players = 0;
-            fullyLoaded = false;
+            fullyLoaded = 0;
             this.scene.start('ChooseScene')
         }
     })
-    this.add.image(400, 300, 'matrix')
-    this.add.text(400, 150, 'Waiting for both players ...', { stroke: '#000000', strokeThickness: 4, fontSize: '35px', color: '#ffffff', fontFamily: 'Arial' }).setOrigin(0.5)
     
     this.anims.create({
         key: 'explode',
