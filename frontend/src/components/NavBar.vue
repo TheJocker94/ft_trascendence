@@ -232,10 +232,8 @@ if (!gameInviteStore.value.renderer){
         initGame();
     }
   }
-    
 }
-  })
-
+})
 
 const createGame = () => {
   leaveQ.value = true;

@@ -40,6 +40,8 @@ services:
       POSTGRES_PASSWORD: '${DB_PASSWORD}'
       POSTGRES_DB: '${DB_DATABASE}'
       PGDATA: /var/lib/postgresql/data
+    ports:
+      - ${DB_PORT}:5432
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:

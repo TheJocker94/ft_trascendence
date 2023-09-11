@@ -102,17 +102,22 @@ async function onSubmit()
   else {
     isEmail.value = true;
   }
+  try{
 
-	const e = await auth.value.signInLocal(email, credentials.password, isEmail.value);
-  if (typeof e === 'boolean'){
-    if (e === true)
-      twofa.value = true;
-    return;
+    const e = await auth.value.signInLocal(email, credentials.password, isEmail.value);
+    if (typeof e === 'boolean'){
+      if (e === true)
+        twofa.value = true;
+      return;
+    }
+    if (isError(e)) {
+      alert('INVALID CREDENTIALS');
+      return;
+    }
   }
-	if (isError(e)) {
-		alert(e.message);
-		return;
-	}
+  catch(e){
+    alert('INVALID CREDENTIALS');
+  }
 }
 
 </script>
