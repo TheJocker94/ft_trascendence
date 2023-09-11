@@ -14,15 +14,20 @@ import AuthService from '@/services/AuthService';
 const router = useRouter();
 const userStore = ref(useCurrentUserStore());
 const authStore = ref(useAuthStore());
-
+const gameStore = ref(useGameStore());
 
 socketGame.on('playerDisconnected', data => {
 //   console.log('playerDisconnected: ' + data);
   socketGame.emit('leaveRoom', userStore.value.roomId);
+  socketGame.emit('removeGameInvited', {username1: userStore.value.username1,  username2: userStore.value.username2});
   router.push({ name: 'home' });
   //alert("Game Created! ID is: "+ JSON.stringify(data));
 });
-
+socketGame.on('playerInviteNo', function (data) {
+    // console.log("Game Created! ID room is: " + data.room)
+    // console.log('Your id is: ' + data.player);
+    userStore.value.initGame(data.room, data.player, data.username1, data.username2);
+});
 // socketGame.on('playerInvitedDisconnected', data => {
 //   router.push({ name: 'home' });
 // });
@@ -37,6 +42,7 @@ onMounted(async () => {
 		socketGame.on('welcome', (data: any) => {
 			// console.log(data);
 		});
+    socketGame.emit('joinGameInviteQueue', gameStore.value.getIdMatch);
 	}
 });
 
@@ -61,6 +67,7 @@ const teardown = () => {
 
 onUnmounted(() => {
 	teardown();
+  authStore.value.hasGameInvite = false;
   socketGame.off('playerInvitedDisconnected');
   socketGame.off('playerInviteNo');
   socketGame.off('startingInviteGame');
@@ -91,7 +98,7 @@ onUnmounted(() => {
   socketGame.disconnect();
 })
 
-const gameStore = ref(useGameStore());
+
 </script>
 
 <template>

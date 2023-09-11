@@ -48,7 +48,7 @@ const currentUser = ref(useCurrentUserStore());
 // const profileFriend = ref<IFriend[]>()
 watchEffect(async () => {
   userId.value = route.params.userid;
-  console.log("userId is ", userId.value);
+  // console.log("userId is ", userId.value);
 
   if (currentUser.value.userId)
     await currentUser.value.initStore(null, null);

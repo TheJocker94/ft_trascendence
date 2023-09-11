@@ -69,13 +69,13 @@ export class GameGateway {
   }
 
   //* ------------------------------- nizz start ------------------------------- */
-
+// inviare game id e metterci denrtro i due utenti
 	@SubscribeMessage('joinGameInviteQueue')
-	handleGameInvite(@ConnectedSocket() client: Socket): void {
+	handleGameInvite(@ConnectedSocket() client: Socket, invite:string): void {
 		if (this.inGame.includes(client.data.userId))
 			return;
 		this.inviteQueue.add(client);
-		this.checkGameInvteQueue();
+		this.checkGameInvteQueue(invite);
 	}
 
 	//! from here on the functions should be placed in the unMounted
@@ -258,6 +258,14 @@ export class GameGateway {
   ): Promise<void> {
     if (data.score1 === 5 || data.score2 === 5) {
       this.Rooms[parseInt(data.room)].finished = true;
+        await this.prisma.gameinvite.deleteMany({
+          where: { 
+            OR:[
+              {senderId: this.Rooms[parseInt(data.room)].players[0].userId, receiverId:this.Rooms[parseInt(data.room)].players[1].userId},
+              {senderId: this.Rooms[parseInt(data.room)].players[1].userId, receiverId:this.Rooms[parseInt(data.room)].players[0].userId}
+            ] 
+          },
+        });
       let winner: string;
       let loser: string;
       if (data.score1 === 5) {
@@ -399,7 +407,30 @@ export class GameGateway {
 
 	//* ------------------------------- start nizz ------------------------------- */
 
-	private async checkGameInvteQueue() {
+
+  @SubscribeMessage('removeGameInvited')
+  async handleRemoveGameInvited(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    console.log('Remove game invite received');
+    const user1 = await this.prisma.user.findUnique({
+      where: { username: data.username1 },
+    });
+    const user2 = await this.prisma.user.findUnique({
+      where: { username: data.username2 },
+    });
+    await this.prisma.gameinvite.deleteMany({
+      where: { 
+        OR:[
+          {senderId: user1.id, receiverId: user2.id},
+          {senderId: user2.id, receiverId:user1.id}
+        ] 
+      },
+    });
+  }
+
+	private async checkGameInvteQueue(invite: string) {
 		let playersSockets: Socket[];
 		if (this.inviteQueue.size() < 2)
 		{
@@ -410,10 +441,18 @@ export class GameGateway {
 		  playersSockets = this.inviteQueue.pop2();
 		  this.inGame.push(playersSockets[0].data.userId);
 		  this.inGame.push(playersSockets[1].data.userId);
-		  const gameId = await this.createGame(playersSockets);
+		  const gameId = await this.createGameInvite(playersSockets, invite);
 		  playersSockets[0].emit('playerInviteNo', { player: 1, room: gameId.roomId.toString(), username1: gameId.players[0].username, username2: gameId.players[1].username });
 		  playersSockets[1].emit('playerInviteNo', { player: 2, room: gameId.roomId.toString(), username1: gameId.players[0].username, username2: gameId.players[1].username });
-		  playersSockets[0].join(gameId.roomId.toString());
+      await this.prisma.user.update({
+        where: { id: playersSockets[0].data.userId },
+        data: { isPlaying: true },
+      });
+      await this.prisma.user.update({
+        where: { id: playersSockets[1].data.userId },
+        data: { isPlaying: true },
+      });
+      playersSockets[0].join(gameId.roomId.toString());
 		  playersSockets[1].join(gameId.roomId.toString());
 		  this.server.to(gameId.roomId.toString()).emit('startingInviteGame', this.Rooms[parseInt(gameId.roomId.toString())]);
 				this.Rooms[parseInt(gameId.roomId.toString())].players[0].minimized = false;
@@ -479,4 +518,32 @@ export class GameGateway {
     this.Rooms[room.roomId].players[1].minimized = true;
     return room;
   }
+
+  private async createGameInvite(userIds: Socket[], inviteId: string) {
+    const room: IRoom = {
+      roomId: this.Rooms.length,
+      players: [
+        {
+          userId: userIds[0].data.userId,
+          username: userIds[0].data.username,
+          playerNo: 1,
+          minimized: false,
+        },
+        {
+          userId: userIds[1].data.userId,
+          username: userIds[1].data.username,
+          playerNo: 2,
+          minimized: false,
+        },
+      ],
+      winner: '',
+      finished: false,
+      inviteId: inviteId,
+    };
+    this.Rooms.push(room);
+    this.Rooms[room.roomId].players[0].minimized = true;
+    this.Rooms[room.roomId].players[1].minimized = true;
+    return room;
+  }
+
 }

@@ -192,19 +192,19 @@ export default class PlayScene extends Scene {
       if (data.room === userStore.value.roomId) {
         if (data.player === 1){
           if (data.direction === 'up')
-            this.player2.setVelocityY(-SPEED);
-          else if (data.direction === 'down')
-            this.player2.setVelocityY(SPEED);
-          else
-            this.player2.setVelocityY(0);
-        }
-        else if (data.player === 2){
-          if (data.direction === 'up')
             this.player1.setVelocityY(-SPEED);
           else if (data.direction === 'down')
             this.player1.setVelocityY(SPEED);
           else
             this.player1.setVelocityY(0);
+        }
+        else if (data.player === 2){
+          if (data.direction === 'up')
+            this.player2.setVelocityY(-SPEED);
+          else if (data.direction === 'down')
+            this.player2.setVelocityY(SPEED);
+          else
+            this.player2.setVelocityY(0);
         }
       }
     });

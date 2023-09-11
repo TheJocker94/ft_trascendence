@@ -3,21 +3,16 @@ import FriendService from '@/services/FriendService';
 import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
 import type { IFriend } from '@/models/IFriendsLists';
+import { ref } from 'vue';
 
 export const useFriendStore = defineStore('friend', {
-	state: (): {
-		friends: IFriend[];
-		pending: IFriend[];
-		sent: IFriend[];
-		blocked: IFriend[];
-		// ... any other state properties ...
-    } => ({
-		friends: [],
-		pending: [],
-		sent: [],
-		blocked: [],
-		// ... any other state initializations ...
-    }),
+  state: () => ({
+    friends: ref<IFriend[]>([]),
+    pending: ref<IFriend[]>([]),
+    sent: ref<IFriend[]>([]),
+    blocked: ref<IFriend[]>([]),
+    // ... any other state initializations ...
+  }),
   // getters: {
     // isFriend : (state) => {
 	// 		return (id : number) => state.friendLists.friends.some(friend => friend.id === id);

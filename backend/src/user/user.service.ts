@@ -485,6 +485,16 @@ export class UserService {
   	//* ---------------------------------- nizz ---------------------------------- */
 
 	  async inviteGame(senderId: string, receiverId: string): Promise<any> {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id: receiverId,
+        },
+      });
+      if(user.isPlaying || !user.isOnline)
+        throw new BadRequestException('User is already playing or is offline');
+      if (senderId === receiverId) {
+        throw new BadRequestException('You cannot send a game request to yourself.');
+      }
       await this.prisma.gameinvite.create({
         data: {
           senderId: senderId,
@@ -530,6 +540,7 @@ export class UserService {
         }
         }
       });
+      // console.log('Waiting',gameships),'user', userId;
       return gameships;
 	  }
 	
@@ -552,7 +563,7 @@ export class UserService {
         }
 		    }
 		  });
-
+      // console.log('Thinking',gameships),'user', userId;
       return gameships;
 	  }
 	
@@ -585,6 +596,7 @@ export class UserService {
         }
         }
       });
+      // console.log('Accepted',gameships),'user', userId;
       return gameships;
 	  }
 	

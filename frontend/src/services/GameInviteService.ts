@@ -5,7 +5,7 @@ import type { IGInvite } from '@/models/IGameInvite';
 class GameInviteService {
 	async sendGameInvite(gameId: string) {
     return await http.post<string>(`/user/invite_to_play`,{ 
-		gameId })
+		gameId: gameId })
 	}
 
 	async acceptGameInvite(gameId: string) {

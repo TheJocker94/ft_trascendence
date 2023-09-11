@@ -13,6 +13,7 @@ export const useAuthStore = defineStore('auth', {
       token: useLocalStorage('token', ''),
       refreshToken: useLocalStorage('refreshToken', ''),
       needsRefresh: false,
+      hasGameInvite: ref(false),
       twoFaEnabled:useLocalStorage('twoFaEnabled', false),
       twofa: ref(''),
     }),

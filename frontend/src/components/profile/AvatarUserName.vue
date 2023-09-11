@@ -165,7 +165,7 @@ async function friendRequest(userId: string) {
     friendStore.value.updateSent(currentUser.value.userId);
     friendStore.value.updateBlocked();
 	updateReactiveChecks();
-	location.reload();
+	// location.reload();
 } catch (err) {
     const e = err as AxiosError<IError>;
     if (axios.isAxiosError(e)) return e.response?.data;
@@ -195,7 +195,7 @@ async function friendBlock() {
     friendStore.value.updateSent(currentUser.value.userId);
     friendStore.value.updateBlocked();
 		updateReactiveChecks();
-		location.reload();
+		// location.reload();
   } catch (err) {
     const e = err as AxiosError<IError>;
     if (axios.isAxiosError(e)) return e.response?.data;
@@ -208,7 +208,7 @@ async function unblockFunction() {
     // Update the state after the API call
     friendStore.value.updateBlocked();
 	updateReactiveChecks();
-	location.reload();
+	// location.reload();
   } catch (err) {
     const e = err as AxiosError<IError>;
     if (axios.isAxiosError(e)) return e.response?.data;

@@ -61,7 +61,7 @@
         <div class="dropdown dropdown-end">
           <label tabindex="0" class="btn btn-ghost btn-circle avatar indicator">
             
-			<span v-if="friendStore.pending.length + gameInviteStore.getThinking.length > 0" class="indicator-item indicator-start badge badge-secondary">{{friendStore.pending.length + gameInviteStore.getThinking.length}}</span>
+			<span v-if="friendStore.pending.length + gameInviteStore.getWaiting.length > 0" class="indicator-item indicator-start badge badge-secondary">{{friendStore.pending.length + gameInviteStore.getWaiting.length}}</span>
               <div class="w-10 rounded-full">
                 <img :src=userStore.avatar />
 
@@ -162,22 +162,22 @@
 			</div>
 						<!--//! down here -->
 						<div v-if="showGameRequest">
-							<div v-if="gameInviteStore.getThinking.length > 0">
+							<div v-if="gameInviteStore.getWaiting.length > 0">
 								<ul>
-									<li v-for="invite in gameInviteStore.getThinking" :key="invite.id" class=" ">
-										<router-link :to="{ name: 'profile', params: { userid: invite.id } }" @click="closeModal"
+									<li v-for="invite in gameInviteStore.getWaiting" :key="invite.id" class=" ">
+										<router-link :to="{ name: 'profile', params: { userid: invite.sender.id } }" @click="closeModal"
 										class="btn btn-ghost btn-circle avatar">
 											<div class="w-6 rounded-full">
-												<img :src=invite.profilePicture />
+												<img :src=invite.sender.profilePicture />
 											</div>
 										</router-link>
-										{{ invite.username }}
+										{{ invite.sender.username }}
 										
 										<!-- Accept button -->
-										<button @click="acceptGameInviteRequest(invite.id)"> <i class="fa-solid fa-circle-check" style="color: #21b02b;"></i> </button>
+										<button @click="acceptGameInviteRequest(invite.sender.id), initGame()"> <i class="fa-solid fa-circle-check" style="color: #21b02b;"></i> </button>
 										
 										<!-- Reject button -->
-										<button @click="declineGameInviteRequest(invite.id)"><i class="fa-solid fa-circle-xmark" style="color: #d41616;"></i></button>
+										<button @click="declineGameInviteRequest(invite.sender.id)"><i class="fa-solid fa-circle-xmark" style="color: #d41616;"></i></button>
 									</li>
 								</ul>
 							</div>
@@ -209,7 +209,7 @@
 <script setup lang="ts">
 // import axios from 'axios';
 // import { useCurrentUserStore } from '@/stores/Current_User';
-import { ref } from 'vue'
+import { ref, watch, watchEffect } from 'vue'
 import { useAuthStore } from '@/stores/auth';
 import { useCurrentUserStore } from '@/stores/currentUser';
 import { useRouter } from 'vue-router';
@@ -225,6 +225,7 @@ import { onMounted} from 'vue'
 const friendStore = ref(useFriendStore());
 const gameInviteStore = ref(useGameStore());
 const leaveQ = ref(false);
+const auth = ref(useAuthStore());
 
 
 const showFriendRequest = ref(true);
@@ -234,9 +235,28 @@ onMounted(async () => {
 	await userStore.value.initStore(null, null);
 });
 
+watchEffect(() => {
+if (!gameInviteStore.value.renderer){
+  if (gameInviteStore.value.accepted.length > 0){
+    for (let i = 0; i < gameInviteStore.value.accepted.length; i++) {
+      if (gameInviteStore.value.accepted[i].sender.id === userStore.value.userId && gameInviteStore.value.accepted[i].status === 'ACCEPTED')
+        initGame();
+    }
+    // if (gameInviteStore.value.accepted[0].senderId === userStore.value.userId)
+    //   initGame();
+  }
+    
+}
+  })
+
+// watch(gameInviteStore.value.getAcceptef, () => {
+//   console.log("watch accepted")
+//     initGame();
+// }
+// )
 
 const createGame = () => {
-  console.log("create game")
+  // console.log("create game")
   leaveQ.value = true;
 }
 
@@ -276,6 +296,7 @@ async function declineGameInviteRequest(userId: string) {
 async function acceptGameInviteRequest(userId: string) {
 	try {
 		createGame();
+    auth.value.hasGameInvite = true;
 		await GameInviteService.acceptGameInvite(userId);
 		gameInviteStore.value.initStore(userStore.value.userId);
 		declineGameInviteRequest(userId);
@@ -296,13 +317,28 @@ const closeModal = () => {
 	isModalOpen.value = false;
 };
 
-const auth = ref(useAuthStore());
 
 const router = useRouter();
 const logout = () => {
   auth.value.logout();
   router.push({ name: 'home' });
 };
+
+const initGame = async () => {
+  gameInviteStore.value.setRenderer(true);
+  if (gameInviteStore.value.getAcceptef.find((element) => element.sender.id === userStore.value.userId && element.status === 'ACCEPTED')){
+    gameInviteStore.value.setIdMatch(gameInviteStore.value.getAcceptef[0].id);
+    // console.log('IdMatch: ', gameInviteStore.value.getIdMatch)
+    auth.value.hasGameInvite = true;
+  }
+  else if (gameInviteStore.value.getAcceptef.find((element) => element.receiver.id === userStore.value.userId && element.status === 'ACCEPTED'))
+  {
+    auth.value.hasGameInvite = true;
+    gameInviteStore.value.setIdMatch(gameInviteStore.value.getAcceptef[0].id);
+  }
+  router.push({ name: 'gameInvite' });
+}
+
 </script>
 
 <style scoped>

@@ -35,7 +35,8 @@ const router = createRouter({
 		component: GameInviteView,
 		meta: {
       title: 'gameInvite',
-      requiresAuth: true
+      requiresAuth: true,
+      requiresInvite: true
 		},
 	},
 	{
@@ -92,6 +93,8 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !authStore.isLoggedIn)
     next('/');
   else if (to.meta.requiresUnAuth && authStore.isLoggedIn)
+    next('/');
+  else if (to.meta.requiresInvite && !authStore.hasGameInvite)
     next('/');
   else
     next();

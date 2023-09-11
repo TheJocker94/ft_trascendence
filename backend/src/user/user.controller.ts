@@ -187,7 +187,7 @@ export class UserController {
   //* ---------------------------------- nizz ---------------------------------- //
 
   @Post('invite_to_play')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   async inviteToPlay(
     @Body() InviteGameDto: InviteGameDto,
     @GetCurrUserId() senderId: string,

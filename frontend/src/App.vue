@@ -6,10 +6,12 @@ import { useAuthStore } from './stores/auth';
 import { useCurrentUserStore } from './stores/currentUser';
 import { ref, onBeforeMount, onMounted} from 'vue';
 import AuthService from './services/AuthService';
+import { useFriendStore } from './stores/friend';
 
 const gameStore = ref(useGameStore());
 const authStore = ref(useAuthStore());
 const userStore = ref(useCurrentUserStore());
+const friendStore = ref(useFriendStore());
 
 onBeforeMount( async () => {
   if (userStore.value.userId)
@@ -20,14 +22,16 @@ onMounted(async () => {
   window.addEventListener("beforeunload", unload);
   AuthService.online();
   setInterval(async () => {
-    if (userStore.value.userId)
+    if (userStore.value.userId){
       await gameStore.value.initStore(userStore.value.userId)
-    console.log("init game store app");
-    console.log("Acceptd are ",gameStore.value.getAcceptef)
-    console.log("Waiting are ",gameStore.value.getWaiting)
-    console.log('Thinking are ',gameStore.value.getThinking)
+      await friendStore.value.initStore(userStore.value.userId)
+    }
+    // console.log("init game store app");
+    // console.log("Acceptd are ",gameStore.value.getAcceptef)
+    // console.log("Waiting are ",gameStore.value.getWaiting)
+    // console.log('Thinking are ',gameStore.value.getThinking)
 
-  }, 10000);
+  }, 3000);
 });
 // Function to set offline the user
 function unload() {

@@ -16,4 +16,5 @@ export interface IRoom {
   players: IPlayer[];
   winner: string;
   finished: boolean;
+  inviteId?: string;
 }
