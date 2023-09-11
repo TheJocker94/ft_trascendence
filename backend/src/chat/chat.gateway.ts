@@ -238,6 +238,19 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): Promise<void> {
+    const isUserBlocked = await this.prisma.blockedUser.findFirst({
+      where: {
+        AND: [
+          {blockerId: data.chatId},
+          {blockedId: data.mioId},
+        ]
+      }
+    })
+    if (isUserBlocked) {
+      console.log('User is blocked');
+      client.emit('userIsBlocked', data.chatId);
+      return;
+    }
     await this.prisma.message.create({
       data: {
         content: data.text,
@@ -245,7 +258,6 @@ export class ChatGateway {
         channelId: data.chId,
       }
     })
-    console.log('******chiamo la from direct con: ', data);
     this.server.to(data.chId).emit('messageFromDirect', data);
 
 	const channel = await this.prisma.channel.findUnique({ 

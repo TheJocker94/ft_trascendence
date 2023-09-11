@@ -38,6 +38,12 @@ export class UserController {
     return this.userService.getListUsers();
   }
 
+  // @Get('others')
+  // @HttpCode(HttpStatus.OK)
+  // getOtherUsers(@GetCurrUserId() userId: string): Promise<userListDto[]> {
+  //   return this.userService.getOtherUsers(userId);
+  // }
+
   @Post('update_username')
   @HttpCode(HttpStatus.CREATED)
   updateUsername(

@@ -4,7 +4,7 @@
           <div class="hidden xl:block sm:flex-2 w-64 bg-gray-200">
             <SelectChatGroups 
                 v-if="chat.getNumDiv === 'is3'"
-              @friendsClicked="chat.setFriend(true), chat.setGroup(false), getFriendsList()"
+              @friendsClicked="chat.setFriend(true), chat.setGroup(false)"
               @groupsClicked="chat.setGroup(true), chat.setFriend(false) , getChannelList()"
             />
           </div>
@@ -109,6 +109,8 @@ import GroupFluid from "@/components/chat/GroupFluid.vue";
 import { nextTick } from 'vue';
 import SelectChatGroups from "@/components/chat/SelectChatGroups.vue";
 
+
+
 socket.on('gettingSingleChannel', (data: any) => {
   console.log('userstore valore: ' + userStore.value.userId);
   console.log('channelID in getSingle: ' + data);
@@ -126,6 +128,7 @@ socket.on ('isUserInChannel', (channelIn: boolean | string) => {
     console.log('Valore di flagImIn Dopo: ' + channelIn);
 })
 import { useChatStore } from "@/stores/chat";
+import UserService from "@/services/UserService";
 // Gestione responsive
 const chat = ref(useChatStore());
 const middle = ref(true);
@@ -170,8 +173,14 @@ const userStore = ref(useCurrentUserStore());
 
 async function friendPic() {
   // if (props.idProfile !== currentUser.value.userId)
-  const response = await FriendService.getFriendList();
-  chat.value.setProfileFriend(response.map(friend => ({ ...friend, active: false })));
+  const response = await UserService.getUsers();
+  // give the users list excluding the current user
+  console.log('response: ', response);
+
+
+  chat.value.setProfileFriend(response.map(user => ({ ...user, active: false })).filter(user => user.username !== userStore.value.username));
+
+  // chat.value.setProfileFriend(response.map(user => ({ ...user, active: false })));
   // else
   //     profileFriend.value = await FriendService.getFriendList(currentUser.value.userId!);
 }

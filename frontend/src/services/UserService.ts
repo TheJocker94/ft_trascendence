@@ -17,6 +17,11 @@ class UserService {
     return (response.data)
   }
 
+  // async getOtherUsers() {
+  //   const response = await http.get<IUser[]>(`/user/others`);
+  //   return (response.data)
+  // }
+
   async getMatchHistory() {
     const response = await http.get<IMatchHistory[]>(`/user/matchHistory`);
     return (response.data)
