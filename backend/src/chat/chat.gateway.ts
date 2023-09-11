@@ -32,20 +32,17 @@ export class ChatGateway {
   users = 0;
 
   async handleConnection(client: Socket) {
-    console.log('Client connected:', client.id);
     const username = client.handshake.auth.username;
     const message = `Welcome to the chat, ${username}`;
     this.server.emit('welcome', message);
 
     if (!username) {
       client.disconnect();
-      console.log('Client disconnectedddd');
       return;
     }
 
     client['username'] = username;
 
-    console.log('User connected chat:', username);
 	await this.prisma.user.update({
 		where: { username: username },
 		data: { isOnline: true },
@@ -62,7 +59,6 @@ export class ChatGateway {
         });
       }
     }
-    console.log('Users are :', users);
     return users;
   }
 
@@ -79,7 +75,6 @@ export class ChatGateway {
       }
     })
     if (bannedUser) {
-      console.log('User is banned');
       client.emit('isBanFluidRet', true);
       return;
     }
@@ -102,11 +97,9 @@ export class ChatGateway {
     })
     if (bannedUser) {      
       client.emit('isBanChan', data.uId, data.chId, true);  
-      console.log('User is banned');    
     }
     else {
       client.emit('isBanChan', data.uId, data.chId, false);
-      console.log('User is not banned');
     }
   }
 
@@ -145,12 +138,10 @@ export class ChatGateway {
       }
     })
     if (adminUser) {
-      console.log('User is admin');
       client.emit('isAdminChan', true);
     }
     else {
       client.emit('isAdminChan', false);
-      console.log('User is not admin');
     }
   }
 
@@ -247,7 +238,6 @@ export class ChatGateway {
       }
     })
     if (isUserBlocked) {
-      console.log('User is blocked');
       client.emit('userIsBlocked', data.chatId);
       return;
     }
@@ -712,11 +702,9 @@ export class ChatGateway {
       },
     });
     if (channel.type === ChannelType.PRIVATE) {
-      console.log('Channel is private');
       client.emit('isPrivOn', true);
     }
     else {
-      console.log('Channel is not private');
       client.emit('isPrivOn', false);
     }
   }
@@ -786,7 +774,6 @@ export class ChatGateway {
           console.error('Error creating channel:', error);
         }
         client.join(data.chId);
-        console.log('Ho joinato nel backend 3' + data.chId);
         this.handleGrouplList(client, data);
         this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
       }
@@ -804,12 +791,8 @@ export class ChatGateway {
     @MessageBody() data: any,
   ): Promise<void> {
 
-    //CHECK IF BLOCKED TODO
-
     client.join(data.chId);
     console.log('Ho joinato nel backend diretto 4' + data.chId);
-   // this.handleGrouplList(client, data);
-    //this.server.to(data.chId).emit('gettingSingleChannel', data.chId);
   }
 
   @SubscribeMessage('createGroup')
@@ -818,15 +801,12 @@ export class ChatGateway {
     @MessageBody() data: any,
 
   ): Promise<void> {
-    // console.log('client.data.userId: ', client.data.userId);
-    // console.log('client.id: ', client.id);
     const existingChannel = await this.prisma.channel.findFirst({where: {name: data.text}});
     if (existingChannel) {
       console.log('Channel already exists');
       client.emit('channelAlreadyExists', data.text);
       return;
     }
-	// const channel = new Channel(1, 'PUBLIC', data.sender, data.text);
     if (data.password === '' || data.password === null) {
       try {
         const newChannel = await this.prisma.channel.create({

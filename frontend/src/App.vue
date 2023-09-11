@@ -26,14 +26,9 @@ onMounted(async () => {
       await gameStore.value.initStore(userStore.value.userId)
       await friendStore.value.initStore(userStore.value.userId)
     }
-    // console.log("init game store app");
-    // console.log("Acceptd are ",gameStore.value.getAcceptef)
-    // console.log("Waiting are ",gameStore.value.getWaiting)
-    // console.log('Thinking are ',gameStore.value.getThinking)
-
   }, 3000);
 });
-// Function to set offline the user
+
 function unload() {
   console.log("unload");
   AuthService.offline();
@@ -45,30 +40,6 @@ function unload() {
 </script>
 
 <template>
-  <!-- <div class="page-container">
-    <div class="content"> -->
-      <!-- <div class="bg-cover bg-center bg-no-repeat h-screen" :style="`background-image: url(${imageUrl})`"> -->
-        <NavBar v-if="authStore.isLoggedIn"/>
-        <RouterView />
-      <!-- </div> -->
-    <!-- </div>
-    <FooterBar v-if="authStore.isLoggedIn"/>
-  </div> -->
+	<NavBar v-if="authStore.isLoggedIn"/>
+	<RouterView />
 </template>
-
-<!-- <style scoped>
-.page-container {
-  display: grid;
-  grid-template-rows: 1fr auto; /* Make the content area take up remaining space, and the footer area auto-sized */
-  min-height: 100vh;
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-}
-
-.router-view {
-  flex-grow: 1;
-}
-</style> -->

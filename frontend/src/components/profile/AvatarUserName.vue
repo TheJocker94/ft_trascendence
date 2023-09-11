@@ -101,10 +101,7 @@ async function fetchUsers() {
   profile.value = await UserService.getUserById(props.idProfile!);
 }
 
-// Using watchEffect to observe changes to props.idProfile
-// watchEffect(() => {
-//   fetchUsers();
-// });
+
 
 const isOwnProfile = computed(() => currentUser.value.userId === profile.value?.id);
 const usernameDisplay = computed(() => isOwnProfile.value ? currentUser.value.username : profile.value?.username);
@@ -178,7 +175,6 @@ async function gameInvite(userId: string) {
 	// Update the state after the API call
 	gameInviteStore.value.initStore(currentUser.value.userId);
 	createGame();
-	// location.reload();
   } catch (err) {
     const e = err as AxiosError<IError>;
 		if (axios.isAxiosError(e)) return e.response?.data;
@@ -194,8 +190,7 @@ async function friendBlock() {
     friendStore.value.updateFriends();
     friendStore.value.updateSent(currentUser.value.userId);
     friendStore.value.updateBlocked();
-		updateReactiveChecks();
-		// location.reload();
+	updateReactiveChecks();
   } catch (err) {
     const e = err as AxiosError<IError>;
     if (axios.isAxiosError(e)) return e.response?.data;

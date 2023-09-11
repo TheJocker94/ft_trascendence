@@ -124,11 +124,9 @@ const changeComponent = () => {
 // Functions
 const createGroup = () => {
   if (credentials.name === '') {
-      console.log('no 1')
       return;
   }
   if (credentials.type === '') {
-      console.log('no 2')
       return;
   }
   console.log('sto creando il gruppo da frontend')

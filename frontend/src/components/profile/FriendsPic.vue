@@ -36,18 +36,11 @@
 import { ref, watchEffect } from 'vue';
 import FriendService from '@/services/FriendService';
 import type { IFriend } from '@/models/IFriendsLists'
-// import { useCurrentUserStore } from '@/stores/currentUser';
 
-// const props = defineProps({
-//   idProfile: String,
-// });
 const profileFriend = ref<IFriend[]>();
-// const currentUser = ref(useCurrentUserStore());
+
 async function friendPic() {
-    // if (props.idProfile !== currentUser.value.userId)
-        profileFriend.value = await FriendService.getFriendList();
-    // else
-    //     profileFriend.value = await FriendService.getFriendList(currentUser.value.userId!);
+    profileFriend.value = await FriendService.getFriendList();
 }
 
 

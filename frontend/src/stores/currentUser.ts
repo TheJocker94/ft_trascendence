@@ -24,23 +24,8 @@ export const useCurrentUserStore = defineStore('currentUser', {
     playerNo: 0,
     username1: '',
     username2: '',
-    // friendLists: {
-    //   friends: [],
-    //   pendings: [],
-    //   sent: []
-    // } as IFriendLists,
   }),
-  // getters: {
-    // isFriend : (state) => {
-	// 		return (id : number) => state.friendLists.friends.some(friend => friend.id === id);
-	// 	},
-    // isPending : (state) => {
-	// 		return (id : number) => state.friendLists.pendings.some(pending => pending.id === id);
-	// 	},
-    // isSent : (state) => {
-	// 		return (id : number) => state.friendLists.sent.some(sent => sent.id === id);
-	// 	},
-  // },
+
   actions: {
     async initStore(userId: string | null, email: string | null) {
       if (userId)
@@ -48,18 +33,7 @@ export const useCurrentUserStore = defineStore('currentUser', {
       if (email)
         this.email = email;
       try {
-        /*
-        Da implementare chiamate User
-        */
         const user = await UserService.getUserById(this.userId);
-        // const avatar = await UserService.getAvatarOfUser(this.userId); 
-        /*
-        Da implementare chiamate Friends
-        */
-        // const friends = await FriendService.getFriendships(this.userId, "accepted");
-        // const pendings = await FriendService.getFriendships(this.userId, "pending");
-        // const sent = await FriendService.getFriendships(this.userId, "sent");
-        // this.setStore(user.data, avatar);
         this.setStore(user, user.profilePicture/*, { friends, pendings, sent }*/);
 		this.friendStore.initStore(this.userId);
 		this.gameInviteStore.initStore(this.userId);
@@ -96,14 +70,6 @@ export const useCurrentUserStore = defineStore('currentUser', {
       const updatedPicture = await UserService.updateProfilePicture(picture);
       this.setStore(updatedPicture, updatedPicture.profilePicture/*, { friends, pendings, sent }*/);
     },
-    // async updateFriends(userId: number) {
-    //   this.friendLists.friends = await FriendService.getFriendships(userId, "accepted");
-    // },
-    // async updatePendings(userId: number) {
-    //   this.friendLists.pendings = await FriendService.getFriendships(userId, "pending");
-    // },
-    // async updateSent(userId: number) {
-    //   this.friendLists.sent = await FriendService.getFriendships(userId, "sent");
-    // },
+
   },
 });

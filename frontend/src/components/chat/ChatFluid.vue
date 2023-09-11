@@ -391,7 +391,6 @@ const hiddenAdmin = ref(false);
 
 const kickCh = (id: any, channelId: any) => {   
     socket.emit('kickChannel', { uId: id, chId: channelId })
-    console.log('kickato');
 }
 
 // converti valore di selectedvalue in millisecondi
@@ -427,16 +426,13 @@ socket.on('isBanChan', (id: any, channelId: any, bannato: boolean) => {
         socket.emit('unbanChannel', { uId: id, chId: channelId });
         chat.value.setIsActive(false);
         hidder.value = false;
-        console.log('unbannato');
     } 
     else 
     {
         socket.emit('banChannel', { uId: id, chId: channelId });
         chat.value.setIsActive(true);
         hidder.value = true;
-        console.log('bannato');
     }            
-    console.log(bannato);
 });
 
 
@@ -448,12 +444,10 @@ socket.on('isPassOn', (pass: boolean) => {
     if (pass) 
     {
         chat.value.setIsPassOn(true);
-        console.log('password');
     } 
     else 
     {
         chat.value.setIsPassOn(false);
-        console.log('no password');
     }
 });
 
@@ -461,12 +455,10 @@ socket.on('isPrivOn', (priv: boolean) => {
     if (priv) 
     {
         chat.value.setIfPrivate(true);
-        console.log('Priv chan Canale Privato');
     } 
     else 
     {
         chat.value.setIfPrivate(false);
-        console.log('Priv chan Canale non Privato');
     }
 });
 
@@ -474,21 +466,17 @@ socket.on('isMuteChan', (muted: boolean) => {
     if (muted) 
     {
         hiddenMute.value = true;
-        console.log('mutato');
     } 
     else 
     {
         hiddenMute.value = false;
-        console.log('non mutato');
     }
 });
 
 const setAdmin = (id: any, channelId: any) => {   
-    console.log('Il click funziona');      
     socket.emit('setAdmin', { uId: id, chId: channelId })
 }
 const unSetAdminF = (id: any, channelId: any) => {     
-    console.log('Il click toglie funziona');        
     socket.emit('unSetAdmin', { uId: id, chId: channelId })
 }
 
@@ -509,12 +497,10 @@ socket.on('isAdminChan', (muted: boolean) => {
     if (muted) 
     {
         hiddenAdmin.value = true;
-        console.log('Sono Admin');
     } 
     else 
     {
         hiddenAdmin.value = false;
-        console.log('Non sono Admin');
     }
 });
 
@@ -525,7 +511,6 @@ socket.on('isBanFluidRet', (bannato: boolean) => {
 
 const checkFluidBan = (id: any, channelId: any) => {   
     socket.emit('isBanFluid', { uId: id, chId: channelId })
-    console.log('ban fluidato: ', id);
 }
 
 // Function to format time
@@ -533,7 +518,6 @@ const formattedTime = (date: any) => {
     if (typeof date === 'string')
         date = new Date(date);
     if (!(date instanceof Date)) {
-        console.log("date is NOT a Date object:", date);
         return "";
     }
     const hours = date.getUTCHours();
@@ -562,7 +546,6 @@ const sendMessage = () => {
 };
 
 const sendDirect = () => {
-    console.log("Name current channel: ", chat.value.getChannelAll?.id);
   if (/^[\s\n]*$/.test(msg.value))
       return;
   if (chat.value.getCurrentChannelId == '' || chat.value.getCurrentChannelId == null) {
@@ -570,10 +553,6 @@ const sendDirect = () => {
       return;
   }
 socket.emit('messageToDirect', { text: msg.value, chatId: chat.value.getCurrentChannelId, mioId: userStore.value.userId, chId: chat.value.getChannelAll?.id});
-    console.log('DIRECT: messaggio inviato');
-    console.log('DIRECT: TEXT: ', msg.value);
-    console.log('DIRECT: CHID: ', chat.value.getCurrentChannelId);
-    console.log('DIRECT: UID: ', userStore.value.userId);
     refreshChat(chat.value.getChannelAll?.id as string);
     msg.value = '';
     nextTick(() => {
@@ -595,14 +574,11 @@ const imAdmin = () => {
 
 const channelJoin = (password: any, invited: boolean) => {    
     socket.emit('joinChannel', { chId: chat.value.getChannelAll?.id, uId: userStore.value.userId, password: password, invited: invited });
-    console.log('joinato con password: ', password);
-    console.log('joinato');
     chat.value.setInsertedPass('');
   }
 
 const banUser = (bannedId: any, bannedChlId: any) => {
     socket.emit('banChannel', { uId: bannedId, chId: bannedChlId });
-    console.log('bannato');
   }
 
 
@@ -632,7 +608,6 @@ const friendStore = ref(useFriendStore());
 const gameInviteStore = ref(useGameStore());
 
 const createGame = () => {
-	// console.log("create game");
   leaveQ.value = true;
 }
 
@@ -644,12 +619,10 @@ const profile = ref<IUser>();
 
 async function fetchUsers() {
   profile.value = await UserService.getUserById(props.idProfile!);
-// profile.value = userStore.value.$id;
 
 }
 
 watchEffect(async () => {
-  // Fetch the updated lists
   await fetchUsers();
   friendStore.value.friends;
   friendStore.value.pending;
@@ -667,9 +640,7 @@ async function gameInvite(userId: string) {
     friendStore.value.updatePendings(currentUser.value.userId);
     friendStore.value.updateFriends();
     friendStore.value.updateSent(currentUser.value.userId);
-		// console.log("game invite sent");
-		createGame();
-		// location.reload();
+	createGame();
   } catch (err) {
     const e = err as AxiosError<IError>;
 		if (axios.isAxiosError(e)) return e.response?.data;

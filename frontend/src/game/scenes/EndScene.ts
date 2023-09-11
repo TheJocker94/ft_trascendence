@@ -63,7 +63,6 @@ export default class EndScene extends Scene {
 			this.input.keyboard!.once('keydown-ESC', () => {
 				this.win.stop();
 				this.lose.stop();
-				console.log('exit room', userStore.value.roomId);
 				socketGame.off('restartServer');
 				socketGame.emit('exitGame', userStore.value.roomId);
 			})

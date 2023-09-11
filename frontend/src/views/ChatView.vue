@@ -101,7 +101,6 @@
 <script setup lang="ts">
 import { socket } from "@/plugins/Socket.io";
 import { ref, watchEffect, onMounted, onUnmounted, type Ref } from 'vue';
-import FriendService from "@/services/FriendService";
 import { useCurrentUserStore } from "@/stores/currentUser";
 import { type IChannel, type ISingleCh, EChat} from '@/models/IChat'
 import ChatFluid from "@/components/chat/ChatFluid.vue";
@@ -125,7 +124,7 @@ socket.on ('isUserInChannel', (channelIn: boolean | string) => {
       chat.value.setFlagImIn(channelIn as boolean);
       chat.value.setifBanned(false);
     }
-    console.log('Valore di flagImIn Dopo: ' + channelIn);
+
 })
 import { useChatStore } from "@/stores/chat";
 import AuthService from "@/services/AuthService";
@@ -162,28 +161,15 @@ onUnmounted(() => {
     window.removeEventListener('resize', handleResize)
 })
 
-// Fine gestione responsive
-// const profileFriend = ref<any[]>();
 const lastMessage: Ref<HTMLDivElement | null> = ref(null);
 const usernameAlreadySelected = ref(false);
 const userStore = ref(useCurrentUserStore());
 
-// function sendUsername(user: string) {
-//   chat.value.setActivChatUsr(user);
-// }
-
 async function friendPic() {
-  // if (props.idProfile !== currentUser.value.userId)
   const response = await UserService.getUsers();
-  // give the users list excluding the current user
-  console.log('response: ', response);
-
 
   chat.value.setProfileFriend(response.map(user => ({ ...user, active: false })).filter(user => user.username !== userStore.value.username));
 
-  // chat.value.setProfileFriend(response.map(user => ({ ...user, active: false })));
-  // else
-  //     profileFriend.value = await FriendService.getFriendList(currentUser.value.userId!);
 }
 watchEffect(() => {
   friendPic();
@@ -194,8 +180,6 @@ const getChannelList = () => {
 };
 
 socket.on('singleChannelServer', (channel: ISingleCh) => {
-  console.log(channel);
-  console.log('DOVE CAZZO SIAMO');
   chat.value.setChannelAll(channel);
 });
 
@@ -233,7 +217,6 @@ const getChat = (username: string, id: string, mioId: string) => {
 
 
 socket.on('messageFromDirect', (data) => {
-  console.log('DATA IN FROM DIRECT: ', data);
   socket.emit('getChannel', { chId: data.chId, mioId: data.mioId, chatId: data.chatId });
   getChat(data.username, data.chatId, data.mioId);
   nextTick(() => {
@@ -265,16 +248,6 @@ onUnmounted(() => {
   socket.off('connect_error');
   socket.disconnect();
 });
-
-// const changeChannel = (channelName: string, id: string) => {
-//   getChannel(id);
-//   sendUsername(channelName);
-//  socket.emit('isUserInCh', { sender: userStore.value.userId, id: id });
-// };
-
-// const changeDirect = (username: string) => {
-//   sendUsername(username);
-// };
 
 </script>
 

@@ -40,7 +40,6 @@ export class GameGateway {
   private usersConnected: string[] = [];
 
   async handleConnection(client: Socket) {
-    console.log('Client game connected:', client.id);
     const parseId = this.queue.parseJwt(client.handshake.auth.token);
     const userId = parseId.id;
     const user = await this.prisma.user.findUnique({
@@ -53,15 +52,12 @@ export class GameGateway {
     if (!userId) {
       // Close the connection if no userId is provided
       client.disconnect();
-      console.log('Client game disconnectedddd');
       return;
     }
     const message = `Welcome to the game, ${userId}`;
     client.emit('welcome', message);
     // Attach the userId to the socket for future use
     this.usersConnected.push(userId);
-    console.log('User connected game:', userId);
-    console.log('Users in server are ', this.usersConnected);
 	await this.prisma.user.update({
 		where: { id: userId },
 		data: { isOnline: true },
@@ -81,7 +77,6 @@ export class GameGateway {
 	//! from here on the functions should be placed in the unMounted
 	@SubscribeMessage('removeAcceptedInvite')
   handleLeaveInviteQueue(@ConnectedSocket() client: Socket): void {
-    console.log('Leave queue received');
     this.inviteQueue.remove(client);
   }
 
@@ -90,7 +85,6 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
-    console.log('Ready received');
     this.server.to(data.room).emit('start', data.player);
   }
 
@@ -98,7 +92,6 @@ export class GameGateway {
 
   @SubscribeMessage('joinQueue')
   handleJoinQueue(@ConnectedSocket() client: Socket): void {
-    console.log('Join queue received');
     if (this.inGame.includes(client.data.userId)) {
       return;
     }
@@ -108,7 +101,6 @@ export class GameGateway {
 
   @SubscribeMessage('leaveQueue')
   handleLeaveQueue(@ConnectedSocket() client: Socket): void {
-    console.log('Leave queue received');
     this.queue.remove(client);
   }
   // player ready to play
@@ -117,7 +109,6 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
-    console.log('Ready received');
     this.server.to(data.room).emit('start', data.player);
   }
   // Chose standard or powerup mode
@@ -138,7 +129,6 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
-    console.log('Hit paddle received is ', data);
     this.server.to(data.room).emit('hitPaddleServer', data);
   }
   // Chose random powerup
@@ -149,7 +139,6 @@ export class GameGateway {
   ): void {
     // random number between 1 and 3
     const random = Math.floor(Math.random() * 3) + 1;
-    console.log('Random number is ', random);
     this.server
       .to(data.room)
       .emit('powerupServer', { power: random, room: data.room });
@@ -160,16 +149,9 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
-    console.log('Pause received is ', data);
     this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = true;
     this.server.to(data.room).emit('pauseServer', data);
   }
-  //   @ConnectedSocket() client: Socket,
-  //   @MessageBody() data: any,): void {
-  //   console.log('Pause received is ', data);
-  //   this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = true;
-  //   this.server.to(data.room).emit('pauseServer', data);
-  // }
 
   @SubscribeMessage('unpause')
   handleUnPause(
@@ -177,7 +159,6 @@ export class GameGateway {
     @MessageBody() data: any,
   ): void {
     this.Rooms[parseInt(data.room)].players[data.player - 1].minimized = false;
-    console.log('Pause received is ', data);
     if (
       this.Rooms[parseInt(data.room)].players[0].minimized == false &&
       this.Rooms[parseInt(data.room)].players[1].minimized == false
@@ -192,7 +173,6 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
-    console.log('Powerdoit received is ', data);
     this.server.to(data.room).emit('powerdoitServer', data);
   }
   // movePlayers
@@ -209,8 +189,6 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
-    // console.log('Ball update received is ', data);
-    // if (data.roomId) {
     this.server.to(data.room).emit('ballUpdateServer', data);
     // }
   }
@@ -221,7 +199,6 @@ export class GameGateway {
     @MessageBody() data: any,
   ): void {
     this.Rooms[parseInt(data.room)].finished = false;
-    console.log('Restart received is ', data);
     this.server.to(data.room).emit('restartServer', data.player);
   }
 
@@ -230,10 +207,7 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): void {
-    // console.log('Ball update received is ', data);
-    // if (data.roomId) {
     this.server.to(data.room).emit('powerballUpdateServer', data);
-    // }
   }
 
   @SubscribeMessage('messageToServer')
@@ -241,10 +215,6 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() text: any,
   ): void {
-    console.log('Received data from client:');
-    console.log(text.text);
-    console.log('Username client :', client.data.userId);
-    // this.server.emit('dataFromServer', data);
     this.server.emit('messageFromServer', {
       text: text.text,
       username: client.data.userId,
@@ -280,7 +250,6 @@ export class GameGateway {
         modeGame = MatchMode.POWERUP
       else
         modeGame = MatchMode.CLASSIC
-      console.log('Mode game is ', modeGame);
       const matchplayed = await this.gameService.createHistory({
         user1Id: this.Rooms[parseInt(data.room)].players[0].userId,
         user2Id: this.Rooms[parseInt(data.room)].players[1].userId,
@@ -332,16 +301,12 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): Promise<void> {
-    console.log('Leave room received is ', data);
-    // client.leave(data);
 	await this.prisma.user.update({
 		where: { id: client.data.userId },
 		data: { isPlaying: false },
 	  });
     this.queue.remove(client);
     this.inGame = this.inGame.filter((user) => user !== client.data.userId);
-    // this.server.to(data.room).emit('playerLeft', data);
-    // this.Rooms = this.Rooms.filter((room) => room.roomId !== data.room);
   }
 
   @SubscribeMessage('exitGame')
@@ -374,9 +339,6 @@ export class GameGateway {
 	});
     this.queue.remove(client);
     if (this.inGame.includes(userId)) {
-      // quando un utente si disconnette, se è in una stanza, la stanza viene eliminata e si invia un messaggio a tutti i giocatori dentro la stanza
-      // gli utenti nella stanza vengono rimossi dalla lista degli utenti queue e inGame
-      // parti dall'ulyima stanza creata nel cercare gli utenti
       this.inGame = this.inGame.filter((user) => user !== userId);
 
       const room = this.Rooms.reverse().find((room) =>
@@ -389,14 +351,7 @@ export class GameGateway {
         // this.Rooms = this.Rooms.filter((room) => room !== room);
       }
     }
-    //   const room = this.Rooms.find((room) =>
-    //     room.players.find((player) => player.username === username),
-    //   );
-    //   if (room) {
-    //     this.server.to(room.roomId.toString()).emit('playerDisconnected');
-    //     this.Rooms = this.Rooms.filter((room) => room !== room);
-    //   }
-    // }
+
     this.usersConnected = this.usersConnected.filter(
       (user) => user !== userId,
     );
@@ -413,7 +368,6 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ): Promise<void> {
-    console.log('Remove game invite received');
     const user1 = await this.prisma.user.findUnique({
       where: { username: data.username1 },
     });
@@ -434,7 +388,6 @@ export class GameGateway {
 		let playersSockets: Socket[];
 		if (this.inviteQueue.size() < 2)
 		{
-			console.log("first time i got inside here");
 			return;
 		}
 		else {
@@ -470,7 +423,6 @@ export class GameGateway {
       this.inGame.push(playersSockets[0].data.userId);
       this.inGame.push(playersSockets[1].data.userId);
       const gameId = await this.createGame(playersSockets);
-      console.log('Game id is ', gameId.players);
       playersSockets[0].emit('playerNo', { player: 1, room: gameId.roomId.toString(), username1: gameId.players[0].username, username2: gameId.players[1].username });
       playersSockets[1].emit('playerNo', { player: 2, room: gameId.roomId.toString(), username1: gameId.players[0].username, username2: gameId.players[1].username });
 	  await this.prisma.user.update({
@@ -486,10 +438,6 @@ export class GameGateway {
       this.server.to(gameId.roomId.toString()).emit('startingGame', this.Rooms[parseInt(gameId.roomId.toString())]);
       this.Rooms[parseInt(gameId.roomId.toString())].players[0].minimized = false;
       this.Rooms[parseInt(gameId.roomId.toString())].players[1].minimized = false;
-    //   this.Rooms[parseInt(gameId)].players[0].minimized = false;
-    //   this.Rooms[parseInt(gameId)].players[1].minimized = false;
-      // playersSockets[0].emit('matchFound', gameId);
-      // playersSockets[1].emit('matchFound', gameId);
     }
   }
 

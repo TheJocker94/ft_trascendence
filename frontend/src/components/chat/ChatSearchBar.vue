@@ -66,8 +66,6 @@ watchEffect(async () => {
   const pippo = await UserService.getUsers();
   list.value = pippo;
   const usernameIdArray: string[] = pippo.map(obj => `${obj.username}: ${obj.id}`);
-  console.log(usernameIdArray);
-  console.log("Current user", currentUser.value.avatar);
 });
 
   // search bar
@@ -85,10 +83,7 @@ const performSearch = () => {
   // This function is triggered when the input value changes
 };
 const addMember = (userId: string) => {
-	console.log("Id", userId);
   socket.emit('joinChannel', { chId: props.channel.id , uId: userId, invited: true });
-  console.log('------------------ channelId ------------------ :', props.channel.id);
-  console.log('------------------ userId ------------------ :', userId);
 };
 </script>
 

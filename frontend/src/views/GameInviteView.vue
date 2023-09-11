@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import GamePong from '@/components/GamePong.vue'
 import MatcHistory from '@/components/MatcHistory.vue';
 import PhaserContainer from '@/components/PhaserContainer.vue'
 import { useGameStore } from '@/stores/gameInvite'
@@ -17,30 +16,21 @@ const authStore = ref(useAuthStore());
 const gameStore = ref(useGameStore());
 
 socketGame.on('playerDisconnected', data => {
-//   console.log('playerDisconnected: ' + data);
   socketGame.emit('leaveRoom', userStore.value.roomId);
   socketGame.emit('removeGameInvited', {username1: userStore.value.username1,  username2: userStore.value.username2});
   router.push({ name: 'home' });
-  //alert("Game Created! ID is: "+ JSON.stringify(data));
 });
 socketGame.on('playerInviteNo', function (data) {
-    // console.log("Game Created! ID room is: " + data.room)
-    // console.log('Your id is: ' + data.player);
     userStore.value.initGame(data.room, data.player, data.username1, data.username2);
 });
-// socketGame.on('playerInvitedDisconnected', data => {
-//   router.push({ name: 'home' });
-// });
 
 onMounted(async () => {
-	// console.log("wtfffff");
 	await userStore.value.initStore(null, null);
   AuthService.online();
 	if (authStore.value.isLoggedIn){
 		socketGame.auth = { token: authStore.value.token }
 		socketGame.connect();
 		socketGame.on('welcome', (data: any) => {
-			// console.log(data);
 		});
     socketGame.emit('joinGameInviteQueue', gameStore.value.getIdMatch);
 	}
@@ -80,7 +70,6 @@ onUnmounted(() => {
   socketGame.off('restartServer');
   socketGame.off('gameCreated');
   socketGame.off('joinQueue');
-  // socketGame.off('leaveRoom');
   socketGame.off('disconnect');
   socketGame.off('connect');
   socketGame.off('connect_error');

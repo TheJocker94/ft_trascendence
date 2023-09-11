@@ -1,25 +1,5 @@
 import { Scene } from 'phaser';
 const SPEED = 300;
-// dopo una certa velocità la palla non rimbalza più e passa attraverso il muro //*FIXED*
-// idea: creare una animazione che rompe il muro quando la palla lo colpisce
-
-// idee powerup:
-// - palla che rallenta
-// - palla che accelera
-// - palla che si divide in due
-// - palla che si allunga
-// - palla che si rimpicciolisce
-// - palla che si ferma
-// - palla che si teletrasporta
-// - palla che si muove in modo casuale
-// - palla che si muove in modo casuale ma non oltre una certa distanza
-// - palla che si muove in modo casuale ma non oltre una certa distanza e non oltre una certa velocità
-// - muro che si allunga
-// - muro che si rimpicciolisce
-
-// idee modalità:
-// modalita senza potenziamenti
-// modalità con potenziamenti
 
 
 export default class PlayScene extends Scene {
@@ -56,23 +36,6 @@ export default class PlayScene extends Scene {
   }
   
   create () {
-	// const background = this.add.image(0, 0, 'sky');
-	// background.setOrigin(0, 0);
-	// background.displayWidth = this.scale.width;
-	// background.displayHeight = this.scale.height;
-  
-	// this.scale.on('resize', (gameSize: Phaser.Structs.Size) => {
-	//   background.displayWidth = gameSize.width;
-	//   background.displayHeight = gameSize.height;
-  
-	//   // Ensure other necessary elements are resized or repositioned here.
-	//   // Examples:
-	//   this.player.setPosition(30, gameSize.height / 2);
-	//   this.enemy.setPosition(gameSize.width - 30, gameSize.height / 2);
-	//   this.ball.setPosition(gameSize.width / 2, gameSize.height / 2);
-	//   this.scoreText2.setPosition(gameSize.width - 50, 16);
-	// });
-    //! this.add.image(this.scale.width / 2, this.scale.height / 2, 'sky').setOrigin(0);
 	const background = this.add.image(0, 0, 'sky');
 	background.setOrigin(0, 0);  // Set the origin to the top-left corner
 	background.displayWidth = this.scale.width;

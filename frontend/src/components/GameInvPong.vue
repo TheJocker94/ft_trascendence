@@ -17,10 +17,8 @@ const goGame = ref(false);
 onMounted(async () => {
   await userStore.value.initStore(null, null);
   socketGame.auth = { token: authStore.value.token }
-  console.log("Token is ", socketGame.auth)
   socketGame.connect();
   socketGame.on('welcome', (data: any) => {
-    console.log(data);
   });
 })
 
@@ -57,7 +55,6 @@ onUnmounted(() => {
     socketGame.off('playerNo');
     socketGame.off('startingGame');
     socketGame.off('joinQueue');
-    // socketGame.off('leaveRoom');
     socketGame.off('disconnect');
     socketGame.off('connect');
     socketGame.off('connect_error');
@@ -73,35 +70,26 @@ onUnmounted(() => {
     socketGame.off('hitPaddleServer');
     socketGame.off('start');
     socketGame.disconnect();
-	/*socketNoti.connect();*/
 })
 
 // Create a game
 socketGame.on('playerDisconnected', data => {
-  console.log('playerDisconnected: ' + data);
   press.value = false;
   goGame.value = false;
   socketGame.emit('leaveRoom', userStore.value.roomId);
   router.push({ name: 'home' });
-  //alert("Game Created! ID is: "+ JSON.stringify(data));
 });
 
 socketGame.on('gameCreated', function (data) {
-  console.log("Game Created! ID is: " + data.IdRoom)
-  console.log(' created Game: ' + data.IdRoom);
 });
 
 socketGame.on('playerNo', function (data) {
-  console.log("Game Created! ID room is: " + data.room)
-  console.log('Your id is: ' + data.player);
   userStore.value.initGame(data.room, data.player);
 });
   
 socketGame.on('startingGame', function (data) {
-  console.log("Game Created! ID room is: " + data)
   goGame.value = true;
   press.value = true;
-  //alert("Game Created! ID is: "+ JSON.stringify(data));
 });
 
 </script>

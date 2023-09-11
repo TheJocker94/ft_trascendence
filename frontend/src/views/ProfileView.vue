@@ -32,31 +32,20 @@ import BlockedPic from '@/components/profile/BlockedPic.vue';
 import { onMounted, ref, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import AuthService from '@/services/AuthService';
-// import { useFriendStore } from '@/stores/friend';
-// import FriendService from '@/services/FriendService';
-// import type { IFriend } from '@/models/IFriendsLists'
 
 // se serve async onMounted( async ()=> { 
 onMounted( () => {
-  // console.log("wtfffff");
   AuthService.online();
 });
 const route = useRoute();
 const userId = ref<string | string[]>();
 const currentUser = ref(useCurrentUserStore());
-// const friendStore = ref(useFriendStore());
-// const profileFriend = ref<IFriend[]>()
 watchEffect(async () => {
   userId.value = route.params.userid;
-  // console.log("userId is ", userId.value);
 
   if (currentUser.value.userId)
     await currentUser.value.initStore(null, null);
 
 });
-
-// async function friend() {
-// 	profileFriend.value = await FriendService.getFriendList(userId.value!);
-// }
 
 </script>

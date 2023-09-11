@@ -387,11 +387,8 @@ const schema = yup.object().shape({
 });
 // const currentUser = ref(useCurrentUserStore());
 async function friendPic() {
-    // if (props.idProfile !== currentUser.value.userId)
     const response = await FriendService.getFriendList();
     profileFriend.value = response.map(friend => ({ ...friend, active: false }));
-    // else
-    //     profileFriend.value = await FriendService.getFriendList(currentUser.value.userId!);
 }
 watchEffect(() => {
     friendPic();
@@ -411,7 +408,6 @@ const formattedTime = (date: any) => {
         date = new Date(date);
     }
     if (!(date instanceof Date)) {
-        console.log("date is NOT a Date object:", date);
         return "";
     }
 
@@ -449,24 +445,19 @@ const getChannel = (id: string) => {
 };
 
 socket.on('singleChannelServer', (channel: ISingleCh) => {
-    console.log(channel);
     channelAll.value = channel;
 });
 socket.on('groupListServer', (chList: IChannel[]) => {
-    console.log(chList);
     channelList.value = chList;
 });
 
 const createGroup = () => {
     if (credentials.name === '') {
-        console.log('no 1')
         return;
     }
     if (credentials.type === '') {
-        console.log('no 2')
         return;
     }
-    // console.log('sto creando il gruppo da frontend')
     myButton.value!.click();
     socket.emit('createGroup', { text: credentials.name, sender: userStore.value.userId, type: credentials.type, password: credentials.password });
     credentials.name = '';

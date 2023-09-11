@@ -193,22 +193,12 @@
 					</dialog>
 				</div>
     </div>
-		<!-- <div v-if="goGame"> -->
-      <!-- <Suspense>
-        <PhaserContainer />
-        <template #fallback>
-          <div class="placeholder">
-            Downloading ...
-          </div>
-        </template>
-      </Suspense> -->
-    <!-- </div> -->
+
   </div>
 </template>
 
 <script setup lang="ts">
-// import axios from 'axios';
-// import { useCurrentUserStore } from '@/stores/Current_User';
+
 import { ref, watch, watchEffect } from 'vue'
 import { useAuthStore } from '@/stores/auth';
 import { useCurrentUserStore } from '@/stores/currentUser';
@@ -219,7 +209,6 @@ import axios, { AxiosError } from 'axios';
 import type { IError } from '@/models/IError';
 import GameInviteService from '@/services/GameInviteService';
 import { useGameStore} from '@/stores/gameInvite';
-// import { socketNoti } from '@/plugins/Socket.io';
 import { onMounted} from 'vue'
 
 const friendStore = ref(useFriendStore());
@@ -242,21 +231,13 @@ if (!gameInviteStore.value.renderer){
       if (gameInviteStore.value.accepted[i].sender.id === userStore.value.userId && gameInviteStore.value.accepted[i].status === 'ACCEPTED')
         initGame();
     }
-    // if (gameInviteStore.value.accepted[0].senderId === userStore.value.userId)
-    //   initGame();
   }
     
 }
   })
 
-// watch(gameInviteStore.value.getAcceptef, () => {
-//   console.log("watch accepted")
-//     initGame();
-// }
-// )
 
 const createGame = () => {
-  // console.log("create game")
   leaveQ.value = true;
 }
 
@@ -328,7 +309,6 @@ const initGame = async () => {
   gameInviteStore.value.setRenderer(true);
   if (gameInviteStore.value.getAcceptef.find((element) => element.sender.id === userStore.value.userId && element.status === 'ACCEPTED')){
     gameInviteStore.value.setIdMatch(gameInviteStore.value.getAcceptef[0].id);
-    // console.log('IdMatch: ', gameInviteStore.value.getIdMatch)
     auth.value.hasGameInvite = true;
   }
   else if (gameInviteStore.value.getAcceptef.find((element) => element.receiver.id === userStore.value.userId && element.status === 'ACCEPTED'))

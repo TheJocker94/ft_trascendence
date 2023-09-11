@@ -7,36 +7,13 @@ const userStore = ref(useCurrentUserStore());
 
 
 const SPEED = 300;
-// dopo una certa velocità la palla non rimbalza più e passa attraverso il muro //*FIXED*
-// idea: creare una animazione che rompe il muro quando la palla lo colpisce
 
-// se non sai cosa fare aggiustare suono pallina che parte in ritardo
-
-// idee powerup:
-// - palla che rallenta
-// - palla che accelera
-// - palla che si divide in due
-// - palla che si allunga
-// - palla che si rimpicciolisce
-// - palla che si ferma
-// - palla che si teletrasporta
-// - palla che si muove in modo casuale
-// - palla che si muove in modo casuale ma non oltre una certa distanza
-// - palla che si muove in modo casuale ma non oltre una certa distanza e non oltre una certa velocità
-// - muro che si allunga
-// - muro che si rimpicciolisce
-
-// idee modalità:
-// modalita senza potenziamenti
-// modalità con potenziamenti
 
 
 export default class PlayScene extends Scene {
   private player1!: Phaser.Physics.Arcade.Sprite;
   private player2!: Phaser.Physics.Arcade.Sprite;
   private ball!: Phaser.Physics.Arcade.Sprite;
-  // private ballPos: { x: number; y: number };
-  // private ballVel: { x: number; y: number };
   private dashedLine!: Phaser.GameObjects.Graphics;
   private cursor!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: { up: Phaser.Input.Keyboard.Key; down: Phaser.Input.Keyboard.Key };
@@ -67,9 +44,6 @@ export default class PlayScene extends Scene {
   constructor() {
     super({ key: 'PlayScene' })
     this.shape1 = new Phaser.Geom.Circle(0, 0, 0);
-    // this.ballPos = { x: 400, y: 300 };
-    // this.ballVel = { x: -200, y: 0 };
-    // this.shape1 = new Phaser.Geom.Circle(this.scale.width / 2, this.scale.height / 2, 160);
   }
 
   init() {
@@ -78,23 +52,6 @@ export default class PlayScene extends Scene {
   }
 
   create() {
-    // const background = this.add.image(0, 0, 'sky');
-    // background.setOrigin(0, 0);
-    // background.displayWidth = this.scale.width;
-    // background.displayHeight = this.scale.height;
-
-    // this.scale.on('resize', (gameSize: Phaser.Structs.Size) => {
-    //   background.displayWidth = gameSize.width;
-    //   background.displayHeight = gameSize.height;
-
-    //   // Ensure other necessary elements are resized or repositioned here.
-    //   // Examples:
-    //   this.player1.setPosition(30, gameSize.height / 2);
-    //   this.player2.setPosition(gameSize.width - 30, gameSize.height / 2);
-    //   this.ball.setPosition(gameSize.width / 2, gameSize.height / 2);
-    //   this.scoreText2.setPosition(gameSize.width - 50, 16);
-    // });
-    //! this.add.image(this.scale.width / 2, this.scale.height / 2, 'sky').setOrigin(0);
     const background = this.add.image(0, 0, 'matrix');
     background.setOrigin(0, 0);  // Set the origin to the top-left corner
 
@@ -165,7 +122,6 @@ export default class PlayScene extends Scene {
       scale: { start: 0.5, end: 0 },
       lifespan: 300, // Durata di vita delle particelle (in millisecondi)
       frequency: 100, // Frequenza di emissione delle particelle (in millisecondi)
-      // follow: this.ball // Seguire l'oggetto della palla
     });
     // Create the dashed line
     this.dashedLine = this.add.graphics();
@@ -187,8 +143,6 @@ export default class PlayScene extends Scene {
 
     // event listener movement
     socketGame.on('move', (data: { direction: string, player: number, room: string}) => {
-    //   console.log(data);
-    //   console.log("i am in game")
       if (data.room === userStore.value.roomId) {
         if (data.player === 1){
           if (data.direction === 'up')
@@ -219,9 +173,7 @@ export default class PlayScene extends Scene {
   }
   update() {
 
-    // console.log(this.ball.body!.velocity.x);
     if (this.ball.body!.velocity.x > 900 || this.ball.body!.velocity.x < -900) {
-      // console.log("am i here bitch");
       if (this.ball.body!.velocity.x > 0){
         this.ball.body!.velocity.x = 900;
         this.ballUpdate();
@@ -230,10 +182,8 @@ export default class PlayScene extends Scene {
         this.ball.body!.velocity.x = -900;
         this.ballUpdate();
       }
-      // this.ball.setVelocityX(-1000);
     }
     this.movePlayer();
-    // this.moveplayer2();
     this.ballCollision();
     this.endGame();
     if (this.ball.y <= 5 || this.ball.y >= this.scale.height - 5) {
@@ -242,15 +192,11 @@ export default class PlayScene extends Scene {
     this.emitter.setPosition(this.ball.x, this.ball.y);
     this.emitter.addEmitZone({ type: 'edge', source: this.shape1, quantity: 64, total: 1 });
     if (this.ball.getData('onPaddlePlayer1')) {
-      // this.ballVel.x = (Math.random() * 50) + this.player1.body!.velocity.y;
-      // this.ballVel.y = this.ballVel.x + (0.1) * this.ballVel.x;
       this.ball.setVelocityY((Math.random() * 50) + this.player1.body!.velocity.y);
       this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
       this.ball.setData('onPaddlePlayer1', false);
       this.ballUpdate()
     } else if (this.ball.getData('onPaddlePlayer2')) {
-      // this.ballVel.x = (Math.random() * 50) + this.player2.body!.velocity.y;
-      // this.ballVel.y = this.ballVel.x + (0.1) * this.ball.body!.velocity.x
       this.ball.setVelocityY((Math.random() * 50) + this.player2.body!.velocity.y);
       this.ball.setVelocityX(this.ball.body!.velocity.x + (0.1) * this.ball.body!.velocity.x);
       this.ball.setData('onPaddlePlayer2', false);

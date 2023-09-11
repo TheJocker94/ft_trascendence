@@ -49,15 +49,6 @@
                             <!-- @friendsClicked="chat.setFriend(true), chat.setGroup(false)                                                             -->
                         </div>
                     
-                    <!-- <div class="flex-2 text-right">
-                        <div><small class="text-gray-500">15 April</small></div>
-                        <div>
-                            <small
-                                class="text-xs bg-red-500 text-white rounded-full h-6 w-6 leading-6 text-center inline-block">
-                                23
-                            </small>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </div>
@@ -76,8 +67,6 @@ const chat = ref(useChatStore());
 const userStore = ref(useCurrentUserStore());
 
 const imAdmin =  ((channel: IChannel | undefined) => {
-    console.log('imAdmin channel: ', channel);
-    console.log('imAdmin channel.members: ', channel?.members);
 if (channel === undefined || channel.members === undefined)
     return false;
 const ret = channel.members.find(member => member.userId === userStore.value.userId);
@@ -88,8 +77,6 @@ const ret = channel.members.find(member => member.userId === userStore.value.use
 })
 
 const imInChan =  ((channel: IChannel | undefined) => {
-    console.log('imAdmin channel: ', channel);
-    console.log('imAdmin channel.members: ', channel?.members);
 if (channel === undefined || channel.members === undefined)
     return false;
 const ret = channel.members.find(member => member.userId === userStore.value.userId);
@@ -100,22 +87,15 @@ const ret = channel.members.find(member => member.userId === userStore.value.use
 })
 // Props
 
-// functions
-// console.log('Sucami il cazzo');
-console.log('Channel list is daje: ',chat.value.getChannelList);
-console.log('Friend is daje: ',chat.value.getFriend);
-console.log('Current group is daje: ',chat.value.getGroup);
 
 const channelJoin = (password: any, invited: boolean) => {    
     socket.emit('joinChannel', { chId: chat.value.getChannelAll?.id, uId: userStore.value.userId, password: password, invited: invited });
-    console.log('joinato con password: ', password);
-    console.log('joinato');
+
     chat.value.setInsertedPass('');
 }
 
 const   directJoin = () => {    
     socket.emit('joinDirect', { chId: chat.value.getChannelAll?.id, uId: userStore.value.userId});
-    console.log('joinato direttamente');
     chat.value.setInsertedPass('');
 }
 
@@ -138,7 +118,6 @@ const changeChannel = (channelName: string, id: string) => {
 
 const LeaveCh = (id: any, channelId: any) => {   
     socket.emit('kickChannel', { uId: id, chId: channelId })
-    console.log('uscito dal canale');
 }
 
 const checkPassera = (channelId: any) => {         
@@ -154,7 +133,6 @@ const getChat = (username: string, id: string, mioId: string) => {
 		return;
 	}
   chat.value.setCurrentChannelId(id);
-  console.log('get chat chiama enter room con: ', chat.value.getChannelAll?.id, chat.value.getCurrentChannelId, userStore.value.userId)
   socket.emit('enterRoom', { chId: chat.value.getChannelAll?.id, currentChannelId: chat.value.getCurrentChannelId, uId: userStore.value.userId});
 };
 
@@ -170,9 +148,6 @@ const toggleActiveGroup = (index: number) => {
           channel.active = i === index;
       });
       changeChannel(chat.value.getChannelList[index].name, chat.value.getChannelList[index].id);
-    //   if (chat.value.getNumDiv === "is1") {
-    //     chat.value.setChatDiv(EChat.CHAT)
-    // }
   }
 }
 const toggleActiveFriend = (index: number) => {

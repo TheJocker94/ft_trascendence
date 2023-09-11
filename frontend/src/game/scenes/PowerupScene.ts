@@ -180,7 +180,6 @@ export default class PowerupScene extends Scene {
       scale: { start: 0.5, end: 0 },
       lifespan: 300, // Durata di vita delle particelle (in millisecondi)
       frequency: 100, // Frequenza di emissione delle particelle (in millisecondi)
-      // follow: this.ball // Seguire l'oggetto della palla
     });
 
     //initialize the explosion
@@ -210,7 +209,6 @@ export default class PowerupScene extends Scene {
     this.dashedLine.strokePath();
     //Server event listeners
     socketGame.on('move', (data: { direction: string, player: number, room: string}) => {
-      // console.log(data);
       if (data.room === userStore.value.roomId) {
         if (data.player === 1){
           if (data.direction === 'up')
@@ -246,11 +244,9 @@ export default class PowerupScene extends Scene {
     });
 
     socketGame.on('powerdoitServer', (data: { player: number, room: string, x: number, y: number }) => {
-      // this.boombaby();
 			boomX = data.x;
 			boomY = data.y;
       this.powerup = true;
-    //   console.log("power do it", data)
       if (data.room === userStore.value.roomId) {
         if (data.player === 1) {
           this.boombaby();
@@ -297,16 +293,12 @@ export default class PowerupScene extends Scene {
           this.ball.setData('onPaddlePlayer1', true);
           this.ball.setData('onpowerplayer2', false);
           this.ball.setData('onpowerplayer1', true); 
-        //   console.log('onpowerplayer1', this.ball.getData('onpowerplayer1'));
-        //   console.log('onpowerplayer2', this.ball.getData('onpowerplayer2'));
           this.randomPlayer();
         }
         else if (data.player === 2)
           this.ball.setData('onPaddlePlayer2', true);
           this.ball.setData('onpowerplayer1', false);
           this.ball.setData('onpowerplayer2', true); 
-        //   console.log('onpowerplayer1', this.ball.getData('onpowerplayer1'));
-        //   console.log('onpowerplayer2', this.ball.getData('onpowerplayer2'));
           this.randomEnemy();
       }
     })
@@ -333,33 +325,11 @@ export default class PowerupScene extends Scene {
   }
 
   update() {
-		// setTimeout(() => {
-		// 	if (isBrowserMinimized.value) {
-		// 		this.ballpower.setDepth(0);
-		// 		this.pauseText.setVisible(true);
-		// 		this.veil.setVisible(true);
-		// 		this.scene.pause();
-		// 	}
-		// }, 1000);
-		// setTimeout(() => {
-		// 	if (!isBrowserMinimized.value) {
-		// 		this.ballpower.setDepth(1);
-		// 		this.pauseText.setVisible(false);
-		// 		this.veil.setVisible(false);
-		// 		this.scene.resume();
-		// 	}
-		// }, 1000);
-
-		// if (userStore.value.playerNo === 1)
-		// setInterval(() => {
-		// 	socketGame.emit('updatePosition', { x: this.ball.x, y: this.ball.y, velX: this.ball.body!.velocity.x, velY: this.ball.body!.velocity.y, paddle1x: this.player1.x, paddle1y: this.player1.y , paddle2x: this.player2.x, paddle2y: this.player2.y ,room: userStore.value.roomId });
-		// }, 1000 / 60);
 
     if (userStore.value.playerNo === 1)
     {
       this.checkVelocity();
       this.powerupreposition();
-      // this.paddleBallCollision();
       this.checkGol();
       this.ballCollision();
     }
@@ -411,8 +381,6 @@ export default class PowerupScene extends Scene {
     }
 
   emitPowerup(){
-    // console.log("emit powerup 2 is", this.ball.getData('onpowerplayer2'));
-    // console.log("emit powerup 1 is", this.ball.getData('onpowerplayer1'));
       if (this.ball.getData('onpowerplayer2')=== true) {
         if (this.ball.body!.velocity.x > 0)
           socketGame.emit('powerdoit', {player: 1, room: userStore.value.roomId, x: this.ballpower.x, y: this.ballpower.y});
@@ -429,7 +397,6 @@ export default class PowerupScene extends Scene {
     checkVelocity() {
       
       if (this.ball.body!.velocity.x > 700 || this.ball.body!.velocity.x < -700) {
-          // console.log("am i here bitch");
         if (this.ball.body!.velocity.x > 0){
           this.ball.body!.velocity.x = 700;
           this.ballUpdate();
@@ -437,7 +404,6 @@ export default class PowerupScene extends Scene {
         else{
           this.ball.body!.velocity.x = -700;
           this.ballUpdate();
-        // this.ball.setVelocityX(-1000);
         }
       }
 
@@ -460,8 +426,6 @@ export default class PowerupScene extends Scene {
   }
 
   boombaby() {
-		// console.log("me boomx is", boomX);
-		// console.log("me boomy is", boomY);
     this.thud.play();
     this.explosion.setPosition(boomX, boomY).setVisible(true).play('explode');
     this.ballpower.setPosition(-100, this.scale.height + 100);
@@ -573,9 +537,9 @@ export default class PowerupScene extends Scene {
       socketGame.off('powerdoitServer');
       socketGame.off('updateScoreServer');
       socketGame.off('hitPaddleServer');
-		socketGame.off('pauseServer');
-		socketGame.off('unpauseServer');
-			this.scene.stop('PowerupScene');
+	  socketGame.off('pauseServer');
+	  socketGame.off('unpauseServer');
+	  this.scene.stop('PowerupScene');
       this.scene.start('EndScene', { score1: this.score1, score2: this.score2, winner: winner });
     }
   }

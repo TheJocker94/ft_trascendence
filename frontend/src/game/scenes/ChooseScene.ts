@@ -4,8 +4,7 @@ import { useCurrentUserStore } from '@/stores/currentUser';
 import { ref } from 'vue';
 
 const userStore = ref(useCurrentUserStore());
-// console.log(userStore.value.roomId);
-// console.log(userStore.value.playerNo);
+
 export default class ChooseScene extends Scene {
 	private lefthand!: Phaser.GameObjects.Image;
 	private righthand!: Phaser.GameObjects.Image;

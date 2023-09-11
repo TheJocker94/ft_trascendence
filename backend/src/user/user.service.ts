@@ -229,21 +229,6 @@ export class UserService {
     });
   }
 
-  // async enable2fa(userId: string): Promise<boolean> {
-  //   await this.prisma.user.update({
-  //     where: { id: userId },
-  //     data: { is2faEnabled: true },
-  //   });
-  //   return true;
-  // }
-
-  // async disable2fa(userId: string): Promise<boolean> {
-  //   await this.prisma.user.update({
-  //     where: { id: userId },
-  //     data: { is2faEnabled: false },
-  //   });
-  //   return false;
-  // }
 
   async change2fa(userId: string): Promise<boolean> {
     const status = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -540,7 +525,6 @@ export class UserService {
         }
         }
       });
-      // console.log('Waiting',gameships),'user', userId;
       return gameships;
 	  }
 	
@@ -563,7 +547,6 @@ export class UserService {
         }
 		    }
 		  });
-      // console.log('Thinking',gameships),'user', userId;
       return gameships;
 	  }
 	
@@ -596,7 +579,6 @@ export class UserService {
         }
         }
       });
-      // console.log('Accepted',gameships),'user', userId;
       return gameships;
 	  }
 	

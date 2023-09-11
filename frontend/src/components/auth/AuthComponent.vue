@@ -59,7 +59,6 @@ declare global {
   }
 }
 import { ref, reactive } from 'vue';
-// import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { openSignInWindow } from './OauthPopup';
 import SignupModal from '@/components/auth/SignupModal.vue';
@@ -67,7 +66,6 @@ import SigninModal from '@/components/auth/SigninModal.vue';
 import { Form, Field, ErrorMessage } from 'vee-validate';
 import * as yup from 'yup';
 import type { IError } from '@/models/IError';
-// import { useRouter } from 'vue-router';
 
 const authStore = ref(useAuthStore());
 const showPopup = ref(false);

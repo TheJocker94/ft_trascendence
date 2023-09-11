@@ -40,12 +40,10 @@ export const useAuthStore = defineStore('auth', {
     ): Promise<IError | undefined | boolean> {
       try {
         const resp = await api.signInLocal(email, password, isEmail);
-        // console.log('Lore ti vuole? ',resp.data.is2faEnabled);
         if (resp.data.is2faEnabled)
           return true;
         const tokData = api.decodePayload(resp.data.tokens.accessToken);
         this.setState(resp.data.tokens.accessToken, resp.data.tokens.refreshToken, resp.data.tokens.is2faEnabled);
-        // console.log("token saved is", this.token)
 		await useCurrentUserStore().initStore(tokData.id, tokData.email);
         router.push('/users/' + useCurrentUserStore().userId);
   } catch (err) {
@@ -58,12 +56,8 @@ export const useAuthStore = defineStore('auth', {
     ): Promise<IError | undefined> {
       try {
         const resp = await api.signInLocal2fa(emailcode, email, isEmail);
-        // console.log('Lore ti vuole tanto? ',resp.data);
         const tokData = api.decodePayload(resp.data.accessToken);
-        // console.log('bhobhe',resp.data.accessToken);
-        // console.log(resp.data.refreshToken);
         this.setState(resp.data.accessToken, resp.data.refreshToken, true);
-        // console.log("token saved is", this.token)
 		await useCurrentUserStore().initStore(tokData.id, tokData.email);
         router.push('/users/' + useCurrentUserStore().userId);
   } catch (err) {
@@ -75,7 +69,6 @@ export const useAuthStore = defineStore('auth', {
     async change2fa(): Promise<IError | undefined> {
       try {
         const resp = await api.change2fa();
-        // console.log('Lore ti vuole? ',resp.data);
         this.twoFaEnabled = resp.data;
   } catch (err) {
         const e = err as AxiosError<IError>;
@@ -98,12 +91,10 @@ export const useAuthStore = defineStore('auth', {
     async renewToken() {
       try {
         const response = await AuthService.refresh() // Make sure you have an API method to renew the token
-        // console.log("response", response.data);
         const newAccessToken = response.data.access_token;
         this.token = newAccessToken;
       } catch (err) {
         console.error('Error renewing token:', err);
-        // Handle token renewal error here
       }
     },
     
@@ -120,18 +111,7 @@ export const useAuthStore = defineStore('auth', {
         if (axios.isAxiosError(e)) return e.response?.data;
       }
     },
-    // async signUpFortyTwo(params: string) {
-    //   try {
-    //     const resp = await api.signUpFortyTwo(params);
-    //     this.setState(resp.data.access_token, true);
-		// 		this.twoFaEnabled = resp.data.twoFaEnabled;
 
-    //     await useCurrentUserStore().initStore(resp.data.id);
-    //   } catch (err) {
-    //     const e = err as AxiosError<IError>;
-    //     if (axios.isAxiosError(e)) return e.response?.data;
-    //   }
-    // },
 	async initStoreasync(){
 		if (this.token)
       await useCurrentUserStore().initStore(null, null);

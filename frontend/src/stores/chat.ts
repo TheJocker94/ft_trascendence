@@ -73,23 +73,7 @@ const ifPrivate = ref(false);
 const getIfPrivate = computed(() => ifPrivate.value);
 const setIfPrivate = (val:boolean) => {ifPrivate.value = val, console.log('ifPrivate', ifPrivate.value) };
 
-// const imAdmin = computed() => {
-//   const userStore = ref(useCurrentUserStore());
-//   const ret = getChannelAll.value?.members.find(member => member.userId === userStore.value.userId);
-//   if (ret?.role === 'ADMIN' || ret?.role === 'OWNER')
-//       return true;
-//   else
-//       return false;
-// }
-// const checkAdmin =  computed(() => {
-//   const userStore = ref(useCurrentUserStore());
-//   const ret = getChannelAll.value?.members.find(member => member.userId === userStore.value.userId);
-//   if (ret?.role === 'ADMIN' || ret?.role === 'OWNER')
-//       return true;
-//   else
-//       return false;
-// })
-// const imAdmin =  ref(checkAdmin.value);
+
   return { isGroupsActive, isFriendsActive, getFriend, getGroup, setFriend, setGroup, profileFriend, channelList, channelAll,
           activChatUsr, currentChannelId, setActivChatUsr, setCurrentChannelId, getActivChatUsr, getCurrentChannelId,
           getChannelList, setChannelList, getChannelAll, setChannelAll, setProfileFriend, getProfileFriend,

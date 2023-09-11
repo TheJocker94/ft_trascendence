@@ -19,7 +19,6 @@ onMounted(async () => {
   socketGame.auth = { token: authStore.value.token }
   socketGame.connect();
   socketGame.on('welcome', (data: any) => {
-    console.log(data);
   });
 })
 
@@ -86,7 +85,6 @@ const exitQueue = () => {
 }
 
 socketGame.on('playerDisconnected', data => {
-  console.log('playerDisconnected: ' + data);
   press.value = false;
   goGame.value = false;
   leaveQ.value = false;
@@ -95,27 +93,16 @@ socketGame.on('playerDisconnected', data => {
   //alert("Game Created! ID is: "+ JSON.stringify(data));
 });
 socketGame.on('gameCreated', function (data) {
-    console.log("Game Created! ID is: " + data.IdRoom)
-    console.log(' created Game: ' + data.IdRoom);
 
-    //alert("Game Created! ID is: "+ JSON.stringify(data));
   });
   socketGame.on('playerNo', function (data) {
-    console.log("Game Created! ID room is: " + data.room)
-    console.log('Your id is: ' + data.player);
-    console.log('Da playerno Username 1: ' + data.username1);
-    console.log('Da playerno Username 2: ' + data.username2);
     userStore.value.initGame(data.room, data.player, data.username1, data.username2);
   });
   
   socketGame.on('startingGame', function (data) {
-    console.log("Game Created! ID room is: " + data.roomId)
     goGame.value = true;
     leaveQ.value = false;
     press.value = true;
-    console.log('Username 1: ' + userStore.value.username1);
-    console.log('Username 2: ' + userStore.value.username2);
-    //alert("Game Created! ID is: "+ JSON.stringify(data));
   });
 
 </script>
