@@ -4,7 +4,7 @@
           <div class="hidden xl:block sm:flex-2 w-64 bg-gray-200">
             <SelectChatGroups 
                 v-if="chat.getNumDiv === 'is3'"
-              @friendsClicked="chat.setFriend(true), chat.setGroup(false)"
+              @friendsClicked="chat.setFriend(true), chat.setGroup(false), getFriendsList()"
               @groupsClicked="chat.setGroup(true), chat.setFriend(false) , getChannelList()"
             />
           </div>

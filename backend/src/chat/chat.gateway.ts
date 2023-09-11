@@ -245,6 +245,7 @@ export class ChatGateway {
         channelId: data.chId,
       }
     })
+    console.log('******chiamo la from direct con: ', data);
     this.server.to(data.chId).emit('messageFromDirect', data);
 
 	const channel = await this.prisma.channel.findUnique({ 
@@ -299,6 +300,48 @@ export class ChatGateway {
       });
       client.emit('groupListServer', ChannelsList);
     }
+
+    @SubscribeMessage('friendList')
+    async handleFriendslList(
+      @ConnectedSocket() client: Socket,
+      @MessageBody() data: any,
+    ): Promise<void> {
+        const channels = await this.prisma.channel.findMany({
+          where:{
+            OR: [
+              {type: ChannelType.DIRECT},
+            ]
+          },
+          include: {
+            members:{
+              select: {
+                userId: true,
+                role: true,
+                status: true,
+                muteEndTime: true,
+                notRead: true,
+              }
+            },
+            messages: {
+              select: {
+                content: true,
+                time: true,
+              }
+            }
+          }
+        });
+        const ChannelsList = channels.map(channel => {
+          return {
+            id: channel.id,
+            name: channel.name,
+            messages: channel.messages,
+            type: channel.type,
+            members: channel.members,
+            notInRoom: channel.notInRoom,
+          }
+        });
+        client.emit('groupListServer', ChannelsList);
+      }
 	
     @SubscribeMessage('isUserInCh')
     async handleSingleChannelList(@ConnectedSocket() client: Socket, @MessageBody() data: any): Promise<any> {
@@ -330,14 +373,55 @@ export class ChatGateway {
       }
     }
 
+    @SubscribeMessage('refreshDirectChat')
+    async handleRefreshDirectChat(
+      @ConnectedSocket() client: Socket,
+      @MessageBody() data: any,
+    ): Promise<void> {
+      const channel = await this.prisma.channel.findFirst({
+        where: {
+          AND: [
+            {type: ChannelType.DIRECT},
+            {id: data.chanId},
+          ]
+        },
+        include: {
+          messages: {
+            select: {
+              content: true,
+              time: true,
+              read: true,
+              sender: {
+                select: {
+                  id: true,
+                  username: true,
+                  profilePicture: true,
+                  isOnline: true,
+                  }
+                }
+              }
+            },
+            members: {
+              select: {
+                userId: true,
+                role: true,
+                status: true,
+                muteEndTime: true
+              }
+            }
+          }
+      });
+      client.emit('singleChannelServer', channel);
+    }
+
     @SubscribeMessage('getChannel')
     async handleSingleChannel(
       @ConnectedSocket() client: Socket,
       @MessageBody() data: any,
     ): Promise<void> {
-      let channel = null;
       if(data.chatId)
       {
+        let channel = null;
         channel = await this.prisma.channel.findFirst({ 
           where: {
             AND: [
@@ -384,11 +468,12 @@ export class ChatGateway {
               data: { userId: data.mioId, channelId: channel.id, role: UserRole.MEMBER, status: UserStatus.ACTIVE}
             })
         }
+        client.join(channel.id);
         client.emit('singleChannelServer', channel);
       }
       else
       {
-        channel = await this.prisma.channel.findUnique({ 
+        const channel = await this.prisma.channel.findUnique({ 
           where: {id: data.chId},
           include: {
             messages: {

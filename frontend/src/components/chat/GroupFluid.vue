@@ -154,6 +154,8 @@ const getChat = (username: string, id: string, mioId: string) => {
 		return;
 	}
   chat.value.setCurrentChannelId(id);
+  console.log('get chat chiama enter room con: ', chat.value.getChannelAll?.id, chat.value.getCurrentChannelId, userStore.value.userId)
+  socket.emit('enterRoom', { chId: chat.value.getChannelAll?.id, currentChannelId: chat.value.getCurrentChannelId, uId: userStore.value.userId});
 };
 
 const changeDirect = (username: string, chatId: string, mioId: string) => {

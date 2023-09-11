@@ -14,7 +14,7 @@
                     <div v-if="userStore.userId !== chMes.sender.id" class="flex-2">
                         <div class="w-36 h-12 relative">
                             <div class="dropdown dropdown-right">
-                                <div class="w-15 rounded-full" @click="checkFluidBan(chMes.sender.id, chat.getChannelAll.id), onClickMute(chMes.sender.id, chat.getChannelAll.id)" >
+                                <div class="w-15 rounded-full"  >
                                     <label :onclick="'my_modal_3' + index + '.showModal()'" tabindex="0" class="btn btn-ghost btn-circle avatar indicator">
                                         <img class="w-12 h-12 rounded-full mx-auto" :src="chMes.sender.profilePicture" :alt=chMes.sender.username />
                                         <span class="absolute w-4 h-4 bg-gray-400 rounded-full right-0 bottom-0 border-2 border-white"></span>
@@ -492,6 +492,19 @@ const unSetAdminF = (id: any, channelId: any) => {
     socket.emit('unSetAdmin', { uId: id, chId: channelId })
 }
 
+const getChat = (username: string, id: string, mioId: string) => {
+	socket.emit('getChannel', {username: username, chatId: id, mioId: mioId });
+	if (id === chat.value.getCurrentChannelId) {
+		return;
+	}
+  chat.value.setCurrentChannelId(id);
+};
+
+const refreshChat = (chanId: string) =>
+{
+    socket.emit("refreshDirectChat", {chanId: chanId});
+}
+
 socket.on('isAdminChan', (muted: boolean) => {
     if (muted) 
     {
@@ -561,6 +574,7 @@ socket.emit('messageToDirect', { text: msg.value, chatId: chat.value.getCurrentC
     console.log('DIRECT: TEXT: ', msg.value);
     console.log('DIRECT: CHID: ', chat.value.getCurrentChannelId);
     console.log('DIRECT: UID: ', userStore.value.userId);
+    refreshChat(chat.value.getChannelAll?.id as string);
     msg.value = '';
     nextTick(() => {
     setTimeout(() => {
