@@ -239,11 +239,11 @@ export class GameGateway {
       let winner: string;
       let loser: string;
       if (data.score1 === 5) {
-        winner = this.Rooms[parseInt(data.room)].players[1].userId;
-        loser = this.Rooms[parseInt(data.room)].players[0].userId;
-      } else if (data.score2 === 5) {
         winner = this.Rooms[parseInt(data.room)].players[0].userId;
         loser = this.Rooms[parseInt(data.room)].players[1].userId;
+      } else if (data.score2 === 5) {
+        winner = this.Rooms[parseInt(data.room)].players[1].userId;
+        loser = this.Rooms[parseInt(data.room)].players[0].userId;
       }
       let modeGame = null;
       if  (data.mode === 'POWERUP')
