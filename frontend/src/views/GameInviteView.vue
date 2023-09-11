@@ -56,8 +56,9 @@ const teardown = () => {
 };
 
 onUnmounted(() => {
-	teardown();
+  socketGame.emit('removeGameInvited', {username1: userStore.value.username1,  username2: userStore.value.username2});
   authStore.value.hasGameInvite = false;
+	teardown();
   socketGame.off('playerInvitedDisconnected');
   socketGame.off('playerInviteNo');
   socketGame.off('startingInviteGame');
